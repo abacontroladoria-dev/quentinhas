@@ -1,14 +1,28 @@
 # Quentinhas — Gestão de pedidos semanais
 
-Web app em Google Apps Script + Google Sheets que substitui as enquetes do WhatsApp para pedidos de marmitas.
+Substitui as enquetes do WhatsApp para pedidos de marmitas. Telas no GitHub Pages; dados e regras em Google Apps Script + Google Sheets.
 
 | Perfil | Onde usa | Como se identifica |
 |---|---|---|
-| Funcionário | Link do web app no celular | Escolhe o próprio nome (sem senha) |
-| Cozinha | Link do web app no tablet/PC | Token da cozinha no link (somente leitura) |
+| Funcionário | https://abacontroladoria-dev.github.io/quentinhas/ no celular | Escolhe o próprio nome (sem senha) |
+| Cozinha | `…/quentinhas/cozinha.html?k=<token>` no celular/tablet | Token da cozinha no link (somente leitura) |
 | Administrador | Menu "Quentinhas" dentro da planilha | Conta Google com acesso de edição + e-mail na lista de administradores |
 
-> Status: **Etapas 1 a 6 concluídas** — web app implantado em 14/10/2026 (versão @2). Links em *Quentinhas → Links (funcionários e cozinha)*. Admin inicial: a conta proprietária da planilha.
+> Status: em produção desde 15/10/2026. Links prontos em *Quentinhas → Links (funcionários e cozinha)*. Admin inicial: a conta proprietária da planilha.
+
+## Arquitetura
+
+```
+celular ──► GitHub Pages (index.html, cozinha.html)   montado de src/*.html por scripts/montar-site.js
+              │  fetch POST texto puro {acao, args}, sem cookies
+              ▼
+           Apps Script /exec  (src/Api.js → apiInicio, apiPedidosDoFuncionario, apiSalvarPedidos, apiCozinha)
+              │
+              ▼
+           Planilha "Quentinhas" ◄── menu Quentinhas (administração, src/Admin.html)
+```
+
+As telas saíram do Apps Script porque, servidas por ele, não abrem em navegadores com mais de uma conta Google logada ("Não é possível abrir o arquivo"). O site chama a API sem enviar cookies do Google, então esse problema não ocorre. O link `/exec` continua servindo as mesmas telas (via `google.script.run`, `src/Transporte.html`) como reserva.
 
 ## Documentação
 
@@ -24,9 +38,15 @@ quentinhas/
 ├── package.json          # scripts locais (clasp, testes)
 ├── docs/                 # documentação técnica
 ├── tests/                # testes locais (Node) da lógica pura
+├── scripts/montar-site.js # monta _site/ (GitHub Pages) a partir de src/*.html + web/
+├── web/                  # arquivos só do site: api.js (fetch para a API), icone.svg
+├── .github/workflows/pages.yml # testes + montagem + publicação no Pages a cada push na main
 └── src/                  # tudo que vai para o Apps Script (rootDir do clasp)
     ├── appsscript.json   # manifesto: fuso, escopos, web app
     ├── Code.js           # doGet, roteamento, menu da planilha
+    ├── Api.js            # doPost: API JSON usada pelo site
+    ├── Transporte.html   # google.script.run (telas servidas pelo próprio Apps Script)
+    ├── Tema.html         # tema das telas de pedido e cozinha
     ├── Database.js       # leitura/gravação em lote no Sheets, criação das abas
     ├── Datas.js          # datas yyyy-MM-dd e ciclo terça → segunda
     ├── Funcionarios.js   # cadastro de funcionários
@@ -92,21 +112,29 @@ Depois, na planilha: menu **Quentinhas → Configuração inicial** cria as abas
 - Quem tem acesso: **Qualquer pessoa** (funcionários não precisam de conta Google).
 - Toda autorização é feita no servidor (ver [docs/seguranca.md](docs/seguranca.md)).
 
-Implantação de produção (criada em 14/10/2026):
+Implantação de produção do Apps Script (criada em 14/10/2026), usada como API pelo site:
 
-- Funcionários: https://script.google.com/macros/s/AKfycbx_JKo5ajDM8Mg4Rht-BgtmF3nDamP8cpYvplji8Wtcxm3vXoxXyRx3VXvT8nuFvyQ8_w/exec
-- Cozinha: o mesmo endereço com `?v=cozinha&k=<token>` — pegue o link completo no menu da planilha.
+- `/exec`: https://script.google.com/macros/s/AKfycbx_JKo5ajDM8Mg4Rht-BgtmF3nDamP8cpYvplji8Wtcxm3vXoxXyRx3VXvT8nuFvyQ8_w/exec (endereço fixo em `web/api.js`)
 - Teste (só editores, sempre o código mais recente): https://script.google.com/macros/s/AKfycbysPDRa901yDiqWOW4Ej0nD7YJ0CWHlHqAbHvdIs37P/dev
 
-**Publicar uma alteração** (o `push` sozinho só muda o link `/dev`; o link público continua na versão anterior):
+Site: repositório `abacontroladoria-dev/quentinhas`, publicado pelo GitHub Actions em https://abacontroladoria-dev.github.io/quentinhas/ (endereço fixo em `URL_SITE_`, `src/Cozinha.js`).
+
+**Publicar uma alteração** — são dois destinos:
 
 ```powershell
 npm test
+
+# 1) Apps Script (regras, API, administração). O push sozinho só muda o /dev.
 npx clasp push --force
 npx clasp update-deployment AKfycbx_JKo5ajDM8Mg4Rht-BgtmF3nDamP8cpYvplji8Wtcxm3vXoxXyRx3VXvT8nuFvyQ8_w --description "o que mudou"
+
+# 2) Site (telas): commit + push na main; o Actions testa, monta e publica.
+git add -A; git commit -m "o que mudou"; git push
 ```
 
-O ID da implantação não muda entre versões; ele está fixo em `URL_WEB_APP_` (`src/Cozinha.js`), porque `ScriptApp.getService().getUrl()` devolvia um endereço que não abria.
+Mudança só em `src/Pedido.html`, `src/PainelCozinha.html`, `src/Tema.html` ou `src/JavaScript.html` afeta as telas: precisa do passo 2 (e do 1, se quiser o `/exec` reserva igual). O ID da implantação não muda entre versões.
+
+Prévia local do site: `node scripts/montar-site.js` gera `_site/` (as chamadas vão para a API de produção).
 
 ## Testes locais
 

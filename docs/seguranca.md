@@ -61,3 +61,11 @@ O proprietário autoriza esses escopos uma vez. Admins adicionais autorizam ao u
 ## Cotas (verificar valores atuais na documentação do Google)
 
 Execuções simultâneas por usuário são limitadas; como tudo roda como o proprietário, picos de acesso somam na mesma cota. Para dezenas de funcionários não deve ser problema; será testado na Etapa 6.
+
+## Site no GitHub Pages e API JSON
+
+- As telas de pedido e cozinha são arquivos estáticos públicos (repositório público). Não contêm segredos: o token da cozinha só existe no link entregue à cozinha e em Script Properties.
+- O site chama `doPost` (`src/Api.js`) com `fetch` em texto puro e `credentials: 'omit'`: requisição simples (sem preflight), sem cookies do Google. A resposta do Apps Script libera qualquer origem (`Access-Control-Allow-Origin: *`).
+- Só quatro ações podem ser chamadas (`ACOES_API_`): `apiInicio`, `apiPedidosDoFuncionario`, `apiSalvarPedidos`, `apiCozinha` — as mesmas regras e validações do `google.script.run`. Funções administrativas não estão na lista.
+- Corpo limitado a 20 kB; JSON inválido ou ação desconhecida → `{"ok": false, "erro": ...}`.
+- Páginas com `noindex, nofollow` para ficarem fora de buscadores. Ainda assim, quem tiver o link do site vê a lista de nomes e o cardápio (o mesmo risco aceito do link `/exec`).

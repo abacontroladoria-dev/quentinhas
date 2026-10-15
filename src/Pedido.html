@@ -209,7 +209,9 @@
         var li = criar('li');
         var b = criar('button', undefined, 'nome-btn');
         b.appendChild(criar('span', f.nome));
-        b.appendChild(criar('span', '✓', 'ok'));
+        var marca = criar('span', '✓', 'ok');
+        marca.setAttribute('aria-hidden', 'true');
+        b.appendChild(marca);
         b.onclick = function () { escolherNome(f, b); };
         li.appendChild(b);
         ul.appendChild(li);

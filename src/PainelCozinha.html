@@ -126,7 +126,10 @@
         aviso(el('mensagem'), '', '');
         desenhar();
         agendar(r.atualizacaoSeg);
-      }, el('mensagem'), function () { agendar(60); });
+      }, el('mensagem'), function () {
+        if (!atual) el('titulo').textContent = 'Cozinha';
+        agendar(60);
+      });
     }
 
     function agendar(seg) {
