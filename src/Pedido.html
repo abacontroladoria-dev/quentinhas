@@ -1,0 +1,510 @@
+<style>
+  .app { max-width: 560px; margin: 0 auto; padding: 0 16px 120px; }
+
+  /* Cabeçalho: marca + pessoa */
+  .cabecalho { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 18px 0 14px; }
+  .marca { font-weight: 800; font-size: var(--t1); letter-spacing: -.01em; color: var(--petroleo); }
+  .quem { display: inline-flex; align-items: baseline; gap: .45rem; border: 0; background: none; padding: .4rem 0; cursor: pointer; font-size: var(--t0); }
+  .quem[hidden] { display: none; }
+  .quem strong { font-weight: 600; }
+  .quem span { color: var(--petroleo); text-decoration: underline; text-underline-offset: 3px; }
+
+  h1.titulo { font-size: var(--t4); line-height: 1.12; font-weight: 700; letter-spacing: -.02em; margin: 6px 0 6px; }
+  .intro { color: var(--tinta-suave); font-size: var(--t1); margin-bottom: 22px; }
+  #mensagem:not(:empty) { margin-bottom: 16px; }
+
+  /* Escolha do nome */
+  /* Busca compacta, com lupa e botão de limpar */
+  .campo-busca { position: relative; }
+  .campo-busca svg { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; stroke: var(--tinta-suave); pointer-events: none; }
+  .busca { width: 100%; min-height: 46px; font: inherit; font-size: var(--t1); padding: .55rem 2.75rem .55rem 2.5rem; border: 1.5px solid var(--linha); border-radius: 999px; background: var(--superficie); color: var(--tinta); }
+  .busca::-webkit-search-cancel-button { display: none; }
+  .limpar-busca { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); width: 38px; height: 38px; border: 0; border-radius: 50%; background: transparent; color: var(--tinta-suave); font-size: 20px; line-height: 1; cursor: pointer; }
+  .limpar-busca[hidden] { display: none; }
+
+  /* Lista de chamada: inicial grande à esquerda, nomes do grupo ao lado */
+  .chamada { margin: 18px 0 0; }
+  .grupo-letra { display: grid; grid-template-columns: 2.6rem 1fr; border-top: 1px solid var(--linha); }
+  .grupo-letra:last-child { border-bottom: 1px solid var(--linha); }
+  .grupo-letra .letra { font-size: var(--t3); font-weight: 800; color: var(--petroleo); line-height: 1; padding-top: 12px; }
+  .grupo-letra ul { list-style: none; margin: 0; padding: 0; }
+  .grupo-letra li + li { border-top: 1px solid var(--linha); }
+  .nome-btn { width: 100%; min-height: 50px; display: flex; align-items: center; justify-content: space-between; gap: 10px; text-align: left; border: 0; background: none; font-size: var(--t2); padding: .45rem .6rem; border-radius: var(--raio-controle); cursor: pointer; transition: background-color .15s, color .15s; }
+  .nome-btn .ok { opacity: 0; font-weight: 800; }
+  .nome-btn.escolhido { background: var(--petroleo); color: #fff; }
+  .nome-btn.escolhido .ok { opacity: 1; }
+  .nada { padding: 18px 0; color: var(--tinta-suave); font-size: var(--t1); }
+  .rodape-nomes { margin-top: 18px; font-size: var(--t0); color: var(--tinta-suave); }
+
+  /* Faixa da semana: situação de cada dia num relance */
+  h2.semana { font-size: var(--t1); font-weight: 700; margin: 6px 0 10px; }
+  .faixa { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 18px; }
+  .faixa button { display: grid; justify-items: center; gap: 2px; min-height: 74px; padding: 8px 2px 6px; border: 1.5px solid var(--linha); border-radius: var(--raio-controle); background: var(--superficie); cursor: pointer; }
+  .faixa .abrev { font-size: var(--t-1); color: var(--tinta-suave); }
+  .faixa .num { font-size: var(--t2); font-weight: 700; line-height: 1.1; }
+  .faixa .marca-dia { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--linha-forte); display: grid; place-items: center; font-size: 11px; font-weight: 800; line-height: 1; color: #fff; }
+  .faixa .s-ok .marca-dia { background: var(--verde); border-color: var(--verde); }
+  .faixa .s-nao .marca-dia { border-color: var(--tinta-suave); color: var(--tinta-suave); }
+  .faixa .s-pendente { border-color: var(--ambar); }
+  .faixa .s-pendente .marca-dia { background: var(--ambar); border-color: var(--ambar); }
+  .faixa .s-fechado, .faixa .s-semalmoco { background: transparent; }
+  .faixa .s-fechado .num, .faixa .s-semalmoco .num { color: var(--tinta-suave); font-weight: 600; }
+  .faixa .s-semalmoco .marca-dia { border-style: dashed; }
+
+  /* Dias */
+  .dias { display: grid; gap: 12px; }
+  .dia { scroll-margin-top: 12px; }
+  /* dia aberto: painel com as escolhas */
+  .dia.aberto { background: var(--superficie); border: 1.5px solid var(--linha); border-radius: var(--raio-painel); padding: 16px 16px 14px; }
+  .dia.aberto.alterado { border-color: var(--ambar); }
+  .dia .linha-topo { display: grid; gap: 1px; }
+  .dia .quando { font-weight: 700; font-size: var(--t1); }
+  .dia .prazo { font-size: var(--t-1); color: var(--tinta-suave); }
+  .dia .prato { font-size: var(--t2); line-height: 1.25; margin: 8px 0 14px; }
+  .dia .obs { font-size: var(--t0); color: var(--tinta-suave); margin: -8px 0 12px; }
+  .itens-titulo { font-size: var(--t0); color: var(--tinta-suave); margin: 16px 0 8px; }
+  /* Itens: lista alinhada, um por linha; marcador à direita */
+  .itens { border: 1.5px solid var(--linha); border-radius: var(--raio-controle); overflow: hidden; }
+  .item { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 50px; padding: .55rem .9rem; border: 0; background: var(--superficie); text-align: left; font-size: var(--t1); font-weight: 600; color: var(--tinta); cursor: pointer; }
+  .item + .item { border-top: 1px solid var(--linha); }
+  .item .marcador { flex: none; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: var(--verde); color: #fff; font-size: 15px; font-weight: 800; transition: background-color .18s, border-color .18s; }
+  .item[aria-pressed=false] { background: #FAFBFB; }
+  .item[aria-pressed=false] .nome-item { color: var(--sem); text-decoration: line-through; text-decoration-thickness: 2px; font-weight: 500; }
+  .item[aria-pressed=false] .marcador { background: transparent; border: 2px solid var(--linha-forte); }
+  /* Seletor deslizante Quero / Não quero: a pílula corre até a opção escolhida */
+  .deslizante { position: relative; display: grid; grid-template-columns: 1fr 1fr; padding: 4px; border-radius: 999px; background: #E8EEEF; min-height: 54px; touch-action: pan-y; user-select: none; }
+  .deslizante button { position: relative; z-index: 1; border: 0; background: transparent; border-radius: 999px; font-size: var(--t1); font-weight: 600; color: var(--tinta-suave); cursor: pointer; transition: color .22s; }
+  .deslizante button:focus-visible { outline-offset: -3px; }
+  .deslizante .pilula {
+    position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc(50% - 4px); border-radius: 999px;
+    background: var(--verde); opacity: 0; transform: translateX(0) scale(.92);
+    box-shadow: 0 1px 2px rgba(24, 41, 47, .14), 0 4px 10px rgba(31, 90, 55, .22);
+    transition: transform .28s cubic-bezier(.3, .8, .3, 1), background-color .28s, opacity .18s;
+  }
+  .deslizante[data-valor=sim] .pilula { opacity: 1; transform: translateX(0) scale(1); }
+  .deslizante[data-valor=nao] .pilula { opacity: 1; transform: translateX(100%) scale(1); background: var(--tinta-suave); box-shadow: 0 1px 2px rgba(24, 41, 47, .14), 0 4px 10px rgba(24, 41, 47, .18); }
+  .deslizante[data-valor=sim] .sim,
+  .deslizante[data-valor=nao] .nao { color: #fff; }
+  .nota-dia { font-size: var(--t-1); color: var(--tinta-suave); margin-top: 12px; }
+  .nota-dia.atencao { color: var(--ambar); font-weight: 600; }
+
+  /* dia encerrado ou sem almoço: uma linha */
+  .dia.resumido { display: grid; grid-template-columns: 1fr auto; gap: 2px .75rem; padding: 12px 2px; border-bottom: 1px solid var(--linha); }
+  .dia.resumido .quando { font-weight: 600; font-size: var(--t0); }
+  .dia.resumido .situacao { font-size: var(--t0); color: var(--tinta-suave); text-align: right; }
+  .dia.resumido .detalhe { grid-column: 1 / -1; font-size: var(--t0); color: var(--tinta-suave); }
+
+  /* Barra de salvar */
+  .barra { position: fixed; left: 0; right: 0; bottom: 0; background: var(--superficie); border-top: 1px solid var(--linha); padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); }
+  .barra[hidden] { display: none; }
+  .barra .dentro { max-width: 560px; margin: 0 auto; display: flex; gap: 10px; }
+  .barra .principal { flex: 1; font-size: var(--t1); min-height: 52px; }
+  .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); max-width: calc(100% - 32px); background: var(--petroleo-escuro); color: #fff; padding: .7rem 1.1rem; border-radius: var(--raio-controle); font-weight: 600; box-shadow: 0 6px 20px rgba(21, 68, 82, .25); }
+  .toast[hidden] { display: none; }
+  .carregando { padding: 48px 0; color: var(--tinta-suave); }
+</style>
+
+<div class="app">
+  <header class="cabecalho">
+    <span class="marca">Quentinhas</span>
+    <button class="quem" id="trocar" hidden><strong id="quemNome"></strong><span id="quemAcao">trocar</span></button>
+  </header>
+
+  <div id="mensagem"></div>
+
+  <section id="telaNome" hidden>
+    <h1 class="titulo">Quem é você?</h1>
+    <p class="intro">Toque no seu nome. Na próxima vez ele já vem escolhido.</p>
+    <div class="campo-busca">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 20 20"/></svg>
+      <input type="search" class="busca" id="busca" placeholder="Buscar" autocomplete="off" aria-label="Buscar nome">
+      <button class="limpar-busca" id="limparBusca" aria-label="Limpar busca" hidden>×</button>
+    </div>
+    <div class="chamada" id="nomes"></div>
+    <p class="rodape-nomes">Seu nome não está aqui? Fale com a responsável pelas quentinhas.</p>
+  </section>
+
+  <section id="telaPedidos" hidden>
+    <h1 class="titulo" id="ola"></h1>
+    <p class="intro">Marque os dias em que você quer marmita.</p>
+    <div id="semanas"></div>
+  </section>
+
+  <p class="carregando" id="carregando">Carregando…</p>
+</div>
+
+<div class="barra" id="barra" hidden>
+  <div class="dentro">
+    <button class="botao" id="desfazer">Desfazer</button>
+    <button class="botao principal" id="salvar">Salvar</button>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+  var CHAVE_MEMORIA = 'quentinhas.funcionario';
+  var funcionarios = [];
+  var dados = null;     // resposta de apiPedidosDoFuncionario
+  var escolhas = {};    // data → { quer: true|false|null, retirados: [] } (estado na tela)
+  var timerToast = null;
+
+  function mostrar(tela) {
+    el('carregando').hidden = tela !== 'carregando';
+    el('telaNome').hidden = tela !== 'nome';
+    el('telaPedidos').hidden = tela !== 'pedidos';
+    el('trocar').hidden = tela !== 'pedidos';
+  }
+
+  function toast(texto) {
+    var t = el('toast');
+    t.textContent = texto;
+    t.hidden = false;
+    clearTimeout(timerToast);
+    timerToast = setTimeout(function () { t.hidden = true; }, 3200);
+  }
+
+  // ---------------- escolha do nome ----------------
+  function iniciar() {
+    mostrar('carregando');
+    chamarApi('apiInicio', [], function (r) {
+      funcionarios = r.funcionarios;
+      var salvo = memoria.ler(CHAVE_MEMORIA);
+      var ainda = salvo && funcionarios.filter(function (f) { return f.id === salvo.id; })[0];
+      if (ainda) carregarPedidos(ainda);
+      else telaNome();
+    }, el('mensagem'), function () { mostrar('nome'); });
+  }
+
+  function telaNome() {
+    dados = null;
+    el('barra').hidden = true;
+    el('busca').value = '';
+    desenharNomes();
+    mostrar('nome');
+  }
+
+  /** Lista de chamada: nomes agrupados pela inicial (sem acento), na ordem alfabética do servidor. */
+  function desenharNomes() {
+    var filtro = semAcento(el('busca').value.trim());
+    el('limparBusca').hidden = !filtro;
+    var caixa = el('nomes');
+    caixa.textContent = '';
+    var grupos = [];
+    // Busca pelo começo de qualquer palavra do nome: "la" acha Larissa e Laura, não Pamela.
+    var combina = function (f) {
+      return !filtro || semAcento(f.nome).split(/\s+/).some(function (p) { return p.indexOf(filtro) === 0; }) ||
+        semAcento(f.nome).indexOf(filtro) === 0;
+    };
+    funcionarios.filter(combina).forEach(function (f) {
+      var letra = semAcento(f.nome).charAt(0).toUpperCase();
+      var g = grupos[grupos.length - 1];
+      if (!g || g.letra !== letra) grupos.push(g = { letra: letra, nomes: [] });
+      g.nomes.push(f);
+    });
+    grupos.forEach(function (g) {
+      var bloco = criar('div', undefined, 'grupo-letra');
+      bloco.appendChild(criar('span', g.letra, 'letra'));
+      var ul = criar('ul');
+      g.nomes.forEach(function (f) {
+        var li = criar('li');
+        var b = criar('button', undefined, 'nome-btn');
+        b.appendChild(criar('span', f.nome));
+        b.appendChild(criar('span', '✓', 'ok'));
+        b.onclick = function () { escolherNome(f, b); };
+        li.appendChild(b);
+        ul.appendChild(li);
+      });
+      bloco.appendChild(ul);
+      caixa.appendChild(bloco);
+    });
+    if (!grupos.length) caixa.appendChild(criar('p', 'Nenhum nome com “' + el('busca').value.trim() + '”.', 'nada'));
+  }
+
+  /** Marca o nome tocado por um instante (confirmação visual) e abre os pedidos. */
+  function escolherNome(f, botao) {
+    if (botao.classList.contains('escolhido')) return;
+    botao.classList.add('escolhido');
+    memoria.gravar(CHAVE_MEMORIA, { id: f.id });
+    aviso(el('mensagem'), '', '');
+    var reduzir = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    setTimeout(function () { carregarPedidos(f); }, reduzir ? 0 : 280);
+  }
+
+  el('busca').oninput = desenharNomes;
+  el('limparBusca').onclick = function () { el('busca').value = ''; desenharNomes(); el('busca').focus(); };
+
+  el('trocar').onclick = function () {
+    var b = el('trocar');
+    if (temAlteracoes() && !b.dataset.confirmar) {
+      b.dataset.confirmar = '1';
+      el('quemAcao').textContent = 'sair sem salvar?';
+      return;
+    }
+    delete b.dataset.confirmar;
+    el('quemAcao').textContent = 'trocar';
+    memoria.apagar(CHAVE_MEMORIA);
+    aviso(el('mensagem'), '', '');
+    telaNome();
+  };
+
+  // ---------------- pedidos ----------------
+  function carregarPedidos(f, mensagemOk) {
+    mostrar('carregando');
+    chamarApi('apiPedidosDoFuncionario', [f.id], function (r) {
+      dados = r;
+      escolhas = {};
+      valorExibido = {}; // recarga: nada a animar
+      dados.semanas.forEach(function (s) {
+        s.dias.forEach(function (d) { escolhas[d.data] = estadoOriginal(d); });
+      });
+      var primeiro = dados.funcionario.nome.split(' ')[0];
+      el('quemNome').textContent = dados.funcionario.nome;
+      el('ola').textContent = 'Olá, ' + primeiro;
+      desenharPedidos();
+      mostrar('pedidos');
+      if (mensagemOk) toast(mensagemOk);
+    }, el('mensagem'), function (msg) {
+      // Só esquece o nome se o funcionário não existir mais (não por falha de conexão).
+      if (/Funcionário/.test(msg)) memoria.apagar(CHAVE_MEMORIA);
+      telaNome();
+    });
+  }
+
+  function estadoOriginal(d) {
+    if (!d.pedido) return { quer: null, retirados: [] };
+    return { quer: d.pedido.situacao === 'CONFIRMADO', retirados: d.pedido.retirados.slice() };
+  }
+
+  function chave(lista) { return lista.slice().sort().join('|'); }
+
+  function estadoIgual(d) {
+    var o = estadoOriginal(d);
+    var e = escolhas[d.data];
+    return o.quer === e.quer && chave(o.retirados) === chave(e.retirados);
+  }
+
+  function pendenteRevisao(d) { return d.editavel && d.pedido && d.pedido.revisao === 'PENDENTE'; }
+
+  /** Precisa salvar: mudou algo, ou o cardápio mudou depois do pedido (salvar de novo confirma). */
+  function mudou(d) {
+    var e = escolhas[d.data];
+    if (!d.editavel || e.quer === null) return false;
+    return pendenteRevisao(d) || !estadoIgual(d);
+  }
+
+  function diasAlterados() {
+    var lista = [];
+    if (!dados) return lista;
+    dados.semanas.forEach(function (s) { s.dias.forEach(function (d) { if (mudou(d)) lista.push(d); }); });
+    return lista;
+  }
+  function temAlteracoes() { return diasAlterados().length > 0; }
+
+  /** Situação do dia, usada na faixa da semana e nas linhas resumidas. */
+  function situacao(d) {
+    var e = escolhas[d.data];
+    if (d.tipo !== 'PRATO') return { cod: 'semalmoco', texto: 'Sem almoço', marca: '' };
+    if (d.editavel && !estadoIgual(d)) return { cod: 'pendente', texto: 'Não salvo', marca: '!' };
+    if (pendenteRevisao(d)) return { cod: 'pendente', texto: 'Confira', marca: '!' };
+    if (!d.pedido) return d.editavel ? { cod: 'vazio', texto: 'Ainda não pediu', marca: '' } : { cod: 'fechado', texto: 'Não pediu', marca: '' };
+    if (!e.quer) return { cod: 'nao', texto: 'Sem marmita', marca: '–' };
+    return { cod: 'ok', texto: e.retirados.length ? 'Pedido feito, com ajustes' : 'Pedido feito', marca: '✓' };
+  }
+
+  function desenharPedidos() {
+    var caixa = el('semanas');
+    caixa.textContent = '';
+    var algum = false;
+    dados.semanas.forEach(function (s) {
+      var dias = s.dias;
+      if (!dias.length) return;
+      algum = true;
+      var sec = criar('section');
+      sec.appendChild(criar('h2', 'Semana de ' + intervaloBr(dias[0].data, dias[dias.length - 1].data), 'semana'));
+      sec.appendChild(faixaSemana(dias));
+      var lista = criar('div', undefined, 'dias');
+      dias.forEach(function (d) { lista.appendChild(d.editavel && d.tipo === 'PRATO' ? diaAberto(d) : diaResumido(d)); });
+      sec.appendChild(lista);
+      sec.style.marginBottom = '32px';
+      caixa.appendChild(sec);
+    });
+    if (!algum) caixa.appendChild(criar('p', 'O cardápio desta semana ainda não foi publicado. Volte mais tarde.', 'intro'));
+    atualizarBarra();
+  }
+
+  function faixaSemana(dias) {
+    var nav = criar('nav', undefined, 'faixa');
+    nav.setAttribute('aria-label', 'Dias da semana');
+    dias.forEach(function (d) {
+      var s = situacao(d);
+      var b = criar('button', undefined, 's-' + s.cod);
+      b.appendChild(criar('span', diaAbreviado(d.data), 'abrev'));
+      b.appendChild(criar('span', String(partesData(d.data).dia), 'num'));
+      b.appendChild(criar('span', s.marca, 'marca-dia'));
+      b.setAttribute('aria-label', diaExtenso(d.data) + ': ' + s.texto);
+      b.onclick = function () {
+        var alvo = el('dia-' + d.data);
+        if (alvo) alvo.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+      };
+      nav.appendChild(b);
+    });
+    return nav;
+  }
+
+  function diaResumido(d) {
+    var s = situacao(d);
+    var art = criar('article', undefined, 'dia resumido');
+    art.id = 'dia-' + d.data;
+    art.appendChild(criar('span', maiuscula(diaExtenso(d.data)), 'quando'));
+    art.appendChild(criar('span', d.tipo === 'PRATO' ? s.texto : 'Sem almoço', 'situacao'));
+    var detalhe = criar('p', undefined, 'detalhe');
+    if (d.tipo !== 'PRATO') {
+      detalhe.textContent = d.observacao || 'Não haverá marmita neste dia.';
+    } else {
+      var e = escolhas[d.data];
+      if (d.pedido && e.quer) {
+        // A marmita pedida, na ordem do cardápio, com o que foi retirado riscado no lugar.
+        d.itens.forEach(function (item, i) {
+          if (i) detalhe.appendChild(document.createTextNode(', '));
+          detalhe.appendChild(criar('span', i ? item.toLowerCase() : item, e.retirados.indexOf(item) !== -1 ? 'riscado' : ''));
+        });
+      } else {
+        detalhe.textContent = d.prato.replace(/ \/ /g, ', ');
+      }
+    }
+    art.appendChild(detalhe);
+    return art;
+  }
+
+  function diaAberto(d) {
+    var e = escolhas[d.data];
+    var art = criar('article', undefined, 'dia aberto' + (mudou(d) && !estadoIgual(d) ? ' alterado' : ''));
+    art.id = 'dia-' + d.data;
+
+    var topo = criar('div', undefined, 'linha-topo');
+    topo.appendChild(criar('span', maiuscula(diaExtenso(d.data)), 'quando'));
+    var hoje = d.limite.slice(0, 10) === d.data;
+    topo.appendChild(criar('span', 'Pode mudar até ' + horaBr(d.limite) + (hoje ? '' : ' de ' + dataBr(d.limite)), 'prazo'));
+    art.appendChild(topo);
+    art.appendChild(criar('p', d.prato.replace(/ \/ /g, ', '), 'prato'));
+    if (d.observacao) art.appendChild(criar('p', d.observacao, 'obs'));
+
+    art.appendChild(seletorQuero(d, e));
+
+    if (e.quer === true && d.itens.length > 1) {
+      art.appendChild(criar('p', 'Desmarque o que você não quer:', 'itens-titulo'));
+      var itens = criar('div', undefined, 'itens');
+      d.itens.forEach(function (item) {
+        var vai = e.retirados.indexOf(item) === -1;
+        var b = criar('button', undefined, 'item');
+        b.appendChild(criar('span', item, 'nome-item'));
+        b.appendChild(criar('span', vai ? '✓' : '', 'marcador'));
+        b.setAttribute('aria-pressed', String(vai));
+        b.setAttribute('aria-label', item + (vai ? ', incluído' : ', retirado'));
+        b.onclick = function () {
+          if (vai) e.retirados.push(item);
+          else e.retirados = e.retirados.filter(function (r) { return r !== item; });
+          redesenhar();
+        };
+        itens.appendChild(b);
+      });
+      art.appendChild(itens);
+    }
+
+    if (pendenteRevisao(d)) art.appendChild(criar('p', 'O cardápio deste dia mudou depois do seu pedido. Confira e salve de novo.', 'nota-dia atencao'));
+    else if (d.editavel && !estadoIgual(d)) art.appendChild(criar('p', 'Alteração ainda não salva.', 'nota-dia atencao'));
+    if (d.pedido && d.pedido.atualizado_em) {
+      art.appendChild(criar('p', 'Última alteração em ' + dataBr(d.pedido.atualizado_em) + ' às ' + horaBr(d.pedido.atualizado_em) +
+        (d.pedido.atualizado_por !== 'FUNCIONARIO' ? ', pela administração' : '') + '.', 'nota-dia'));
+    }
+    return art;
+  }
+
+  /**
+   * Seletor deslizante Quero / Não quero. Toque escolhe; arrastar para o lado também.
+   * A tela é redesenhada a cada mudança, então o seletor nasce no valor anterior e desliza até o novo.
+   */
+  var valorExibido = {}; // data → último valor desenhado (para animar a troca)
+  function seletorQuero(d, e) {
+    var caixa = criar('div', undefined, 'deslizante');
+    caixa.setAttribute('role', 'radiogroup');
+    caixa.setAttribute('aria-label', 'Marmita de ' + diaExtenso(d.data));
+    caixa.appendChild(criar('span', undefined, 'pilula'));
+    var botoes = [[true, 'Quero', 'sim'], [false, 'Não quero', 'nao']].map(function (op) {
+      var b = criar('button', op[1], op[2]);
+      b.setAttribute('role', 'radio');
+      b.onclick = function () {
+        if (caixa.dataset.arrastou) { delete caixa.dataset.arrastou; return; }
+        escolher(op[0]);
+      };
+      caixa.appendChild(b);
+      return b;
+    });
+    var mostrar = function (v) {
+      caixa.dataset.valor = v === true ? 'sim' : v === false ? 'nao' : '';
+      botoes[0].setAttribute('aria-checked', String(v === true));
+      botoes[1].setAttribute('aria-checked', String(v === false));
+    };
+    var escolher = function (v) { if (e.quer !== v) { e.quer = v; redesenhar(); } };
+
+    // Arrastar: para a esquerda = Quero, para a direita = Não quero.
+    var x0 = null;
+    caixa.addEventListener('pointerdown', function (ev) { x0 = ev.clientX; });
+    caixa.addEventListener('pointerup', function (ev) {
+      if (x0 === null) return;
+      var dx = ev.clientX - x0;
+      x0 = null;
+      if (Math.abs(dx) < 24) return;
+      caixa.dataset.arrastou = '1';
+      setTimeout(function () { delete caixa.dataset.arrastou; }, 0);
+      escolher(dx < 0);
+    });
+    caixa.addEventListener('pointercancel', function () { x0 = null; });
+
+    var antes = Object.prototype.hasOwnProperty.call(valorExibido, d.data) ? valorExibido[d.data] : e.quer;
+    mostrar(antes);
+    if (antes !== e.quer) requestAnimationFrame(function () { requestAnimationFrame(function () { mostrar(e.quer); }); });
+    valorExibido[d.data] = e.quer;
+    return caixa;
+  }
+
+  function redesenhar() {
+    var rolagem = window.scrollY;
+    desenharPedidos();
+    window.scrollTo(0, rolagem);
+  }
+
+  function atualizarBarra() {
+    var n = diasAlterados().length;
+    el('barra').hidden = n === 0;
+    el('salvar').textContent = n === 1 ? 'Salvar 1 dia' : 'Salvar ' + n + ' dias';
+  }
+
+  el('desfazer').onclick = function () {
+    dados.semanas.forEach(function (s) { s.dias.forEach(function (d) { escolhas[d.data] = estadoOriginal(d); }); });
+    redesenhar();
+  };
+
+  el('salvar').onclick = function () {
+    var dias = diasAlterados();
+    if (!dias.length) return;
+    var botoes = [el('salvar'), el('desfazer')];
+    botoes.forEach(function (b) { b.disabled = true; });
+    el('salvar').textContent = 'Salvando…';
+    aviso(el('mensagem'), '', '');
+    var alteracoes = dias.map(function (d) {
+      var e = escolhas[d.data];
+      return { data: d.data, quer: e.quer, retirados: e.quer ? e.retirados : [] };
+    });
+    chamarApi('apiSalvarPedidos', [dados.funcionario.id, alteracoes], function () {
+      botoes.forEach(function (b) { b.disabled = false; });
+      carregarPedidos(dados.funcionario, 'Pedido salvo.');
+    }, el('mensagem'), function () {
+      botoes.forEach(function (b) { b.disabled = false; });
+      atualizarBarra();
+      window.scrollTo(0, 0);
+    });
+  };
+
+  iniciar();
+</script>

@@ -1,0 +1,57 @@
+<script>
+  // Funções de interface compartilhadas pelas telas do web app. Todo texto entra via textContent.
+  var el = function (id) { return document.getElementById(id); };
+
+  function criar(tag, texto, classe) {
+    var n = document.createElement(tag);
+    if (texto !== undefined && texto !== null) n.textContent = texto;
+    if (classe) n.className = classe;
+    return n;
+  }
+
+  function aviso(alvo, tipo, texto) {
+    alvo.textContent = '';
+    if (texto) alvo.appendChild(criar('div', texto, 'aviso ' + tipo));
+  }
+
+  // chamarApi(fn, args, ok, alvoErro, aoFalhar) vem de Transporte.html (Apps Script) ou de web/api.js (GitHub Pages).
+
+  /** localStorage pode não existir ou falhar (navegação privada, iframe): nunca quebra a tela. */
+  var memoria = {
+    ler: function (chave) { try { return JSON.parse(window.localStorage.getItem(chave)); } catch (e) { return null; } },
+    gravar: function (chave, valor) { try { window.localStorage.setItem(chave, JSON.stringify(valor)); } catch (e) { /* ignora */ } },
+    apagar: function (chave) { try { window.localStorage.removeItem(chave); } catch (e) { /* ignora */ } }
+  };
+
+  function dataBr(iso) { var p = String(iso).slice(0, 10).split('-'); return p[2] + '/' + p[1]; }
+  function horaDe(iso) { return String(iso).slice(11, 16); }
+
+  var DIAS_SEMANA = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
+  var MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+  function partesData(iso) {
+    var p = String(iso).slice(0, 10).split('-').map(Number);
+    return { ano: p[0], mes: p[1], dia: p[2], semana: new Date(Date.UTC(p[0], p[1] - 1, p[2])).getUTCDay() };
+  }
+  /** "quinta, 15 de outubro" */
+  function diaExtenso(iso) { var d = partesData(iso); return DIAS_SEMANA[d.semana] + ', ' + d.dia + ' de ' + MESES[d.mes - 1]; }
+  /** "Ter" */
+  function diaAbreviado(iso) { var n = DIAS_SEMANA[partesData(iso).semana]; return n.charAt(0).toUpperCase() + n.slice(1, 3); }
+  /** "9h30", "12h" a partir de 'yyyy-MM-ddTHH:mm' */
+  function horaBr(iso) {
+    var h = String(iso).slice(11, 13), m = String(iso).slice(14, 16);
+    return Number(h) + 'h' + (m === '00' ? '' : m);
+  }
+  /** "13 a 19 de outubro" ou "28 de outubro a 3 de novembro" */
+  function intervaloBr(isoIni, isoFim) {
+    var a = partesData(isoIni), b = partesData(isoFim);
+    return a.mes === b.mes ? a.dia + ' a ' + b.dia + ' de ' + MESES[b.mes - 1]
+      : a.dia + ' de ' + MESES[a.mes - 1] + ' a ' + b.dia + ' de ' + MESES[b.mes - 1];
+  }
+  function maiuscula(t) { t = String(t); return t.charAt(0).toUpperCase() + t.slice(1); }
+  /** "a, b e c" */
+  function listaBr(itens) {
+    if (itens.length < 2) return itens.join('');
+    return itens.slice(0, -1).join(', ') + ' e ' + itens[itens.length - 1];
+  }
+  function semAcento(t) { return String(t).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }
+</script>

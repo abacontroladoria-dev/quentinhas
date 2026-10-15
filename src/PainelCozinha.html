@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <?!= include_('Tema'); ?>
+  <?!= include_('JavaScript'); ?>
+  <?!= include_('Transporte'); ?>
+  <style>
+    .app { max-width: 760px; margin: 0 auto; padding: 0 16px 40px; }
+
+    /* Barra do dia: presa no topo ao rolar */
+    .barra-dia { position: sticky; top: 0; z-index: 5; background: var(--papel); display: grid; grid-template-columns: 48px 1fr 48px; align-items: center; gap: 8px; padding: 10px 0 8px; border-bottom: 1px solid var(--linha); }
+    .barra-dia button { min-height: 48px; border: 1.5px solid var(--linha-forte); border-radius: var(--raio-controle); background: var(--superficie); font-size: var(--t2); cursor: pointer; }
+    .barra-dia button:disabled { opacity: .35; cursor: default; }
+    .barra-dia h1 { text-align: center; font-size: var(--t1); font-weight: 700; line-height: 1.2; }
+    .barra-dia h1 small { display: block; font-size: var(--t-1); font-weight: 400; color: var(--tinta-suave); margin-top: 2px; }
+
+    .prazo { margin: 14px 0 0; }
+    .cabeca { margin: 18px 0 18px; }
+    .contagem { font-size: var(--t4); font-weight: 800; letter-spacing: -.02em; line-height: 1.1; color: var(--petroleo); }
+    .contagem span { color: var(--tinta); font-weight: 600; }
+    .prato-dia { font-size: var(--t2); margin-top: 6px; line-height: 1.3; }
+    .obs { color: var(--tinta-suave); margin-top: 4px; }
+
+    .controles { display: grid; grid-template-columns: 1fr auto; gap: 10px; margin-bottom: 22px; }
+
+    /* Resumo */
+    section.parte { margin-bottom: 26px; }
+    section.parte h2 { font-size: var(--t1); font-weight: 700; margin-bottom: 8px; }
+    section.parte h2 span { color: var(--tinta-suave); font-weight: 500; }
+    .quantidades { width: 100%; border-collapse: collapse; background: var(--superficie); border: 1.5px solid var(--linha); border-radius: var(--raio-painel); overflow: hidden; }
+    .quantidades td { padding: 12px 14px; border-bottom: 1px solid var(--linha); font-size: var(--t1); }
+    .quantidades tr:last-child td { border-bottom: 0; }
+    .quantidades td.n { text-align: right; font-weight: 800; font-size: var(--t2); width: 3.5em; }
+    .quantidades td.menos { text-align: right; color: var(--sem); font-size: var(--t0); width: 5.5em; white-space: nowrap; }
+    .ajustes { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--linha); }
+    .ajustes li { padding: 10px 2px; border-bottom: 1px solid var(--linha); font-size: var(--t1); }
+    .ajustes strong { font-weight: 700; }
+    .sem-texto { color: var(--sem); font-weight: 700; }
+    .checklist .itens .riscado { font-weight: 700; }
+    .nomes-corridos { font-size: var(--t1); line-height: 1.6; }
+    .vazio { color: var(--tinta-suave); }
+    .marcador { display: inline-block; font-size: var(--t-1); background: var(--ambar-fundo); color: var(--ambar); border-radius: 6px; padding: 0 6px; margin-left: 6px; vertical-align: 2px; }
+
+    /* Por pessoa: checklist de montagem */
+    .progresso { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin: -8px 0 10px; }
+    .progresso p { font-size: var(--t0); color: var(--tinta-suave); }
+    .checklist { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--linha); }
+    .checklist button { width: 100%; display: grid; grid-template-columns: 32px 1fr; gap: 12px; align-items: start; text-align: left; border: 0; border-bottom: 1px solid var(--linha); background: none; padding: 14px 2px; cursor: pointer; }
+    .checklist .caixa { width: 28px; height: 28px; border: 2px solid var(--linha-forte); border-radius: 8px; display: grid; place-items: center; color: #fff; font-weight: 800; margin-top: 1px; }
+    .checklist .nome { display: block; font-size: var(--t2); font-weight: 700; line-height: 1.2; }
+    .checklist .itens { display: block; font-size: var(--t1); margin-top: 4px; line-height: 1.45; }
+    .checklist .completa { display: block; font-size: var(--t-1); color: var(--tinta-suave); margin-top: 2px; }
+    .checklist button[aria-pressed=true] .caixa { background: var(--petroleo); border-color: var(--petroleo); }
+    .checklist button[aria-pressed=true] .nome,
+    .checklist button[aria-pressed=true] .itens { color: var(--tinta-suave); }
+    .checklist button[aria-pressed=true] .riscado { color: var(--tinta-suave); }
+
+    /* Impressão: folha do dia com quantidades e checklist */
+    #impressao { display: none; }
+    /* Todos os blocos ocupam exatamente a mesma largura: nada de bordas laterais somando à largura. */
+    @media print {
+      @page { size: A4; margin: 14mm 14mm 14mm 14mm; }
+      html, body { background: #fff; margin: 0; padding: 0; }
+      .app { display: none; }
+      #impressao { display: block; width: 100%; color: #000; font-size: 11pt; line-height: 1.35; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      #impressao * { box-sizing: border-box; }
+
+      #impressao .topo { display: flex; justify-content: space-between; align-items: baseline; gap: 12pt; border-bottom: 1.5pt solid #000; padding-bottom: 5pt; }
+      #impressao .topo h1 { font-size: 17pt; font-weight: 700; margin: 0; }
+      #impressao .topo .total { font-size: 17pt; font-weight: 800; white-space: nowrap; }
+      #impressao .prato { font-size: 12pt; margin: 6pt 0 0; }
+      #impressao .nota { font-size: 9.5pt; color: #444; margin: 2pt 0 0; }
+
+      #impressao h2 { font-size: 12pt; font-weight: 700; margin: 16pt 0 4pt; }
+      #impressao table { width: 100%; table-layout: fixed; border-collapse: collapse; }
+      #impressao td { padding: 5pt 0; border-bottom: 0.5pt solid #bbb; vertical-align: top; text-align: left; }
+      #impressao tr:last-child td { border-bottom: 0; }
+      #impressao tr { break-inside: avoid; page-break-inside: avoid; }
+
+      #impressao .q td { font-size: 11.5pt; }
+      #impressao .q td.n { text-align: right; font-weight: 800; font-size: 12.5pt; }
+      #impressao .q td.menos { text-align: right; color: #444; font-size: 10pt; padding-right: 8pt; }
+
+      #impressao .m td { font-size: 11.5pt; padding: 6pt 0; }
+      #impressao .m td.caixa { padding-top: 7.5pt; }
+      #impressao .m .quadrado { display: block; width: 11pt; height: 11pt; border: 1.2pt solid #000; border-radius: 2pt; }
+      #impressao .m td.nome { font-weight: 700; padding-right: 8pt; }
+      #impressao .m td.marmita { color: #333; }
+      #impressao .sem-texto { color: #000; font-weight: 800; }
+
+      #impressao .rodape { margin-top: 12pt; font-size: 10pt; color: #333; }
+      #impressao .rodape p { margin: 2pt 0 0; }
+    }
+  </style>
+</head>
+<body data-k="<?= token ?>">
+  <div class="app">
+    <header class="barra-dia">
+      <button id="anterior" aria-label="Dia anterior">‹</button>
+      <h1 id="titulo">Carregando…</h1>
+      <button id="proximo" aria-label="Próximo dia">›</button>
+    </header>
+    <div id="mensagem" class="prazo"></div>
+    <main id="conteudo"></main>
+  </div>
+  <div id="impressao"></div>
+
+  <script>
+    // Apps Script: token vem do template; site (GitHub Pages): vem do endereço (?k=...).
+    var TOKEN = document.body.dataset.k || new URLSearchParams(location.search).get('k') || '';
+    var atual = null;       // resposta de apiCozinha
+    var dataEscolhida = ''; // vazio = dia padrão (hoje ou o próximo)
+    var timer = null;
+    var visao = memoria.ler('quentinhas.cozinha.visao') === 'pessoa' ? 'pessoa' : 'resumo';
+
+    // Marmitas já montadas: guardadas só neste aparelho, por dia (sobrevivem à atualização automática).
+    function chaveMontadas(data) { return 'quentinhas.cozinha.montadas.' + data; }
+    function lerMontadas(data) { var v = memoria.ler(chaveMontadas(data)); return Array.isArray(v) ? v : []; }
+
+    function carregar() {
+      chamarApi('apiCozinha', [TOKEN, dataEscolhida], function (r) {
+        atual = r;
+        aviso(el('mensagem'), '', '');
+        desenhar();
+        agendar(r.atualizacaoSeg);
+      }, el('mensagem'), function () { agendar(60); });
+    }
+
+    function agendar(seg) {
+      clearTimeout(timer);
+      timer = setTimeout(carregar, seg * 1000);
+    }
+
+    function irPara(delta) {
+      if (!atual || !atual.data) return;
+      var i = atual.datas.map(function (d) { return d.data; }).indexOf(atual.data) + delta;
+      if (i < 0 || i >= atual.datas.length) return;
+      dataEscolhida = atual.datas[i].data;
+      el('titulo').textContent = 'Carregando…';
+      carregar();
+    }
+    el('anterior').onclick = function () { irPara(-1); };
+    el('proximo').onclick = function () { irPara(1); };
+
+    /** Itens da marmita em ordem de montagem; os retirados ficam riscados no lugar. */
+    function linhaItens(itens, retirados, alvo) {
+      itens.forEach(function (item, i) {
+        if (i) alvo.appendChild(document.createTextNode(', '));
+        var fora = retirados.indexOf(item) !== -1;
+        alvo.appendChild(criar('span', i ? item.toLowerCase() : item, fora ? 'riscado' : ''));
+      });
+      return alvo;
+    }
+
+    function desenhar() {
+      var r = atual;
+      var c = el('conteudo');
+      c.textContent = '';
+      var idx = r.datas.map(function (d) { return d.data; }).indexOf(r.data);
+      el('anterior').disabled = idx <= 0;
+      el('proximo').disabled = idx === -1 || idx >= r.datas.length - 1;
+
+      var titulo = el('titulo');
+      titulo.textContent = '';
+      if (!r.data) {
+        titulo.textContent = 'Cozinha';
+        c.appendChild(criar('p', 'Nenhum cardápio publicado para esta semana.', 'cabeca vazio'));
+        el('impressao').textContent = '';
+        return;
+      }
+      titulo.appendChild(document.createTextNode(maiuscula(diaExtenso(r.data))));
+      titulo.appendChild(criar('small', 'Atualizado às ' + horaBr(r.geradoEm)));
+
+      var s = r.resumo;
+      var prazo = criar('div', r.aberto
+        ? 'Pedidos abertos até ' + horaBr(r.limite) + (r.limite.slice(0, 10) !== r.data ? ' de ' + dataBr(r.limite) : '') + '. Os números ainda podem mudar.'
+        : 'Pedidos encerrados. Números finais.', 'aviso ' + (r.aberto ? 'alerta' : 'ok') + ' prazo');
+      c.appendChild(prazo);
+
+      var cabeca = criar('div', undefined, 'cabeca');
+      var contagem = criar('p', undefined, 'contagem');
+      contagem.appendChild(document.createTextNode(String(s.total) + ' '));
+      contagem.appendChild(criar('span', s.total === 1 ? 'marmita' : 'marmitas'));
+      cabeca.appendChild(contagem);
+      cabeca.appendChild(criar('p', r.prato.replace(/ \/ /g, ', '), 'prato-dia'));
+      if (r.observacao) cabeca.appendChild(criar('p', r.observacao, 'obs'));
+      c.appendChild(cabeca);
+
+      var controles = criar('div', undefined, 'controles');
+      var seg = criar('div', undefined, 'segmentado');
+      [['resumo', 'Resumo'], ['pessoa', 'Por pessoa']].forEach(function (v) {
+        var b = criar('button', v[1]);
+        b.setAttribute('aria-pressed', String(visao === v[0]));
+        b.onclick = function () { visao = v[0]; memoria.gravar('quentinhas.cozinha.visao', visao); desenhar(); };
+        seg.appendChild(b);
+      });
+      controles.appendChild(seg);
+      var imprimir = criar('button', 'Imprimir', 'botao');
+      imprimir.onclick = function () { window.print(); };
+      controles.appendChild(imprimir);
+      c.appendChild(controles);
+
+      if (visao === 'pessoa') desenharPorPessoa(c, r); else desenharResumo(c, r);
+      desenharImpressao(r);
+    }
+
+    function parte(titulo, n) {
+      var sec = criar('section', undefined, 'parte');
+      var h = criar('h2', titulo);
+      if (n !== undefined) h.appendChild(criar('span', ' ' + n));
+      sec.appendChild(h);
+      return sec;
+    }
+
+    function desenharResumo(c, r) {
+      var s = r.resumo;
+      var q = parte('Quantidade por item');
+      if (!s.total) q.appendChild(criar('p', 'Nenhum pedido ainda.', 'vazio'));
+      else {
+        var t = criar('table', undefined, 'quantidades');
+        s.itens.forEach(function (i) {
+          var tr = criar('tr');
+          tr.appendChild(criar('td', i.item));
+          tr.appendChild(criar('td', i.quantidade < s.total ? (s.total - i.quantidade) + ' sem' : '', 'menos'));
+          tr.appendChild(criar('td', String(i.quantidade), 'n'));
+          t.appendChild(tr);
+        });
+        q.appendChild(t);
+      }
+      c.appendChild(q);
+
+      var aj = parte('Com ajustes', s.personalizadas.length);
+      if (!s.personalizadas.length) aj.appendChild(criar('p', 'Nenhuma marmita com ajustes.', 'vazio'));
+      else {
+        var ul = criar('ul', undefined, 'ajustes');
+        s.personalizadas.forEach(function (x) {
+          var li = criar('li');
+          li.appendChild(criar('strong', x.nome));
+          li.appendChild(document.createTextNode(': '));
+          li.appendChild(criar('span', 'sem ' + listaBr(x.retirados.map(function (i) { return i.toLowerCase(); })), 'sem-texto'));
+          if (x.revisao) li.appendChild(criar('span', 'cardápio mudou', 'marcador'));
+          ul.appendChild(li);
+        });
+        aj.appendChild(ul);
+      }
+      c.appendChild(aj);
+
+      var comp = parte('Completas', s.completas.length);
+      comp.appendChild(criar('p', s.completas.length ? listaBr(s.completas.map(function (x) { return x.nome; })) + '.' : 'Nenhuma.', s.completas.length ? 'nomes-corridos' : 'vazio'));
+      c.appendChild(comp);
+
+      var nq = parte('Não querem', s.naoQuerem.length);
+      nq.appendChild(criar('p', s.naoQuerem.length ? listaBr(s.naoQuerem) + '.' : 'Ninguém.', s.naoQuerem.length ? 'nomes-corridos' : 'vazio'));
+      c.appendChild(nq);
+
+      var sr = parte('Sem resposta', s.semResposta.length);
+      sr.appendChild(criar('p', s.semResposta.length ? listaBr(s.semResposta) + '.' : 'Todos responderam.', s.semResposta.length ? 'nomes-corridos suave' : 'vazio'));
+      c.appendChild(sr);
+    }
+
+    /** Checklist de montagem: uma linha por pessoa, tocar marca como montada. */
+    function desenharPorPessoa(c, r) {
+      var s = r.resumo;
+      if (!s.pessoas.length) { c.appendChild(criar('p', 'Nenhum pedido para este dia.', 'vazio')); return; }
+      var montadas = lerMontadas(r.data);
+      var topo = criar('div', undefined, 'progresso');
+      var texto = criar('p');
+      var limpar = criar('button', 'Desmarcar todas', 'botao discreto');
+      limpar.onclick = function () { memoria.apagar(chaveMontadas(r.data)); desenhar(); };
+      topo.appendChild(texto);
+      topo.appendChild(limpar);
+      c.appendChild(topo);
+
+      var atualizarProgresso = function () {
+        var n = s.pessoas.filter(function (x) { return montadas.indexOf(x.id) !== -1; }).length;
+        texto.textContent = n + ' de ' + s.pessoas.length + ' montadas';
+        limpar.hidden = n === 0;
+      };
+
+      var ul = criar('ul', undefined, 'checklist');
+      s.pessoas.forEach(function (x) {
+        var li = criar('li');
+        var b = criar('button');
+        b.setAttribute('aria-pressed', String(montadas.indexOf(x.id) !== -1));
+        b.appendChild(criar('span', montadas.indexOf(x.id) !== -1 ? '✓' : '', 'caixa'));
+        var corpo = criar('span');
+        corpo.appendChild(criar('span', x.nome, 'nome'));
+        corpo.appendChild(linhaItens(s.itens.map(function (i) { return i.item; }), x.retirados, criar('span', undefined, 'itens')));
+        if (!x.retirados.length) corpo.appendChild(criar('span', 'Completa', 'completa'));
+        if (x.revisao) corpo.appendChild(criar('span', 'Pediu antes de o cardápio mudar', 'completa'));
+        b.appendChild(corpo);
+        b.onclick = function () {
+          var i = montadas.indexOf(x.id);
+          if (i === -1) montadas.push(x.id); else montadas.splice(i, 1);
+          memoria.gravar(chaveMontadas(r.data), montadas);
+          b.setAttribute('aria-pressed', String(i === -1));
+          b.firstChild.textContent = i === -1 ? '✓' : '';
+          atualizarProgresso();
+        };
+        li.appendChild(b);
+        ul.appendChild(li);
+      });
+      c.appendChild(ul);
+      atualizarProgresso();
+    }
+
+    /** Folha impressa: quantidades + checklist com caixinhas para riscar à mão. */
+    function desenharImpressao(r) {
+      var s = r.resumo;
+      var p = el('impressao');
+      p.textContent = '';
+
+      var topo = criar('div', undefined, 'topo');
+      topo.appendChild(criar('h1', maiuscula(diaExtenso(r.data))));
+      topo.appendChild(criar('span', s.total + (s.total === 1 ? ' marmita' : ' marmitas'), 'total'));
+      p.appendChild(topo);
+      p.appendChild(criar('p', r.prato.replace(/ \/ /g, ', '), 'prato'));
+      p.appendChild(criar('p', r.aberto
+        ? 'Impresso às ' + horaBr(r.geradoEm) + ', com os pedidos ainda abertos até ' + horaBr(r.limite) + '.'
+        : 'Impresso às ' + horaBr(r.geradoEm) + '. Pedidos encerrados.', 'nota'));
+
+      // Larguras fixas por coluna: o texto e os números terminam sempre na mesma margem.
+      var tabela = function (classe, larguras) {
+        var t = criar('table', undefined, classe);
+        var cg = criar('colgroup');
+        larguras.forEach(function (w) { var c = criar('col'); if (w) c.style.width = w; cg.appendChild(c); });
+        t.appendChild(cg);
+        return t;
+      };
+
+      p.appendChild(criar('h2', 'Quantidades'));
+      var tq = tabela('q', ['', '22%', '12%']);
+      s.itens.forEach(function (i) {
+        var tr = criar('tr');
+        tr.appendChild(criar('td', i.item));
+        tr.appendChild(criar('td', i.quantidade < s.total ? (s.total - i.quantidade) + ' sem' : '', 'menos'));
+        tr.appendChild(criar('td', String(i.quantidade), 'n'));
+        tq.appendChild(tr);
+      });
+      p.appendChild(tq);
+
+      p.appendChild(criar('h2', 'Montagem'));
+      var tm = tabela('m', ['7%', '38%', '']);
+      s.pessoas.forEach(function (x) {
+        var tr = criar('tr');
+        var caixa = criar('td', undefined, 'caixa');
+        caixa.appendChild(criar('span', undefined, 'quadrado'));
+        tr.appendChild(caixa);
+        tr.appendChild(criar('td', x.nome, 'nome'));
+        var td = criar('td', undefined, 'marmita');
+        if (!x.retirados.length) td.textContent = 'Completa';
+        else td.appendChild(criar('span', 'Sem ' + listaBr(x.retirados.map(function (i) { return i.toLowerCase(); })), 'sem-texto'));
+        tr.appendChild(td);
+        tm.appendChild(tr);
+      });
+      if (!s.pessoas.length) {
+        var tr = criar('tr');
+        var td = criar('td', 'Nenhum pedido.');
+        td.colSpan = 3;
+        tr.appendChild(td);
+        tm.appendChild(tr);
+      }
+      p.appendChild(tm);
+
+      var rodape = criar('div', undefined, 'rodape');
+      if (s.naoQuerem.length) rodape.appendChild(criar('p', 'Não querem: ' + listaBr(s.naoQuerem) + '.'));
+      if (r.aberto && s.semResposta.length) rodape.appendChild(criar('p', 'Ainda sem resposta: ' + listaBr(s.semResposta) + '.'));
+      p.appendChild(rodape);
+    }
+
+    carregar();
+  </script>
+</body>
+</html>

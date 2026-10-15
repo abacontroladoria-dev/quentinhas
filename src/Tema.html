@@ -1,0 +1,78 @@
+<!-- Tema das telas do web app (Pedido e Cozinha). O diálogo de administração usa Styles.html. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Duas folhas separadas: se a versão "Next" não carregar, a clássica continua valendo. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;500;600;700;800&display=swap">
+<style>
+  :root {
+    color-scheme: light;
+    --papel: #F5F7F7;
+    --superficie: #FFFFFF;
+    --tinta: #18292F;
+    --tinta-suave: #566A71;
+    --linha: #DCE4E6;
+    --linha-forte: #B9C8CC;
+    --petroleo: #1E5A6E;
+    --petroleo-escuro: #154452;
+    --petroleo-claro: #E4EEF1;
+    --verde: #2D7A4B;        /* seleções na tela de pedido */
+    --verde-escuro: #1F5A37;
+    --verde-claro: #E5F2EA;
+    --ambar: #7E520A;
+    --ambar-fundo: #FBF1DC;
+    --sem: #A8322D;
+    --sem-fundo: #FBECEA;
+
+    --fonte: "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+    /* escala (base 16): 13 · 15 · 17 · 20 · 26 · 34 */
+    --t-1: .8125rem; --t0: .9375rem; --t1: 1.0625rem; --t2: 1.25rem; --t3: 1.625rem; --t4: 2.125rem;
+    --raio-controle: 10px;
+    --raio-painel: 14px;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--papel);
+    color: var(--tinta);
+    font-family: var(--fonte);
+    font-size: 1rem;
+    line-height: 1.45;
+    font-variant-numeric: tabular-nums;
+  }
+  h1, h2, h3, p { margin: 0; }
+  button { font: inherit; color: inherit; }
+  :focus-visible { outline: 3px solid var(--petroleo); outline-offset: 2px; border-radius: 4px; }
+  .suave { color: var(--tinta-suave); }
+
+  /* Botões */
+  .botao {
+    display: inline-flex; align-items: center; justify-content: center; gap: .4rem;
+    min-height: 48px; padding: .6rem 1.1rem;
+    border: 1.5px solid var(--linha-forte); border-radius: var(--raio-controle);
+    background: var(--superficie); color: var(--tinta);
+    font-weight: 600; cursor: pointer;
+  }
+  .botao:disabled { opacity: .5; cursor: default; }
+  .botao.principal { background: var(--petroleo); border-color: var(--petroleo); color: #fff; }
+  .botao.principal:active { background: var(--petroleo-escuro); }
+  .botao.discreto { border-color: transparent; background: transparent; color: var(--petroleo); padding-inline: .6rem; }
+
+  /* Seletor de duas opções (Quero / Não quero, Resumo / Por pessoa) */
+  .segmentado { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; border: 1.5px solid var(--linha-forte); border-radius: var(--raio-controle); overflow: hidden; background: var(--superficie); }
+  .segmentado button { min-height: 46px; border: 0; background: transparent; font-weight: 600; cursor: pointer; padding: .5rem .75rem; }
+  .segmentado button + button { border-left: 1.5px solid var(--linha-forte); }
+  .segmentado button[aria-pressed=true] { background: var(--petroleo); color: #fff; }
+
+  /* Item retirado: riscado em vermelho, o mesmo sinal nas duas telas */
+  .riscado { color: var(--sem); text-decoration: line-through; text-decoration-thickness: 2px; }
+
+  /* Avisos */
+  .aviso { border-radius: var(--raio-controle); padding: .7rem .9rem; font-size: var(--t0); }
+  .aviso.ok { background: var(--petroleo-claro); color: var(--petroleo-escuro); }
+  .aviso.erro { background: var(--sem-fundo); color: var(--sem); }
+  .aviso.alerta { background: var(--ambar-fundo); color: var(--ambar); }
+
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>

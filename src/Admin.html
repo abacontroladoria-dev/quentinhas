@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <?!= include_('Styles'); ?>
+  <style>
+    body { padding: 0 6px 16px; }
+    nav.abas { display: flex; gap: .25rem; border-bottom: 1px solid var(--line); margin-bottom: 1rem; position: sticky; top: 0; background: var(--bg); z-index: 2; }
+    nav.abas button { border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: none; padding: .6rem .9rem; color: var(--muted); }
+    nav.abas button[aria-selected=true] { color: var(--text); border-bottom-color: var(--accent); font-weight: 600; }
+    .painel[hidden] { display: none; }
+    .grade { display: grid; grid-template-columns: 1fr 1.4fr; gap: 1.25rem; align-items: start; }
+    .acoes { display: flex; gap: .5rem; margin-top: .75rem; align-items: center; flex-wrap: wrap; }
+    .acoes .espaco { flex: 1; }
+    .lista { max-height: 470px; overflow-y: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+    .lista table th { position: sticky; top: 0; background: var(--surface); z-index: 1; }
+    td.botoes { white-space: nowrap; text-align: right; }
+    td.botoes button + button { margin-left: .3rem; }
+    .cabecalho-lista { display: flex; justify-content: space-between; align-items: center; gap: .75rem; margin-bottom: .4rem; }
+    label.filtro { font-size: .85rem; color: var(--muted); white-space: nowrap; }
+    label.campo { display: block; margin: .6rem 0 .2rem; font-weight: 600; font-size: .9rem; }
+    select { font: inherit; width: 100%; border: 1px solid var(--line); border-radius: var(--radius); padding: .4rem .5rem; background: var(--surface); color: var(--text); }
+    details { margin-top: 1rem; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 600; }
+    .nota { font-size: .88rem; color: var(--muted); margin: .25rem 0 .5rem; }
+    .sub { font-size: .82rem; color: var(--muted); margin-top: .2rem; }
+    .alternador { display: inline-flex; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+    .alternador button { border: 0; border-radius: 0; padding: .35rem .8rem; }
+    .alternador button[aria-pressed=true] { background: var(--accent); color: var(--accent-text); }
+
+    /* Cardápio */
+    .semana-nav { display: flex; align-items: center; gap: .75rem; margin-bottom: .75rem; }
+    .semana-nav h2 { margin: 0; flex: 1; }
+    .etiqueta.rascunho { background: var(--warn-bg); }
+    .etiqueta.nova { background: var(--line); color: var(--muted); }
+    table.semana td { padding: .6rem .5rem; vertical-align: top; }
+    table.semana td.dia { width: 120px; }
+    table.semana td.dia strong { display: block; }
+    table.semana td.obs { width: 160px; }
+    tr.sem-almoco td { background: #f4f2ec; }
+    .acomp { display: flex; flex-wrap: wrap; gap: .3rem; align-items: center; margin-top: .4rem; }
+    .chip { display: inline-flex; align-items: center; gap: .2rem; background: var(--ok-bg); border-radius: 999px; padding: .1rem .2rem .1rem .6rem; font-size: .85rem; }
+    .chip button { border: 0; background: none; padding: 0 .35rem; line-height: 1.2; font-size: 1rem; color: var(--muted); }
+    .acomp select { width: auto; max-width: 220px; font-size: .85rem; padding: .15rem .3rem; }
+    .marca { font-size: .78rem; color: var(--muted); }
+
+    /* Pratos */
+    .caixa-opcoes { max-height: 190px; overflow-y: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); padding: .3rem .5rem; }
+    .caixa-opcoes label { display: block; font-size: .9rem; padding: .1rem 0; }
+    #colagemPratos, #novos { min-height: 200px; resize: vertical; }
+  </style>
+</head>
+<body>
+  <nav class="abas" role="tablist">
+    <button role="tab" data-aba="cardapio" aria-selected="true">Cardápio da semana</button>
+    <button role="tab" data-aba="pratos" aria-selected="false">Pratos</button>
+    <button role="tab" data-aba="funcionarios" aria-selected="false">Funcionários</button>
+  </nav>
+
+  <!-- ===================== CARDÁPIO ===================== -->
+  <section class="painel" id="aba-cardapio">
+    <div class="semana-nav">
+      <button id="semAnterior" title="Semana anterior">◀</button>
+      <h2 id="semTitulo">Carregando…</h2>
+      <span id="semSituacao" class="etiqueta"></span>
+      <button id="semProxima" title="Próxima semana">▶</button>
+    </div>
+    <p class="nota" id="semNota"></p>
+    <div class="lista" style="max-height:none">
+      <table class="semana">
+        <thead><tr><th>Dia</th><th>Prato principal e acompanhamentos</th><th>Observação</th></tr></thead>
+        <tbody id="semCorpo"></tbody>
+      </table>
+    </div>
+    <div id="semMensagens"></div>
+    <div class="acoes">
+      <button id="semSugerir" title="Sorteia principais para os dias vazios, com as regras da planilha antiga, e completa os acompanhamentos de costume">Sugerir dias vazios</button>
+      <button id="semLimpar">Limpar sugestões</button>
+      <span class="espaco"></span>
+      <button id="semSalvar">Salvar rascunho</button>
+      <button id="semPublicar" class="primario">Publicar</button>
+    </div>
+  </section>
+
+  <!-- ===================== PRATOS ===================== -->
+  <section class="painel" id="aba-pratos" hidden>
+    <div class="grade">
+      <div>
+        <h2 id="pratoFormTitulo">Novo prato principal</h2>
+        <label class="campo" for="pratoNome">Nome</label>
+        <input type="text" id="pratoNome" maxlength="80">
+        <div id="camposPrincipal">
+          <label class="campo" for="pratoCategoria">Categoria</label>
+          <select id="pratoCategoria">
+            <option value="CARNE">Carne</option>
+            <option value="FRANGO">Frango</option>
+            <option value="PEIXE">Peixe</option>
+            <option value="PORCO">Porco</option>
+            <option value="LINGUICA">Linguiça</option>
+            <option value="FIGADO">Fígado</option>
+            <option value="OUTRO">Outro</option>
+          </select>
+          <label class="filtro" style="display:block;margin-top:.6rem"><input type="checkbox" id="pratoSexta"> Só às sextas (ex.: feijoada, lasanha)</label>
+          <label class="campo">Acompanhamentos de costume <span class="muted">— já vêm marcados ao montar o dia</span></label>
+          <div class="caixa-opcoes" id="pratoAcomp"></div>
+          <label class="campo">Vem com <span class="muted">— itens de todo dia</span></label>
+          <div id="pratoFixos"></div>
+        </div>
+        <div class="acoes">
+          <button class="primario" id="pratoSalvar">Salvar</button>
+          <button id="pratoCancelar" hidden>Cancelar edição</button>
+        </div>
+        <div id="pratoMsg"></div>
+
+        <details>
+          <summary>Colar vários do Excel</summary>
+          <p class="nota">Copie as colunas <strong>Prato · Tag · Categoria</strong> da aba Meals e cole abaixo.
+            "Frango Empanado / Batata Frita" vira o principal "Frango Empanado" com o acompanhamento de costume "Batata Frita". Tag "Sexta" marca o principal como só de sexta.</p>
+          <textarea id="colagemPratos"></textarea>
+          <div class="acoes"><button class="primario" id="pratoImportar">Importar</button></div>
+          <div id="importMsg"></div>
+        </details>
+      </div>
+      <div>
+        <div class="cabecalho-lista">
+          <div class="alternador" role="group" aria-label="Tipo">
+            <button data-tipo="PRINCIPAL" aria-pressed="true">Principais</button>
+            <button data-tipo="ACOMPANHAMENTO" aria-pressed="false">Acompanhamentos</button>
+          </div>
+          <input type="text" id="pratoFiltro" placeholder="Buscar…" style="max-width:180px">
+          <label class="filtro"><input type="checkbox" id="pratoInativos"> inativos</label>
+        </div>
+        <div id="pratoListaErro"></div>
+        <div class="lista">
+          <table>
+            <thead><tr><th>Nome</th><th id="pratoColCat">Categoria</th><th></th></tr></thead>
+            <tbody id="pratoCorpo"></tbody>
+          </table>
+        </div>
+        <p class="nota" id="pratoContagem"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== FUNCIONÁRIOS ===================== -->
+  <section class="painel" id="aba-funcionarios" hidden>
+    <div class="grade">
+      <div>
+        <label for="novos"><strong>Adicionar</strong> <span class="muted">— um nome por linha</span></label>
+        <textarea id="novos" placeholder="Ana Souza&#10;Bruno Lima"></textarea>
+        <div class="acoes">
+          <button class="primario" id="btnAdicionar">Adicionar</button>
+        </div>
+        <div id="resultadoInclusao"></div>
+      </div>
+      <div>
+        <div class="cabecalho-lista">
+          <strong id="contagem">Carregando…</strong>
+          <label class="filtro"><input type="checkbox" id="mostrarInativos"> mostrar inativos</label>
+        </div>
+        <div id="erroLista"></div>
+        <div class="lista">
+          <table>
+            <thead><tr><th>Nome</th><th>Situação</th><th></th></tr></thead>
+            <tbody id="corpo"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    // ---------------- utilitários ----------------
+    var el = function (id) { return document.getElementById(id); };
+    var CATEGORIA = { CARNE: 'Carne', FRANGO: 'Frango', PEIXE: 'Peixe', PORCO: 'Porco', LINGUICA: 'Linguiça', FIGADO: 'Fígado', OUTRO: 'Outro' };
+    var ocupado = false;
+
+    function criar(tag, texto, classe) {
+      var n = document.createElement(tag);
+      if (texto !== undefined && texto !== null) n.textContent = texto;
+      if (classe) n.className = classe;
+      return n;
+    }
+
+    function aviso(alvo, tipo, titulo, itens) {
+      var caixa = criar('div', undefined, 'aviso ' + tipo);
+      // Mensagens do servidor com várias linhas: a primeira é o título, as demais viram lista.
+      var linhas = String(titulo).split('\n');
+      caixa.appendChild(criar('div', linhas[0]));
+      itens = linhas.slice(1).concat(itens || []);
+      if (itens.length) {
+        var ul = criar('ul');
+        itens.forEach(function (t) { ul.appendChild(criar('li', t)); });
+        caixa.appendChild(ul);
+      }
+      alvo.appendChild(caixa);
+    }
+
+    function habilitar(sim) {
+      ocupado = !sim;
+      Array.prototype.forEach.call(document.querySelectorAll('section button, section select, section input'), function (b) { b.disabled = !sim; });
+    }
+
+    function chamar(fn, args, ok, alvoErro) {
+      habilitar(false);
+      google.script.run
+        .withSuccessHandler(function (r) { habilitar(true); ok(r); })
+        .withFailureHandler(function (e) {
+          habilitar(true);
+          if (alvoErro) {
+            alvoErro.textContent = '';
+            aviso(alvoErro, 'erro', e && e.message ? e.message : String(e));
+          }
+        })[fn].apply(null, args);
+    }
+
+    function plural(n, s, p) { return n + ' ' + (n === 1 ? s : p); }
+    function semAcento(t) { return String(t).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }
+    function opcao(valor, texto) { var o = criar('option', texto); o.value = valor; return o; }
+    function confirmarNoBotao(b, rotulo, texto) {
+      // Segundo clique confirma (confirm() pode ser bloqueado no iframe do Apps Script).
+      if (b.dataset.confirmar) { delete b.dataset.confirmar; b.textContent = rotulo; return true; }
+      b.dataset.confirmar = '1';
+      b.textContent = texto || 'Confirmar?';
+      setTimeout(function () { if (b.isConnected && b.dataset.confirmar) { delete b.dataset.confirmar; b.textContent = rotulo; } }, 4000);
+      return false;
+    }
+
+    // ---------------- abas ----------------
+    Array.prototype.forEach.call(document.querySelectorAll('nav.abas button'), function (b) {
+      b.onclick = function () {
+        Array.prototype.forEach.call(document.querySelectorAll('nav.abas button'), function (x) {
+          x.setAttribute('aria-selected', String(x === b));
+          el('aba-' + x.dataset.aba).hidden = x !== b;
+        });
+        // Atualiza o banco usado no cardápio sem descartar a semana em edição.
+        if (b.dataset.aba === 'cardapio' && semana && pratosMudaram) { pratosMudaram = false; semana.pratos = pratos; desenharSemana(); validarSemanaDepois(); }
+      };
+    });
+
+    // ================= CARDÁPIO =================
+    var semana = null;          // resposta de adminObterSemana
+    var sugeridos = {};         // datas preenchidas pela sugestão (para "Limpar sugestões")
+    var pratosMudaram = false;
+    var timerValidacao = null;
+
+    function dataBr(iso) { var p = iso.split('-'); return p[2] + '/' + p[1]; }
+
+    function pratoPorId(id) {
+      for (var i = 0; i < semana.pratos.length; i++) if (semana.pratos[i].id === id) return semana.pratos[i];
+      return null;
+    }
+
+    function costume(principal) {
+      return ((principal && principal.acompanhamentos) || []).filter(function (id) {
+        var a = pratoPorId(id);
+        return a && a.situacao === 'ATIVO';
+      });
+    }
+
+    function mesmaLista(a, b) { return a.length === b.length && a.every(function (x, i) { return x === b[i]; }); }
+
+    /** Itens de todo dia que o principal não dispensa (mesma regra do servidor). */
+    function fixosDe(principal) {
+      var fora = ((principal && principal.sem_fixos) || []).map(semAcento);
+      return (semana ? semana.fixos : []).filter(function (f) { return fora.indexOf(semAcento(f)) === -1; });
+    }
+
+    function nomeDe(id, fallback) { var p = pratoPorId(id); return p ? p.nome : (fallback || '(removido)'); }
+
+    function carregarSemana(terca) {
+      el('semMensagens').textContent = '';
+      chamar('adminObterSemana', [terca || ''], function (r) {
+        semana = r;
+        sugeridos = {};
+        desenharSemana();
+        validarSemanaDepois();
+      }, el('semMensagens'));
+    }
+
+    function desenharSemana() {
+      var s = semana;
+      var dias = s.dias;
+      el('semTitulo').textContent = 'Semana de ' + dataBr(dias[0].data) + ' a ' + dataBr(dias[dias.length - 1].data);
+      var sit = { NOVA: ['Nova', 'nova'], RASCUNHO: ['Rascunho', 'rascunho'], PUBLICADA: ['Publicada', ''], FECHADA: ['Fechada', 'nova'] }[s.situacao] || [s.situacao, ''];
+      el('semSituacao').textContent = sit[0];
+      el('semSituacao').className = 'etiqueta ' + sit[1];
+      var publicada = s.situacao === 'PUBLICADA';
+      el('semNota').textContent = publicada
+        ? 'Publicada — os funcionários já veem este cardápio. Se mudar a combinação de um dia, os pedidos daquele dia ficam marcados para revisão.'
+        : 'Terça a segunda. Escolha o principal de cada dia e ajuste os acompanhamentos, ou marque "Sem almoço" (feriado). Os funcionários só veem a semana depois de publicada.';
+      el('semPublicar').hidden = publicada;
+      el('semSalvar').textContent = publicada ? 'Salvar alterações' : 'Salvar rascunho';
+      el('semSalvar').className = publicada ? 'primario' : '';
+
+      var principais = s.pratos.filter(function (p) { return p.tipo === 'PRINCIPAL'; });
+      var acompanhamentos = s.pratos.filter(function (p) { return p.tipo === 'ACOMPANHAMENTO'; });
+      var corpo = el('semCorpo');
+      corpo.textContent = '';
+
+      dias.forEach(function (d) {
+        var tr = criar('tr', undefined, d.tipo === 'SEM_ALMOCO' ? 'sem-almoco' : '');
+        var tdDia = criar('td', undefined, 'dia');
+        tdDia.appendChild(criar('strong', d.rotulo));
+        tdDia.appendChild(criar('span', dataBr(d.data), 'muted'));
+        tr.appendChild(tdDia);
+
+        // --- principal ---
+        var tdPrato = criar('td');
+        var sel = criar('select');
+        sel.appendChild(opcao('', '— escolher o principal —'));
+        sel.appendChild(opcao('SEM_ALMOCO', 'Sem almoço'));
+        var grupos = {};
+        principais.forEach(function (p) {
+          if (p.situacao !== 'ATIVO' && p.id !== d.principal_id) return;
+          var g = p.so_sexta === 'SIM' ? 'Só sexta' : CATEGORIA[p.categoria] || p.categoria;
+          (grupos[g] = grupos[g] || []).push(p);
+        });
+        var ordem = d.dia === 'SEXTA' ? ['Só sexta', 'Carne', 'Frango', 'Peixe', 'Porco', 'Linguiça', 'Fígado', 'Outro'] : ['Carne', 'Frango', 'Peixe', 'Porco', 'Linguiça', 'Fígado', 'Outro', 'Só sexta'];
+        ordem.forEach(function (g) {
+          if (!grupos[g]) return;
+          var og = criar('optgroup');
+          og.label = g;
+          grupos[g].forEach(function (p) { og.appendChild(opcao(p.id, p.nome + (p.situacao !== 'ATIVO' ? ' (inativo)' : ''))); });
+          sel.appendChild(og);
+        });
+        if (d.tipo === 'PRATO' && d.principal_id && !pratoPorId(d.principal_id)) sel.appendChild(opcao(d.principal_id, (d.itens[0] || '?') + ' (removido)'));
+        sel.value = d.tipo === 'SEM_ALMOCO' ? 'SEM_ALMOCO' : d.tipo === 'PRATO' ? d.principal_id : '';
+        sel.onchange = function () {
+          delete sugeridos[d.data];
+          var antigoCostume = costume(pratoPorId(d.principal_id));
+          d.tipo = sel.value === '' ? '' : sel.value === 'SEM_ALMOCO' ? 'SEM_ALMOCO' : 'PRATO';
+          d.principal_id = d.tipo === 'PRATO' ? sel.value : '';
+          if (d.tipo !== 'PRATO') d.acompanhamento_ids = [];
+          // Sem acompanhamentos escolhidos à mão → assume os de costume do novo principal.
+          else if (!d.acompanhamento_ids.length || mesmaLista(d.acompanhamento_ids, antigoCostume)) d.acompanhamento_ids = costume(pratoPorId(d.principal_id));
+          desenharSemana();
+          validarSemanaDepois();
+        };
+        tdPrato.appendChild(sel);
+
+        // --- acompanhamentos ---
+        if (d.tipo === 'PRATO' && d.principal_id) {
+          var caixa = criar('div', undefined, 'acomp');
+          d.acompanhamento_ids.forEach(function (id, i) {
+            var chip = criar('span', undefined, 'chip');
+            chip.appendChild(criar('span', nomeDe(id, d.itens[i + 1])));
+            var x = criar('button', '×');
+            x.title = 'Tirar este acompanhamento';
+            x.onclick = function () {
+              d.acompanhamento_ids.splice(i, 1);
+              delete sugeridos[d.data];
+              desenharSemana();
+              validarSemanaDepois();
+            };
+            chip.appendChild(x);
+            caixa.appendChild(chip);
+          });
+          if (d.acompanhamento_ids.length < 5) {
+            var add = criar('select');
+            add.appendChild(opcao('', '+ acompanhamento'));
+            acompanhamentos.forEach(function (a) {
+              if (a.situacao === 'ATIVO' && d.acompanhamento_ids.indexOf(a.id) === -1) add.appendChild(opcao(a.id, a.nome));
+            });
+            add.onchange = function () {
+              if (!add.value) return;
+              d.acompanhamento_ids.push(add.value);
+              delete sugeridos[d.data];
+              desenharSemana();
+              validarSemanaDepois();
+            };
+            caixa.appendChild(add);
+          }
+          if (sugeridos[d.data]) caixa.appendChild(criar('span', 'sugerido', 'marca'));
+          tdPrato.appendChild(caixa);
+          var jaNoPrato = [d.principal_id].concat(d.acompanhamento_ids).map(function (id) { return semAcento(nomeDe(id, '')); });
+          var fixos = fixosDe(pratoPorId(d.principal_id)).filter(function (f) { return jaNoPrato.indexOf(semAcento(f)) === -1; });
+          if (fixos.length) tdPrato.appendChild(criar('div', '+ ' + fixos.join(' · '), 'sub'));
+        }
+        tr.appendChild(tdPrato);
+
+        var tdObs = criar('td', undefined, 'obs');
+        var obs = criar('input');
+        obs.type = 'text';
+        obs.maxLength = 60;
+        obs.placeholder = d.tipo === 'SEM_ALMOCO' ? 'ex.: Feriado' : '';
+        obs.value = d.observacao || '';
+        obs.oninput = function () { d.observacao = obs.value; };
+        tdObs.appendChild(obs);
+        tr.appendChild(tdObs);
+        corpo.appendChild(tr);
+      });
+    }
+
+    function diasParaEnvio() {
+      return semana.dias.map(function (d) {
+        return { data: d.data, tipo: d.tipo, principal_id: d.principal_id, acompanhamento_ids: d.acompanhamento_ids, observacao: d.observacao || '' };
+      });
+    }
+
+    function validarSemanaDepois() {
+      clearTimeout(timerValidacao);
+      timerValidacao = setTimeout(function () {
+        if (ocupado || !semana) return;
+        google.script.run.withSuccessHandler(mostrarValidacao).adminValidarSemana(semana.terca, diasParaEnvio());
+      }, 300);
+    }
+
+    function mostrarValidacao(v, extra) {
+      var alvo = el('semMensagens');
+      alvo.textContent = '';
+      if (extra) aviso(alvo, 'ok', extra);
+      if (v.avisos.length) aviso(alvo, 'alerta', 'Atenção:', v.avisos);
+      if (v.erros.length && semana.situacao !== 'NOVA') aviso(alvo, 'alerta', 'Falta para publicar:', v.erros);
+    }
+
+    el('semAnterior').onclick = function () { carregarSemana(semana.anterior); };
+    el('semProxima').onclick = function () { carregarSemana(semana.proxima); };
+
+    el('semSugerir').onclick = function () {
+      chamar('adminSugerirSemana', [semana.terca, diasParaEnvio()], function (r) {
+        r.dias.forEach(function (n, i) {
+          var d = semana.dias[i];
+          if (d.tipo !== n.tipo || d.principal_id !== n.principal_id || !mesmaLista(d.acompanhamento_ids, n.acompanhamento_ids)) {
+            sugeridos[d.data] = true;
+            d.tipo = n.tipo;
+            d.principal_id = n.principal_id;
+            d.acompanhamento_ids = n.acompanhamento_ids;
+          }
+        });
+        desenharSemana();
+        validarSemanaDepois();
+        if (r.semCandidato.length) aviso(el('semMensagens'), 'alerta', 'Não há principais suficientes no banco para: ' + r.semCandidato.map(dataBr).join(', '));
+      }, el('semMensagens'));
+    };
+
+    el('semLimpar').onclick = function () {
+      semana.dias.forEach(function (d) {
+        if (sugeridos[d.data]) { d.tipo = ''; d.principal_id = ''; d.acompanhamento_ids = []; }
+      });
+      sugeridos = {};
+      desenharSemana();
+      validarSemanaDepois();
+    };
+
+    function salvarSemana(publicar) {
+      el('semMensagens').textContent = '';
+      chamar('adminSalvarSemana', [semana.terca, diasParaEnvio(), publicar], function (r) {
+        var msg = publicar ? 'Semana publicada.' : 'Semana salva.';
+        if (r.pedidosMarcados) msg += ' ' + plural(r.pedidosMarcados, 'pedido marcado', 'pedidos marcados') + ' para revisão.';
+        chamar('adminObterSemana', [semana.terca], function (s) {
+          semana = s;
+          sugeridos = {};
+          desenharSemana();
+          mostrarValidacao({ erros: [], avisos: r.avisos }, msg);
+        }, el('semMensagens'));
+      }, el('semMensagens'));
+    }
+    el('semSalvar').onclick = function () { salvarSemana(false); };
+    el('semPublicar').onclick = function () {
+      if (confirmarNoBotao(el('semPublicar'), 'Publicar', 'Confirmar publicação?')) salvarSemana(true);
+    };
+
+    // ================= PRATOS =================
+    var pratos = [];
+    var pratoEditando = null;
+    var tipoPratos = 'PRINCIPAL';
+
+    function pratoNaLista(id) { for (var i = 0; i < pratos.length; i++) if (pratos[i].id === id) return pratos[i]; return null; }
+
+    function carregarPratos() {
+      chamar('adminListarPratos', [], function (lista) { pratos = lista; desenharPratos(); desenharCaixaAcomp(); }, el('pratoListaErro'));
+    }
+
+    Array.prototype.forEach.call(document.querySelectorAll('.alternador button'), function (b) {
+      b.onclick = function () { mudarTipoPratos(b.dataset.tipo); editarPrato(null); };
+    });
+
+    function mudarTipoPratos(tipo) {
+      tipoPratos = tipo;
+      Array.prototype.forEach.call(document.querySelectorAll('.alternador button'), function (x) {
+        x.setAttribute('aria-pressed', String(x.dataset.tipo === tipo));
+      });
+      el('camposPrincipal').hidden = tipo !== 'PRINCIPAL';
+      el('pratoColCat').textContent = tipo === 'PRINCIPAL' ? 'Categoria' : '';
+      desenharPratos();
+    }
+
+    function desenharPratos() {
+      var corpo = el('pratoCorpo');
+      corpo.textContent = '';
+      var filtro = semAcento(el('pratoFiltro').value.trim());
+      var inativos = el('pratoInativos').checked;
+      var doTipo = pratos.filter(function (p) { return p.tipo === tipoPratos; });
+      var ativos = doTipo.filter(function (p) { return p.situacao === 'ATIVO'; }).length;
+      var nomeTipo = tipoPratos === 'PRINCIPAL' ? ['principal ativo', 'principais ativos'] : ['acompanhamento ativo', 'acompanhamentos ativos'];
+      el('pratoContagem').textContent = plural(ativos, nomeTipo[0], nomeTipo[1]) +
+        (doTipo.length > ativos ? ' · ' + plural(doTipo.length - ativos, 'inativo', 'inativos') : '');
+
+      doTipo.filter(function (p) {
+        if (!inativos && p.situacao !== 'ATIVO') return false;
+        return !filtro || semAcento(p.nome).indexOf(filtro) !== -1;
+      }).forEach(function (p) {
+        var ativo = p.situacao === 'ATIVO';
+        var tr = criar('tr', undefined, ativo ? '' : 'inativo');
+        var td = criar('td');
+        td.appendChild(criar('div', p.nome));
+        if (p.tipo === 'PRINCIPAL' && p.acompanhamentos.length) {
+          td.appendChild(criar('div', 'com ' + p.acompanhamentos.map(function (id) { var a = pratoNaLista(id); return a ? a.nome : '?'; }).join(' · '), 'sub'));
+        }
+        if (p.tipo === 'PRINCIPAL' && p.sem_fixos.length) td.appendChild(criar('div', 'sem ' + p.sem_fixos.join(', '), 'sub'));
+        tr.appendChild(td);
+        var tdCat = criar('td');
+        if (p.tipo === 'PRINCIPAL') {
+          tdCat.appendChild(criar('span', CATEGORIA[p.categoria] || p.categoria, 'etiqueta' + (ativo ? '' : ' inativo')));
+          if (p.so_sexta === 'SIM') { tdCat.appendChild(document.createTextNode(' ')); tdCat.appendChild(criar('span', 'sexta', 'etiqueta rascunho')); }
+        }
+        tr.appendChild(tdCat);
+        var tdB = criar('td', undefined, 'botoes');
+        var bEd = criar('button', 'Editar', 'pequeno');
+        bEd.onclick = function () { editarPrato(p); };
+        var rotulo = ativo ? 'Inativar' : 'Reativar';
+        var bSit = criar('button', rotulo, 'pequeno' + (ativo ? ' perigo' : ''));
+        bSit.onclick = function () {
+          if (ativo && !confirmarNoBotao(bSit, rotulo)) return;
+          el('pratoListaErro').textContent = '';
+          chamar('adminAlterarSituacaoPrato', [p.id, ativo ? 'INATIVO' : 'ATIVO'], function () { pratosMudaram = true; carregarPratos(); }, el('pratoListaErro'));
+        };
+        tdB.appendChild(bEd);
+        tdB.appendChild(bSit);
+        tr.appendChild(tdB);
+        corpo.appendChild(tr);
+      });
+      if (!corpo.children.length) {
+        var tr = criar('tr');
+        var td = criar('td', pratos.length ? 'Nada encontrado.' : 'Nenhum prato cadastrado. Cadastre ao lado ou cole do Excel.', 'muted');
+        td.colSpan = 3;
+        tr.appendChild(td);
+        corpo.appendChild(tr);
+      }
+    }
+
+    /** Caixa de "acompanhamentos de costume" do formulário de principal. */
+    function desenharCaixaAcomp(marcados) {
+      marcados = marcados || (pratoEditando && pratoEditando.tipo === 'PRINCIPAL' ? pratoEditando.acompanhamentos : []);
+      var caixa = el('pratoAcomp');
+      caixa.textContent = '';
+      var lista = pratos.filter(function (a) { return a.tipo === 'ACOMPANHAMENTO' && (a.situacao === 'ATIVO' || marcados.indexOf(a.id) !== -1); });
+      if (!lista.length) { caixa.appendChild(criar('div', 'Cadastre acompanhamentos para escolher aqui.', 'muted')); return; }
+      lista.forEach(function (a) {
+        var lab = criar('label');
+        var cb = criar('input');
+        cb.type = 'checkbox';
+        cb.value = a.id;
+        cb.checked = marcados.indexOf(a.id) !== -1;
+        lab.appendChild(cb);
+        lab.appendChild(document.createTextNode(' ' + a.nome + (a.situacao !== 'ATIVO' ? ' (inativo)' : '')));
+        caixa.appendChild(lab);
+      });
+    }
+
+    /** Caixas "Vem com" (itens de todo dia); desmarcado = o principal dispensa o item. */
+    function desenharFixos(semFixos) {
+      var fora = (semFixos || []).map(semAcento);
+      var caixa = el('pratoFixos');
+      caixa.textContent = '';
+      var fixos = semana ? semana.fixos : [];
+      if (!fixos.length) { caixa.appendChild(criar('div', 'Nenhum item de todo dia configurado (aba Configuracoes, ITENS_FIXOS).', 'muted')); return; }
+      fixos.forEach(function (f) {
+        var lab = criar('label', undefined, 'filtro');
+        lab.style.marginRight = '1rem';
+        var cb = criar('input');
+        cb.type = 'checkbox';
+        cb.value = f;
+        cb.checked = fora.indexOf(semAcento(f)) === -1;
+        lab.appendChild(cb);
+        lab.appendChild(document.createTextNode(' ' + f));
+        caixa.appendChild(lab);
+      });
+    }
+
+    function editarPrato(p) {
+      pratoEditando = p;
+      if (p && p.tipo !== tipoPratos) mudarTipoPratos(p.tipo);
+      var principal = tipoPratos === 'PRINCIPAL';
+      el('pratoFormTitulo').textContent = (p ? 'Editar ' : 'Novo ') + (principal ? 'prato principal' : 'acompanhamento');
+      el('pratoNome').value = p ? p.nome : '';
+      el('pratoNome').placeholder = principal ? 'Frango Empanado' : 'Batata Frita';
+      el('pratoCategoria').value = p && principal ? p.categoria : 'CARNE';
+      el('pratoSexta').checked = !!p && p.so_sexta === 'SIM';
+      el('pratoCancelar').hidden = !p;
+      el('pratoMsg').textContent = '';
+      desenharCaixaAcomp(p && principal ? p.acompanhamentos : []);
+      desenharFixos(p && principal ? p.sem_fixos : []);
+      if (p) el('pratoNome').focus();
+    }
+
+    el('pratoCancelar').onclick = function () { editarPrato(null); };
+    el('pratoFiltro').oninput = desenharPratos;
+    el('pratoInativos').onchange = desenharPratos;
+
+    el('pratoSalvar').onclick = function () {
+      var marcados = Array.prototype.filter.call(el('pratoAcomp').querySelectorAll('input[type=checkbox]'), function (cb) { return cb.checked; })
+        .map(function (cb) { return cb.value; });
+      var dados = {
+        id: pratoEditando ? pratoEditando.id : '',
+        tipo: tipoPratos,
+        nome: el('pratoNome').value,
+        categoria: el('pratoCategoria').value,
+        so_sexta: el('pratoSexta').checked ? 'SIM' : 'NAO',
+        acompanhamentos: tipoPratos === 'PRINCIPAL' ? marcados : [],
+        sem_fixos: tipoPratos === 'PRINCIPAL'
+          ? Array.prototype.filter.call(el('pratoFixos').querySelectorAll('input[type=checkbox]'), function (cb) { return !cb.checked; })
+              .map(function (cb) { return cb.value; })
+          : []
+      };
+      el('pratoMsg').textContent = '';
+      chamar('adminSalvarPrato', [dados], function () {
+        var nome = dados.nome.trim();
+        editarPrato(null);
+        aviso(el('pratoMsg'), 'ok', 'Salvo: ' + nome);
+        pratosMudaram = true;
+        carregarPratos();
+      }, el('pratoMsg'));
+    };
+
+    el('pratoImportar').onclick = function () {
+      var texto = el('colagemPratos').value;
+      if (!texto.trim()) return;
+      var alvo = el('importMsg');
+      alvo.textContent = '';
+      chamar('adminImportarPratos', [texto], function (r) {
+        if (r.principais || r.acompanhamentos) {
+          aviso(alvo, 'ok', 'Importados: ' + plural(r.principais, 'principal', 'principais') + ' e ' +
+            plural(r.acompanhamentos, 'acompanhamento', 'acompanhamentos') + '.');
+          el('colagemPratos').value = '';
+        }
+        if (r.ignorados.length) aviso(alvo, 'alerta', plural(r.ignorados.length, 'linha ignorada', 'linhas ignoradas') + ':',
+          r.ignorados.map(function (i) { return i.nome + ' — ' + i.motivo; }));
+        pratosMudaram = true;
+        carregarPratos();
+      }, alvo);
+    };
+
+    // ================= FUNCIONÁRIOS =================
+    var funcionarios = [];
+
+    function carregarFuncionarios() {
+      chamar('adminListarFuncionarios', [], function (lista) { funcionarios = lista; desenharFuncionarios(); }, el('erroLista'));
+    }
+
+    function desenharFuncionarios() {
+      var corpo = el('corpo');
+      corpo.textContent = '';
+      var mostrarInativos = el('mostrarInativos').checked;
+      var ativos = funcionarios.filter(function (f) { return f.situacao === 'ATIVO'; }).length;
+      var inativos = funcionarios.length - ativos;
+      el('contagem').textContent = plural(ativos, 'ativo', 'ativos') + (inativos ? ' · ' + plural(inativos, 'inativo', 'inativos') : '');
+
+      funcionarios
+        .filter(function (f) { return mostrarInativos || f.situacao === 'ATIVO'; })
+        .forEach(function (f) {
+          var ativo = f.situacao === 'ATIVO';
+          var tr = criar('tr', undefined, ativo ? '' : 'inativo');
+          tr.appendChild(criar('td', f.nome));
+          var tdSit = criar('td');
+          tdSit.appendChild(criar('span', ativo ? 'Ativo' : 'Inativo', 'etiqueta' + (ativo ? '' : ' inativo')));
+          tr.appendChild(tdSit);
+          var tdBtn = criar('td', undefined, 'botoes');
+          var btnRen = criar('button', 'Renomear', 'pequeno');
+          btnRen.onclick = function () { renomear(f, tr); };
+          var rotulo = ativo ? 'Inativar' : 'Reativar';
+          var btnSit = criar('button', rotulo, 'pequeno' + (ativo ? ' perigo' : ''));
+          btnSit.title = ativo ? 'Deixa de aparecer no web app; o histórico é mantido' : '';
+          btnSit.onclick = function () {
+            if (ativo && !confirmarNoBotao(btnSit, rotulo)) return;
+            el('erroLista').textContent = '';
+            chamar('adminAlterarSituacaoFuncionario', [f.id, ativo ? 'INATIVO' : 'ATIVO'], carregarFuncionarios, el('erroLista'));
+          };
+          tdBtn.appendChild(btnRen);
+          tdBtn.appendChild(btnSit);
+          tr.appendChild(tdBtn);
+          corpo.appendChild(tr);
+        });
+
+      if (!corpo.children.length) {
+        var tr = criar('tr');
+        var td = criar('td', 'Nenhum funcionário cadastrado ainda. Cole os nomes ao lado e clique em Adicionar.', 'muted');
+        td.colSpan = 3;
+        tr.appendChild(td);
+        corpo.appendChild(tr);
+      }
+    }
+
+    function renomear(f, tr) {
+      var td = tr.firstChild;
+      td.textContent = '';
+      var input = criar('input');
+      input.type = 'text';
+      input.value = f.nome;
+      input.maxLength = 60;
+      td.appendChild(input);
+      input.focus();
+      input.select();
+      var concluir = function (salvar) {
+        input.onblur = null;
+        var novo = input.value.trim();
+        if (!salvar || !novo || novo === f.nome) { desenharFuncionarios(); return; }
+        el('erroLista').textContent = '';
+        chamar('adminRenomearFuncionario', [f.id, novo], carregarFuncionarios, el('erroLista'));
+      };
+      input.onkeydown = function (ev) {
+        if (ev.key === 'Enter') concluir(true);
+        if (ev.key === 'Escape') concluir(false);
+      };
+      input.onblur = function () { concluir(true); };
+    }
+
+    el('btnAdicionar').onclick = function () {
+      var texto = el('novos').value;
+      if (!texto.trim()) return;
+      var alvo = el('resultadoInclusao');
+      alvo.textContent = '';
+      chamar('adminAdicionarFuncionarios', [texto], function (r) {
+        if (r.adicionados.length) {
+          aviso(alvo, 'ok', plural(r.adicionados.length, 'adicionado', 'adicionados') + '.');
+          el('novos').value = r.ignorados.map(function (i) { return i.nome; }).join('\n');
+        }
+        if (r.ignorados.length) {
+          aviso(alvo, 'alerta', plural(r.ignorados.length, 'não incluído', 'não incluídos') + ':',
+            r.ignorados.map(function (i) { return i.nome + ' — ' + i.motivo; }));
+        }
+        carregarFuncionarios();
+      }, alvo);
+    };
+    el('mostrarInativos').onchange = desenharFuncionarios;
+
+    // ---------------- início ----------------
+    // Uma chamada por vez: as cargas são encadeadas para não disputar o estado "ocupado".
+    chamar('adminObterSemana', [''], function (r) {
+      semana = r;
+      pratos = r.pratos;
+      desenharSemana();
+      desenharPratos();
+      desenharCaixaAcomp([]);
+      desenharFixos([]);
+      validarSemanaDepois();
+      carregarFuncionarios();
+    }, el('semMensagens'));
+  </script>
+</body>
+</html>

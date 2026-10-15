@@ -1,0 +1,13 @@
+<script>
+  // Transporte das telas quando servidas pelo próprio Apps Script (link /exec ou /dev).
+  // No site do GitHub Pages este arquivo é trocado por web/api.js, com a mesma assinatura.
+  function chamarApi(fn, args, ok, alvoErro, aoFalhar) {
+    google.script.run
+      .withSuccessHandler(ok)
+      .withFailureHandler(function (e) {
+        var msg = e && e.message ? e.message : 'Não foi possível conectar. Verifique a internet e tente de novo.';
+        if (alvoErro) aviso(alvoErro, 'erro', msg);
+        if (aoFalhar) aoFalhar(msg);
+      })[fn].apply(null, args);
+  }
+</script>
