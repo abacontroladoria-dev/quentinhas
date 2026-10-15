@@ -41,6 +41,10 @@
     .etiqueta.rascunho { background: var(--warn-bg); color: var(--warn); }
     .etiqueta.nova { background: var(--line); color: var(--muted); }
     .intro-semana { color: var(--muted); font-size: .92rem; margin: .3rem 0 .6rem; max-width: 68ch; }
+    .respostas-ate { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; margin: 0 0 .7rem; }
+    .respostas-ate label { font-weight: 700; font-size: .92rem; }
+    .respostas-ate input { font: inherit; font-size: .92rem; border: 1.5px solid var(--line); border-radius: var(--radius); padding: .25rem .45rem; background: var(--surface); color: var(--text); }
+    .respostas-ate .nota { margin: 0; flex-basis: 100%; }
     .descartar { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; background: var(--warn-bg); color: var(--warn); border-radius: var(--radius); padding: .5rem .5rem .5rem .8rem; margin-bottom: .6rem; font-size: .92rem; }
     .descartar[hidden] { display: none; }
     .descartar span { flex: 1; }
@@ -164,6 +168,10 @@
     .link-texto .nota { display: block; margin: .1rem 0 0; font-size: .82rem; }
     .link-linha input { font-size: .82rem; color: var(--muted); padding: .35rem .5rem; }
     #cfgAtualizar { margin-bottom: .5rem; }
+    .prazo-dia { display: flex; align-items: center; gap: .5rem; margin-bottom: .4rem; }
+    .prazo-dia input, .prazo-dia select { width: auto; font: inherit; border: 1.5px solid var(--line); border-radius: var(--radius); padding: .35rem .5rem; background: var(--surface); color: var(--text); }
+    .config h2 { margin-top: 1.4rem; }
+    .config h2:first-child { margin-top: .5rem; }
 
     /* Página de administração no site (fora da planilha): marca no topo, largura limitada, celular */
     .marca-site { display: none; }
@@ -220,6 +228,13 @@
       <span id="semSituacao" class="etiqueta"></span>
     </div>
     <p class="intro-semana" id="semNota"></p>
+    <div class="respostas-ate">
+      <label for="semAteData">Respostas até</label>
+      <input type="date" id="semAteData">
+      <input type="time" id="semAteHora" aria-label="Horário limite das respostas">
+      <button class="discreto pequeno" id="semAteLimpar" hidden>Sem data limite</button>
+      <span class="nota" id="semAteNota"></span>
+    </div>
     <div class="descartar" id="semDescartar" role="alert" hidden>
       <span>Esta semana tem alterações não salvas.</span>
       <button class="pequeno" id="semDescartarSim">Descartar e trocar de semana</button>
@@ -399,6 +414,20 @@
       </div>
       <div id="cfgLinksMsg"></div>
 
+      <h2>Prazo de cada dia</h2>
+      <p class="nota">Até quando cada funcionário pode pedir ou mudar o pedido de um dia. A data limite da semana, se houver, é escolhida no Cardápio da semana e vale só para a primeira resposta.</p>
+      <div class="prazo-dia">
+        <label for="cfgPrazoHora">Até</label>
+        <input type="time" id="cfgPrazoHora">
+        <select id="cfgPrazoDias" aria-label="De que dia">
+          <option value="0">do próprio dia</option>
+          <option value="1">da véspera</option>
+          <option value="2">de 2 dias antes</option>
+        </select>
+        <button id="cfgPrazoSalvar">Salvar prazo</button>
+      </div>
+      <div id="cfgPrazoMsg"></div>
+
       <h2>Planilha</h2>
       <p class="nota">Depois de uma atualização do sistema, cria as abas e colunas que faltarem. Não apaga nem muda o que já está cadastrado.</p>
       <button id="cfgAtualizar">Atualizar a planilha</button>
@@ -484,6 +513,7 @@
     var sugeridos = {};         // data → dia como estava antes do sorteio ("Desfazer sorteio")
     var validacao = { erros: [], avisos: [], porData: {} };
     var tentouPublicar = false; // dia vazio só aparece como erro depois de tentar publicar
+    var confirmarAte = '';      // data limite das respostas na tela ('yyyy-MM-ddTHH:mm' ou '')
     var destinoPendente = null; // semana para onde ir depois de descartar alterações
     var focarDepois = null;     // data-foco do campo que recebe o foco depois de redesenhar
     var pratosMudaram = false;
@@ -523,7 +553,7 @@
     function combinacao(d) { return JSON.stringify([d.tipo, d.principal_id, d.acompanhamento_ids]); }
     function combinacaoMudou(d) { return combinacao(gravado[d.data]) !== combinacao(d); }
     function diaMudou(d) { return combinacaoMudou(d) || gravado[d.data].observacao !== (d.observacao || ''); }
-    function haAlteracoes() { return !!semana && semana.dias.some(diaMudou); }
+    function haAlteracoes() { return !!semana && (semana.dias.some(diaMudou) || confirmarAte !== (semana.confirmar_ate || '')); }
     function diaPronto(d) { return d.tipo === 'SEM_ALMOCO' || (d.tipo === 'PRATO' && !!pratoPorId(d.principal_id)); }
     /** Mexer à mão num dia sorteado tira o dia do "Desfazer sorteio". */
     function mexeu(d) { delete sugeridos[d.data]; }
@@ -726,6 +756,9 @@
       validacao = { erros: [], avisos: [], porData: {} };
       gravado = {};
       semana.dias.forEach(function (d) { gravado[d.data] = copiaDia(d); });
+      confirmarAte = r.confirmar_ate || '';
+      el('semAteData').value = confirmarAte.slice(0, 10);
+      el('semAteHora').value = confirmarAte.slice(11, 16);
       desenharSemana();
       validarSemanaDepois();
     }
@@ -758,6 +791,7 @@
         : 'Escolha o principal de cada dia; os acompanhamentos de costume entram sozinhos. Os funcionários só veem a semana depois que você publicar.';
       el('semPublicar').hidden = publicada;
       el('semDespublicar').hidden = !publicada;
+      desenharRespostasAte();
       el('semSalvar').textContent = publicada ? 'Salvar alterações' : 'Salvar rascunho';
       el('semSalvar').className = publicada ? 'primario' : '';
 
@@ -892,6 +926,31 @@
       return linha;
     }
 
+    // ---- data limite das respostas ----
+    function textoPrazoDia(p) {
+      var quando = { 0: 'do próprio dia', 1: 'da véspera', 2: 'de 2 dias antes' }[p.diasAntes] || 'de ' + p.diasAntes + ' dias antes';
+      return p.hora.replace(':', 'h').replace(/^0/, '').replace(/h00$/, 'h') + ' ' + quando;
+    }
+
+    function desenharRespostasAte() {
+      var prazo = textoPrazoDia(semana.prazo || { hora: '09:30', diasAntes: 0 });
+      el('semAteLimpar').hidden = !confirmarAte;
+      el('semAteNota').textContent = confirmarAte
+        ? 'Depois disso, quem não respondeu um dia não pede mais. Quem já respondeu ainda ajusta até ' + prazo + '.'
+        : 'Sem data limite: cada dia pode ser pedido e alterado até ' + prazo + '.';
+    }
+
+    function lerRespostasAte() {
+      var data = el('semAteData').value;
+      if (data && !el('semAteHora').value) el('semAteHora').value = '17:00';
+      confirmarAte = data ? data + 'T' + el('semAteHora').value : '';
+      desenharRespostasAte();
+      atualizarRodape();
+    }
+    el('semAteData').onchange = lerRespostasAte;
+    el('semAteHora').onchange = lerRespostasAte;
+    el('semAteLimpar').onclick = function () { el('semAteData').value = ''; el('semAteHora').value = ''; lerRespostasAte(); };
+
     function trocarPrincipal(d, id) {
       var antigoCostume = costume(pratoPorId(d.principal_id));
       d.tipo = 'PRATO';
@@ -999,7 +1058,7 @@
       var publicada = semana.situacao === 'PUBLICADA';
       el('semMensagens').textContent = '';
       if (publicar) { tentouPublicar = true; mostrarNotas(); }
-      chamar('adminSalvarSemana', [semana.terca, diasParaEnvio(), publicar], function (r) {
+      chamar('adminSalvarSemana', [semana.terca, diasParaEnvio(), publicar, confirmarAte], function (r) {
         var msg = publicar ? 'Semana publicada. Os funcionários já podem fazer os pedidos.'
           : publicada ? 'Alterações salvas.' : 'Rascunho salvo. Os funcionários ainda não veem esta semana.';
         if (r.pedidosMarcados) msg += ' ' + plural(r.pedidosMarcados, 'pedido volta', 'pedidos voltam') + ' para os funcionários conferirem.';
@@ -1659,6 +1718,9 @@
 
     function carregarConfig() {
       el('cfgLinksMsg').textContent = '';
+      var p = (semana && semana.prazo) || { hora: '09:30', diasAntes: 0 };
+      el('cfgPrazoHora').value = p.hora;
+      el('cfgPrazoDias').value = String(p.diasAntes);
       chamar('adminLinks', [], mostrarLinks, el('cfgLinksMsg'));
     }
 
@@ -1697,6 +1759,15 @@
     }
     el('trocarCozinha').onclick = function () { trocarLink('COZINHA', el('trocarCozinha')); };
     el('trocarAdmin').onclick = function () { trocarLink('ADMIN', el('trocarAdmin')); };
+
+    el('cfgPrazoSalvar').onclick = function () {
+      var alvo = el('cfgPrazoMsg');
+      alvo.textContent = '';
+      chamar('adminSalvarPrazo', [el('cfgPrazoHora').value, Number(el('cfgPrazoDias').value)], function (p) {
+        if (semana) { semana.prazo = p; desenharRespostasAte(); }
+        aviso(alvo, 'ok', 'Prazo salvo: cada dia pode ser pedido e alterado até ' + textoPrazoDia(p) + '.');
+      }, alvo);
+    };
 
     el('cfgAtualizar').onclick = function () {
       var alvo = el('cfgMsg');

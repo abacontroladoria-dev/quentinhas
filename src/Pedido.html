@@ -38,6 +38,7 @@
 
   /* Faixa da semana: situação de cada dia num relance */
   h2.semana { font-size: var(--t1); font-weight: 700; margin: 6px 0 10px; }
+  .limite-semana { margin: 0 0 12px; }
   .faixa { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 18px; }
   .faixa button { display: grid; justify-items: center; gap: 2px; min-height: 74px; padding: 8px 2px 6px; border: 1.5px solid var(--linha); border-radius: var(--raio-controle); background: var(--superficie); cursor: pointer; }
   .faixa .abrev { font-size: var(--t-1); color: var(--tinta-suave); }
@@ -323,6 +324,10 @@
       algum = true;
       var sec = criar('section');
       sec.appendChild(criar('h2', 'Semana de ' + intervaloBr(dias[0].data, dias[dias.length - 1].data), 'semana'));
+      // Data limite da semana: aparece enquanto houver dia ainda sem resposta que dependa dela.
+      if (s.confirmar_ate && dias.some(function (d) { return d.editavel && d.limite_tipo === 'SEMANA'; })) {
+        sec.appendChild(criar('p', 'Responda os dias desta semana até ' + diaExtenso(s.confirmar_ate) + ', às ' + horaBr(s.confirmar_ate) + '.', 'aviso alerta limite-semana'));
+      }
       sec.appendChild(faixaSemana(dias));
       var lista = criar('div', undefined, 'dias');
       dias.forEach(function (d) { lista.appendChild(d.editavel && d.tipo === 'PRATO' ? diaAberto(d) : diaResumido(d)); });
@@ -386,7 +391,8 @@
     var topo = criar('div', undefined, 'linha-topo');
     topo.appendChild(criar('span', maiuscula(diaExtenso(d.data)), 'quando'));
     var hoje = d.limite.slice(0, 10) === d.data;
-    topo.appendChild(criar('span', 'Pode mudar até ' + horaBr(d.limite) + (hoje ? '' : ' de ' + dataBr(d.limite)), 'prazo'));
+    var quando = horaBr(d.limite) + (hoje ? '' : ' de ' + dataBr(d.limite));
+    topo.appendChild(criar('span', (d.limite_tipo === 'SEMANA' ? 'Responda até ' : 'Pode mudar até ') + quando, 'prazo'));
     art.appendChild(topo);
     art.appendChild(criar('p', d.prato.replace(/ \/ /g, ', '), 'prato'));
     if (d.observacao) art.appendChild(criar('p', d.observacao, 'obs'));

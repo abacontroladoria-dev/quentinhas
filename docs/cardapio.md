@@ -37,6 +37,7 @@ Dois tipos, alternados no topo da lista:
    - completa com os acompanhamentos de costume;
    - mantém dias já escolhidos, combinações ajustadas à mão e dias sem almoço.
 4. **Salvar rascunho** grava sem mostrar aos funcionários. **Publicar** exige os 5 dias definidos.
+   - **Respostas até** (opcional): data e hora limite para cada pessoa responder os dias da semana. Depois dela, quem não respondeu um dia não pede mais; quem já respondeu ainda ajusta até o prazo de cada dia (Configurações → Prazo de cada dia, padrão 9h30 do próprio dia). O funcionário vê "Responda os dias desta semana até …" no topo da semana.
 5. Avisos (não bloqueiam): principal repetido, frango em dias seguidos, prato de sexta em outro dia, dia sem acompanhamento.
 
 O histórico (antiga aba Registro) passa a ser as próprias abas `Semanas` e `Cardapio`. O histórico anterior ao sistema não foi importado: a aba Registro não tem as datas de cada linha.

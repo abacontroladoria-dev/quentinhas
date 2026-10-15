@@ -6,7 +6,7 @@ var FUSO_ = 'America/Sao_Paulo';
 var ESQUEMA_ = {
   Funcionarios: ['id', 'nome', 'situacao', 'criado_em', 'atualizado_em'],
   Pratos: ['id', 'tipo', 'nome', 'categoria', 'so_sexta', 'acompanhamentos', 'situacao', 'criado_em', 'atualizado_em', 'sem_fixos', 'compras'],
-  Semanas: ['id', 'data_inicio', 'data_fim', 'situacao', 'publicada_em', 'publicada_por', 'atualizado_em'],
+  Semanas: ['id', 'data_inicio', 'data_fim', 'situacao', 'publicada_em', 'publicada_por', 'atualizado_em', 'confirmar_ate'],
   Cardapio: ['id', 'semana_id', 'data', 'dia_semana', 'tipo', 'principal_id', 'acompanhamento_ids', 'prato', 'itens', 'observacao', 'criado_em', 'atualizado_em'],
   Pedidos: ['id', 'funcionario_id', 'data', 'semana_id', 'situacao', 'tipo', 'retirados', 'revisao', 'criado_em', 'atualizado_em', 'atualizado_por'],
   Configuracoes: ['chave', 'valor', 'descricao'],
@@ -129,6 +129,23 @@ function lerConfiguracoes_(ss) {
     mapa[String(l.chave).trim()] = String(l.valor).trim();
   });
   return mapa;
+}
+
+/** Grava uma chave da aba Configuracoes (acrescenta a linha se faltar). Deve ser chamado dentro de comLock_. */
+function gravarConfiguracao_(ss, chave, valor) {
+  var aba = obterAba_(ss, 'Configuracoes');
+  var valores = aba.getDataRange().getValues();
+  var cab = valores[0].map(function (c) { return String(c).trim(); });
+  var cChave = cab.indexOf('chave');
+  var cValor = cab.indexOf('valor');
+  for (var r = 1; r < valores.length; r++) {
+    if (String(valores[r][cChave]).trim() === chave) {
+      aba.getRange(r + 1, cValor + 1).setValue(valor);
+      return;
+    }
+  }
+  var padrao = CONFIG_PADRAO_.filter(function (c) { return c[0] === chave; })[0];
+  anexarLinhas_(aba, cab, [{ chave: chave, valor: valor, descricao: padrao ? padrao[2] : '' }]);
 }
 
 /** Executa fn dentro do lock do script. */

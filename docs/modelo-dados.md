@@ -54,6 +54,7 @@ Principais e acompanhamentos ficam na mesma aba, distinguidos por `tipo`. A resp
 | `situacao` | `RASCUNHO` \| `PUBLICADA` \| `FECHADA` | só `PUBLICADA` aceita pedidos de funcionários |
 | `publicada_em` / `publicada_por` | data/hora / e-mail | |
 | `atualizado_em` | data/hora | |
+| `confirmar_ate` | `yyyy-MM-ddTHH:mm` (hora local) ou vazio | data limite das respostas da semana: depois dela, quem não respondeu um dia não pede mais; quem respondeu ajusta até o prazo do dia. Até a segunda do ciclo. Coluna acrescentada depois (criada sozinha ao salvar a semana) |
 
 ### 4. `Cardapio`
 
@@ -146,7 +147,7 @@ Uma linha por ciclo.
 ## Regras de integridade
 
 1. No máximo um pedido por (`funcionario_id`, `data`).
-2. Pedido só pode ser criado/alterado por funcionário se: funcionário `ATIVO`, semana `PUBLICADA`, dia com `tipo = PRATO` e antes do prazo.
+2. Pedido só pode ser criado/alterado por funcionário se: funcionário `ATIVO`, semana `PUBLICADA`, dia com `tipo = PRATO` e antes do prazo. O prazo do dia vem de `PRAZO_HORA`/`PRAZO_DIAS_ANTES` (editáveis em Administração → Configurações); a primeira resposta de cada dia também precisa vir antes de `Semanas.confirmar_ate`, se houver.
 3. Os itens retirados de um pedido pertencem ao retrato do cardápio daquele dia. Se a combinação mudar depois (revisão pendente), itens que não existem mais são desconsiderados.
 4. Pedidos `CANCELADO` não entram em nenhum total.
 5. Publicar uma semana nunca altera nem remove dados de outras semanas.

@@ -18,6 +18,27 @@ function limiteDoDia_(data, prazo) {
   return somarDias_(data, -prazo.diasAntes) + 'T' + prazo.hora;
 }
 
+/**
+ * Até quando o funcionário pode mexer no dia ('yyyy-MM-ddTHH:mm', hora local) e qual prazo vale.
+ * Quem ainda não respondeu o dia precisa responder até a data limite da semana (`confirmarAte`, se houver)
+ * e até o prazo do dia, o que vier primeiro; quem já respondeu ajusta até o prazo do dia.
+ */
+function limiteParaFuncionario_(data, prazo, confirmarAte, jaRespondeu) {
+  var doDia = limiteDoDia_(data, prazo);
+  if (jaRespondeu || !confirmarAte || confirmarAte >= doDia) return { limite: doDia, tipo: 'DIA' };
+  return { limite: confirmarAte, tipo: 'SEMANA' };
+}
+
+/** Data limite da semana: vazia ou 'yyyy-MM-ddTHH:mm' válida até o fim do ciclo. Retorna '' se ok ou a mensagem. */
+function erroConfirmarAte_(texto, terca) {
+  if (!texto) return '';
+  var m = /^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})$/.exec(String(texto));
+  if (!m || !HORA_RE_.test(m[2])) return 'Data limite das respostas inválida.';
+  try { lerData_(m[1]); } catch (e) { return 'Data limite das respostas inválida.'; }
+  if (m[1] > somarDias_(terca, 6)) return 'A data limite das respostas precisa ser até a segunda-feira da semana.';
+  return '';
+}
+
 /** `agoraLocal` no mesmo formato ('yyyy-MM-ddTHH:mm'); comparação de texto basta. */
 function dentroDoPrazo_(data, agoraLocal, prazo) {
   return agoraLocal < limiteDoDia_(data, prazo);
@@ -64,17 +85,41 @@ function exigirFuncionarioAtivo_(ss, id) {
   return f;
 }
 
-/** Dias das semanas publicadas visíveis: { data: { semana_id, rotulo, tipo, prato, itens, observacao } }. */
+/**
+ * Dias das semanas publicadas visíveis: { data: { semana_id, rotulo, tipo, prato, itens, observacao } }.
+ * `confirmarAte`: { terca: data limite das respostas da semana, ou '' }.
+ */
 function diasPublicados_(ss, ciclos) {
+  var confirmarAte = {};
   var publicadas = lerTabela_(obterAba_(ss, 'Semanas')).linhas.filter(function (s) {
     return s.situacao === 'PUBLICADA' && ciclos.indexOf(s.id) !== -1;
-  }).map(function (s) { return s.id; });
+  }).map(function (s) { confirmarAte[s.id] = String(s.confirmar_ate || ''); return s.id; });
   var porData = {};
   lerTabela_(obterAba_(ss, 'Cardapio')).linhas.forEach(function (l) {
     if (publicadas.indexOf(l.semana_id) === -1) return;
     porData[l.data] = { semana_id: l.semana_id, tipo: String(l.tipo), prato: String(l.prato || ''), itens: lerLista_(l.itens), observacao: String(l.observacao || '') };
   });
-  return { semanas: publicadas.sort(), porData: porData };
+  return { semanas: publicadas.sort(), porData: porData, confirmarAte: confirmarAte };
+}
+
+// ---------- API administrativa ----------
+
+/** Prazo de cada dia: até `hora` (HH:mm) do próprio dia (0), da véspera (1) ou de 2 dias antes (2). */
+function adminSalvarPrazo(hora, diasAntes) {
+  var email = exigirAdmin_();
+  hora = String(hora || '');
+  diasAntes = Number(diasAntes);
+  if (!HORA_RE_.test(hora)) throw new Error('Horário inválido. Use o formato 09:30.');
+  if ([0, 1, 2].indexOf(diasAntes) === -1) throw new Error('Escolha no próprio dia, na véspera ou 2 dias antes.');
+  return comLock_(function () {
+    var ss = abrirPlanilha_();
+    var antes = configPrazo_(lerConfiguracoes_(ss));
+    gravarConfiguracao_(ss, 'PRAZO_HORA', hora);
+    gravarConfiguracao_(ss, 'PRAZO_DIAS_ANTES', String(diasAntes));
+    var depois = configPrazo_(lerConfiguracoes_(ss));
+    registrarAuditoria_(ss, 'ALTERAR_PRAZO', 'Configuracoes', '', email, { antes: antes, depois: depois });
+    return depois;
+  });
 }
 
 // ---------- API pública do web app (anônima) ----------
@@ -102,13 +147,16 @@ function apiPedidosDoFuncionario(funcionarioId) {
     semanas: pub.semanas.map(function (terca) {
       return {
         terca: terca,
+        confirmar_ate: pub.confirmarAte[terca] || '',
         dias: diasDoCiclo_(terca).filter(function (c) { return pub.porData[c.data]; }).map(function (c) {
           var d = pub.porData[c.data];
           var p = pedidos[c.data];
+          var lim = limiteParaFuncionario_(c.data, prazo, pub.confirmarAte[terca], !!p);
           return {
             data: c.data, rotulo: c.rotulo, tipo: d.tipo, prato: d.prato, itens: d.itens, observacao: d.observacao,
-            editavel: d.tipo === 'PRATO' && dentroDoPrazo_(c.data, agora, prazo),
-            limite: limiteDoDia_(c.data, prazo),
+            editavel: d.tipo === 'PRATO' && agora < lim.limite,
+            limite: lim.limite,
+            limite_tipo: lim.tipo,
             pedido: p ? {
               situacao: String(p.situacao),
               // itens que não existem mais (cardápio alterado) não contam
@@ -153,7 +201,12 @@ function apiSalvarPedidos(funcionarioId, alteracoes) {
       if (vistas[data]) throw new Error('Dia repetido.');
       vistas[data] = true;
       var rotulo = dataCurta_(data);
-      if (!dentroDoPrazo_(data, agora, prazo)) throw new Error('O prazo para ' + rotulo + ' já encerrou.');
+      var lim = limiteParaFuncionario_(data, prazo, pub.confirmarAte[dia.semana_id], !!existentes[data]);
+      if (agora >= lim.limite) {
+        throw new Error(lim.tipo === 'SEMANA'
+          ? 'O prazo para responder ' + rotulo + ' encerrou em ' + dataCurta_(lim.limite.slice(0, 10)) + ' às ' + lim.limite.slice(11) + '.'
+          : 'O prazo para ' + rotulo + ' já encerrou.');
+      }
       try {
         return { data: data, dia: dia, plano: planejarPedido_(dia, alt) };
       } catch (e) {

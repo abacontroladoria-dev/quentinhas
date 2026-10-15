@@ -47,3 +47,22 @@ test('ciclosVisiveis_: ciclo atual e o seguinte', () => {
   assert.deepEqual([...p.ciclosVisiveis_('2026-10-19')], ['2026-10-13', '2026-10-20']); // segunda ainda é do ciclo de 13
   assert.deepEqual([...p.ciclosVisiveis_('2026-10-20')], ['2026-10-20', '2026-10-27']);
 });
+
+test('limiteParaFuncionario_: data limite da semana vale só para a primeira resposta', () => {
+  const noDia = { hora: '09:30', diasAntes: 0 };
+  const lim = (data, ate, respondeu) => ({ ...p.limiteParaFuncionario_(data, noDia, ate, respondeu) });
+  assert.deepEqual(lim('2026-10-21', '2026-10-16T17:00', false), { limite: '2026-10-16T17:00', tipo: 'SEMANA' });
+  assert.deepEqual(lim('2026-10-21', '2026-10-16T17:00', true), { limite: '2026-10-21T09:30', tipo: 'DIA' }, 'quem respondeu ajusta até o dia');
+  assert.deepEqual(lim('2026-10-21', '', false), { limite: '2026-10-21T09:30', tipo: 'DIA' }, 'sem data limite');
+  assert.deepEqual(lim('2026-10-20', '2026-10-22T12:00', false), { limite: '2026-10-20T09:30', tipo: 'DIA' }, 'o que vier primeiro');
+});
+
+test('erroConfirmarAte_: vazio, formato e até a segunda do ciclo', () => {
+  assert.equal(p.erroConfirmarAte_('', '2026-10-20'), '');
+  assert.equal(p.erroConfirmarAte_('2026-10-16T17:00', '2026-10-20'), '');
+  assert.equal(p.erroConfirmarAte_('2026-10-26T23:59', '2026-10-20'), '');
+  assert.match(p.erroConfirmarAte_('2026-10-27T08:00', '2026-10-20'), /segunda-feira/);
+  assert.match(p.erroConfirmarAte_('2026-02-30T08:00', '2026-10-20'), /inválida/);
+  assert.match(p.erroConfirmarAte_('2026-10-16 17:00', '2026-10-20'), /inválida/);
+  assert.match(p.erroConfirmarAte_('2026-10-16T25:00', '2026-10-20'), /inválida/);
+});

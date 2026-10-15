@@ -224,6 +224,8 @@ function adminObterSemana(terca) {
     proxima: somarDias_(terca, 7),
     situacao: s.semana ? String(s.semana.situacao) : 'NOVA',
     publicada_em: s.semana ? String(s.semana.publicada_em || '') : '',
+    confirmar_ate: s.semana ? String(s.semana.confirmar_ate || '') : '',
+    prazo: configPrazo_(lerConfiguracoes_(ss)),
     // Quantas pessoas já responderam (só despublica com zero).
     respostas: s.semana && s.semana.situacao === 'PUBLICADA' ? pessoasQueResponderam_(lerTabela_(obterAba_(ss, 'Pedidos')).linhas, terca) : 0,
     dias: diasDoCiclo_(terca).map(function (c) {
@@ -289,11 +291,17 @@ function adminValidarSemana(terca, dias) {
 /**
  * Grava a semana. `publicar` = true muda para PUBLICADA (exige semana sem erros).
  * Em semana já publicada, dias com combinação alterada marcam os pedidos daquele dia como revisão PENDENTE.
+ * `confirmarAte`: data limite das respostas ('yyyy-MM-ddTHH:mm' ou ''); ausente = mantém a gravada.
  */
-function adminSalvarSemana(terca, dias, publicar) {
+function adminSalvarSemana(terca, dias, publicar, confirmarAte) {
   var email = exigirAdmin_();
   terca = inicioDoCiclo_(String(terca));
   var entrada = normalizarDiasEntrada_(terca, dias);
+  if (confirmarAte !== undefined && confirmarAte !== null) {
+    confirmarAte = String(confirmarAte);
+    var erroData = erroConfirmarAte_(confirmarAte, terca);
+    if (erroData) throw new Error(erroData);
+  }
 
   return comLock_(function () {
     var ss = abrirPlanilha_();
@@ -301,6 +309,11 @@ function adminSalvarSemana(terca, dias, publicar) {
     lerPratos_(ss).forEach(function (p) { porId[p.id] = p; });
     var fixos = lerItensFixos_(ss);
     var s = lerSemanaCompleta_(ss, terca);
+    // Planilha de antes da data limite: a coluna nasce aqui mesmo, sem precisar atualizar a planilha.
+    if (s.semanas.cabecalho.indexOf('confirmar_ate') === -1) {
+      garantirAba_(ss, 'Semanas', ESQUEMA_.Semanas);
+      s = lerSemanaCompleta_(ss, terca);
+    }
     var publicada = s.semana && s.semana.situacao === 'PUBLICADA';
 
     // Prato inativo só é aceito se já estava gravado naquele dia.
@@ -378,6 +391,8 @@ function adminSalvarSemana(terca, dias, publicar) {
       semana.publicada_em = agora;
       semana.publicada_por = email;
     }
+    var confirmarAntes = String(semana.confirmar_ate || '');
+    if (typeof confirmarAte === 'string') semana.confirmar_ate = confirmarAte;
     semana.atualizado_em = agora;
     if (s.semana) regravarPorId_(abaSem, s.semanas.cabecalho, semana);
     else anexarLinhas_(abaSem, s.semanas.cabecalho, [semana]);
@@ -392,6 +407,9 @@ function adminSalvarSemana(terca, dias, publicar) {
         operacao: publicada ? 'ALTERAR_CARDAPIO_PUBLICADO' : 'SALVAR_CARDAPIO', entidade: 'Cardapio', registroId: terca, responsavel: email,
         detalhes: { novos: novas.map(function (n) { return n.data + ' ' + (n.prato || n.tipo); }), alterados: alteradas, pedidosMarcados: pedidosMarcados }
       });
+    }
+    if (typeof confirmarAte === 'string' && confirmarAte !== confirmarAntes) {
+      auditoria.push({ operacao: 'ALTERAR_DATA_LIMITE', entidade: 'Semanas', registroId: terca, responsavel: email, detalhes: { antes: confirmarAntes, depois: confirmarAte } });
     }
     if (publicouAgora) auditoria.push({ operacao: 'PUBLICAR_SEMANA', entidade: 'Semanas', registroId: terca, responsavel: email });
     registrarAuditoriaLote_(ss, auditoria);
