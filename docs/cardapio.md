@@ -2,7 +2,7 @@
 
 Substitui a planilha `Cardápio Novo.xlsm` usada antes do sistema (abas Meals, Cardapio_Semanal e Registro, com as macros `GerarCardapio` e `RegistrarCardapio`). A aba "LISTA DE MERCADO SEMANAL" daquela planilha ficou fora do escopo.
 
-Tudo é feito em **Quentinhas → Administração**, sem importar arquivos.
+Tudo é feito na administração (página `admin.html` do link de administração, ou *Quentinhas → Administração* na planilha), sem importar arquivos.
 
 ## Banco de pratos (aba "Pratos" do diálogo)
 
@@ -23,8 +23,12 @@ Dois tipos, alternados no topo da lista:
 
 ## Montagem da semana (aba "Cardápio da semana")
 
-1. A tela abre no próximo ciclo (terça a segunda). As setas navegam entre ciclos.
-2. Para cada dia: escolher o **principal** (os acompanhamentos de costume entram automaticamente), tirar (×) ou acrescentar acompanhamentos, ou marcar **Sem almoço** (com observação, ex.: "Feriado").
+1. A tela abre no próximo ciclo (terça a segunda). As setas navegam entre ciclos; com alterações não salvas, a tela pergunta antes de trocar de semana. O topo mostra quantos dias já estão definidos.
+2. Para cada dia: escolher o **principal** num campo com busca (digite parte do nome; os acompanhamentos de costume entram automaticamente), tirar (×) ou acrescentar acompanhamentos, ou marcar **Sem almoço** (com motivo, ex.: "Feriado"; "Voltar a ter almoço" restaura o prato anterior).
+   - Na lista, cada principal mostra "já na quarta" (repetiria na semana) ou "saiu há 2 semanas" (últimos 6 ciclos).
+   - Se o prato não existir, "Cadastrar" leva à aba Pratos com o nome preenchido.
+   - **Sortear outro** troca só aquele dia, com as mesmas regras abaixo e sem repetir o principal atual. **Desfazer sorteio** volta os dias sorteados ao que eram.
+   - Avisos e erros aparecem embaixo do próprio dia. Na semana publicada, o dia cuja combinação mudou avisa que os pedidos vão para revisão ao salvar.
 3. **Sugerir dias vazios** reproduz a macro `GerarCardapio` para o principal:
    - sexta usa principais "só sexta" (se não houver, usa os demais); os outros dias usam os que não são só de sexta;
    - não repete principal na semana;
@@ -45,4 +49,5 @@ O funcionário recebe a combinação do dia e pode desmarcar qualquer item (prin
 
 - Mudar a combinação de um dia marca os pedidos confirmados daquele dia como **revisão pendente** e registra em `Auditoria`.
 - Mudar só a observação não afeta pedidos.
+- **Despublicar** (rodapé da semana publicada) volta a semana para rascunho e a tira da tela dos funcionários. Só funciona enquanto ninguém respondeu (nenhum pedido, nem "não quero"); depois disso, o caminho é alterar e salvar.
 - Editar o banco não altera semanas já publicadas até a semana ser salva de novo. Ao salvar, os itens são recalculados; só acrescentar itens (ex.: os de todo dia) não marca pedidos para revisão.

@@ -5,12 +5,14 @@ var FUSO_ = 'America/Sao_Paulo';
 // Abas e colunas (ordem de criação). Ver docs/modelo-dados.md.
 var ESQUEMA_ = {
   Funcionarios: ['id', 'nome', 'situacao', 'criado_em', 'atualizado_em'],
-  Pratos: ['id', 'tipo', 'nome', 'categoria', 'so_sexta', 'acompanhamentos', 'situacao', 'criado_em', 'atualizado_em', 'sem_fixos'],
+  Pratos: ['id', 'tipo', 'nome', 'categoria', 'so_sexta', 'acompanhamentos', 'situacao', 'criado_em', 'atualizado_em', 'sem_fixos', 'compras'],
   Semanas: ['id', 'data_inicio', 'data_fim', 'situacao', 'publicada_em', 'publicada_por', 'atualizado_em'],
   Cardapio: ['id', 'semana_id', 'data', 'dia_semana', 'tipo', 'principal_id', 'acompanhamento_ids', 'prato', 'itens', 'observacao', 'criado_em', 'atualizado_em'],
   Pedidos: ['id', 'funcionario_id', 'data', 'semana_id', 'situacao', 'tipo', 'retirados', 'revisao', 'criado_em', 'atualizado_em', 'atualizado_por'],
   Configuracoes: ['chave', 'valor', 'descricao'],
-  Auditoria: ['id', 'data_hora', 'operacao', 'entidade', 'registro_id', 'responsavel', 'detalhes']
+  Auditoria: ['id', 'data_hora', 'operacao', 'entidade', 'registro_id', 'responsavel', 'detalhes'],
+  ItensCompra: ['id', 'secao', 'nome', 'ordem', 'situacao', 'criado_em', 'atualizado_em'],
+  ListasCompra: ['id', 'quantidades', 'atualizado_em', 'atualizado_por']
 };
 
 // Colunas numéricas; todas as outras são formatadas como texto (@) para evitar conversão automática.

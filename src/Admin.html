@@ -30,56 +30,251 @@
     .alternador button[aria-pressed=true] { background: var(--accent); color: var(--accent-text); }
 
     /* Cardápio */
-    .semana-nav { display: flex; align-items: center; gap: .75rem; margin-bottom: .75rem; }
-    .semana-nav h2 { margin: 0; flex: 1; }
-    .etiqueta.rascunho { background: var(--warn-bg); }
+    #aba-cardapio { display: flex; flex-direction: column; min-height: calc(100vh - 62px); }
+    #aba-cardapio[hidden] { display: none; }
+    .semana-topo { display: flex; align-items: center; gap: .5rem; }
+    .semana-topo h2 { margin: 0; font-size: 1.3rem; font-weight: 700; letter-spacing: -.01em; }
+    .semana-topo .quando { color: var(--muted); }
+    .semana-topo .espaco { flex: 1; }
+    button.seta { width: 36px; height: 36px; padding: 0; border-radius: 50%; display: grid; place-items: center; }
+    button.seta svg { width: 16px; height: 16px; }
+    .etiqueta.rascunho { background: var(--warn-bg); color: var(--warn); }
     .etiqueta.nova { background: var(--line); color: var(--muted); }
-    table.semana td { padding: .6rem .5rem; vertical-align: top; }
-    table.semana td.dia { width: 120px; }
-    table.semana td.dia strong { display: block; }
-    table.semana td.obs { width: 160px; }
-    tr.sem-almoco td { background: #f4f2ec; }
-    .acomp { display: flex; flex-wrap: wrap; gap: .3rem; align-items: center; margin-top: .4rem; }
-    .chip { display: inline-flex; align-items: center; gap: .2rem; background: var(--ok-bg); border-radius: 999px; padding: .1rem .2rem .1rem .6rem; font-size: .85rem; }
-    .chip button { border: 0; background: none; padding: 0 .35rem; line-height: 1.2; font-size: 1rem; color: var(--muted); }
-    .acomp select { width: auto; max-width: 220px; font-size: .85rem; padding: .15rem .3rem; }
-    .marca { font-size: .78rem; color: var(--muted); }
+    .intro-semana { color: var(--muted); font-size: .92rem; margin: .3rem 0 .6rem; max-width: 68ch; }
+    .descartar { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; background: var(--warn-bg); color: var(--warn); border-radius: var(--radius); padding: .5rem .5rem .5rem .8rem; margin-bottom: .6rem; font-size: .92rem; }
+    .descartar[hidden] { display: none; }
+    .descartar span { flex: 1; }
+
+    /* A semana numa folha: cada dia se lê como o cardápio impresso.
+       O trilho à esquerda liga terça a segunda; o marco de cada dia mostra a situação
+       (vazio, definido, sem almoço, alterado). O trecho tracejado antes da segunda é o fim de semana. */
+    ol.dias { list-style: none; margin: 0; padding: 6px 0; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
+    li.dia { --trilho: 4.75rem; --marco-y: 38px; display: grid; grid-template-columns: 5.75rem minmax(0, 1fr) auto; gap: 0 .9rem; padding: 14px 14px 16px 0; position: relative; }
+    li.dia::before { content: ""; position: absolute; left: calc(var(--trilho) - 1px); top: 0; bottom: 0; width: 2px; background: var(--line); }
+    li.dia:first-child::before { top: var(--marco-y); }
+    li.dia:last-child::before { bottom: auto; height: var(--marco-y); }
+    li.dia.depois-fds::before { background: repeating-linear-gradient(to bottom, var(--line-strong) 0 4px, transparent 4px 9px); }
+    li.dia + li.dia::after { content: ""; position: absolute; top: 0; left: calc(5.75rem + .9rem); right: 14px; height: 1px; background: var(--line); }
+    .dia .data { position: relative; padding: 6px 0 0 16px; line-height: 1; }
+    .dia .data .abrev { display: block; font-size: .8125rem; color: var(--muted); margin-bottom: 4px; }
+    .dia .data .num { display: block; font-size: 2.125rem; font-weight: 800; letter-spacing: -.035em; color: var(--text); }
+    .dia.vazio .data .num { color: var(--muted); font-weight: 700; }
+    .dia.sem-almoco .data .num { color: var(--muted); font-weight: 500; }
+    .dia .marco { position: absolute; left: calc(var(--trilho) - 7px); top: calc(var(--marco-y) - 7px); width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--line-strong); background: var(--surface); z-index: 1; }
+    .dia.definido .marco { background: var(--accent); border-color: var(--accent); }
+    .dia.sem-almoco .marco { border-style: dashed; border-color: var(--muted); }
+    .dia.alterado .marco { background: #C9922E; border-color: #C9922E; box-shadow: 0 0 0 4px var(--warn-bg); }
+    .dia .meio { display: grid; gap: .5rem; align-content: start; }
+    .dia .lado { display: flex; align-items: center; gap: .1rem; height: 48px; }
+    .dia .lado button { white-space: nowrap; font-size: .9rem; padding: .3rem .55rem; }
+    .sem-almoco-titulo { font-size: 1.3rem; font-weight: 700; color: var(--muted); line-height: 48px; }
+    .vem-com { font-size: .875rem; color: var(--muted); display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
+    .vem-com button { font-size: .85rem; padding: .05rem .4rem; }
+    .linha-obs { display: flex; align-items: center; gap: .5rem; }
+    .linha-obs label { font-size: .875rem; color: var(--muted); white-space: nowrap; }
+    .linha-obs input { max-width: 340px; padding: .3rem .55rem; }
+    .notas-dia { display: grid; gap: .2rem; font-size: .875rem; }
+    .notas-dia:empty { display: none; }
+    .notas-dia .erro { color: var(--danger); font-weight: 600; }
+    .notas-dia .alerta { color: var(--warn); }
+    .notas-dia .revisao { color: var(--warn); font-weight: 600; }
+    .sugerido { font-size: .8rem; color: var(--accent); background: var(--accent-soft); border-radius: 999px; padding: .05rem .5rem; }
+
+    /* Campo com busca (principal e acompanhamentos) */
+    .combo { position: relative; }
+    .combo .campo { width: 100%; font: inherit; border: 1.5px solid var(--line); border-radius: var(--radius); background: var(--surface); color: var(--text); padding: .5rem 2.2rem .5rem .7rem; }
+    .combo .campo:hover { border-color: var(--line-strong); }
+    .combo .campo::placeholder { color: var(--muted); font-weight: 500; }
+    /* Principal: preenchido se lê como o nome no cardápio; vazio é um compartimento tracejado a preencher. */
+    .combo.principal { margin-left: -.65rem; }
+    .combo .campo.principal { height: 48px; font-size: 1.3rem; font-weight: 700; letter-spacing: -.01em; padding-left: .65rem; border-color: transparent; background: transparent; }
+    .combo .campo.principal:hover { background: var(--bg); border-color: transparent; }
+    .combo .campo.principal:focus { background: var(--surface); border-color: var(--line-strong); }
+    .combo .campo.principal:placeholder-shown { border: 1.5px dashed var(--line-strong); background: var(--bg); font-size: 1.05rem; }
+    .combo .campo.principal:placeholder-shown:hover { border-color: var(--accent); }
+    .combo .campo.principal::placeholder { color: var(--accent); font-weight: 600; }
+    .combo .campo.principal:not(:placeholder-shown):not(:hover):not(:focus) ~ .seta-combo { opacity: .45; }
+    .combo .seta-combo { position: absolute; right: .7rem; top: 50%; width: 12px; height: 12px; transform: translateY(-50%); pointer-events: none; stroke: var(--muted); }
+    .combo ul { position: absolute; left: 0; right: 0; top: calc(100% + 4px); z-index: 5; list-style: none; margin: 0; padding: .3rem; max-height: 290px; overflow-y: auto; background: var(--surface); border: 1.5px solid var(--line-strong); border-radius: var(--radius); box-shadow: 0 10px 28px rgba(24, 41, 47, .16); }
+    .combo ul.acima { top: auto; bottom: calc(100% + 4px); }
+    .combo ul[hidden] { display: none; }
+    .combo li.grupo { font-size: .8rem; font-weight: 700; color: var(--muted); padding: .55rem .6rem .2rem; }
+    .combo li[role=option] { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; padding: .4rem .6rem; border-radius: 7px; cursor: pointer; }
+    .combo li[role=option].ativo { background: var(--accent); color: #fff; }
+    .combo li[role=option][aria-selected=true]:not(.ativo) { background: var(--accent-soft); }
+    .combo li .dica { font-size: .8rem; color: var(--muted); white-space: nowrap; }
+    .combo li .dica.repetido { color: var(--warn); font-weight: 600; }
+    .combo li.ativo .dica { color: #fff; }
+    .combo li.nada { padding: .6rem; color: var(--muted); font-size: .9rem; }
+    .combo li.nada button { margin-top: .4rem; display: block; }
+
+    .acomp { display: flex; flex-wrap: wrap; gap: .35rem; align-items: center; }
+    .chip { display: inline-flex; align-items: center; background: var(--accent-soft); color: var(--accent-dark); border-radius: 999px; padding: .15rem .15rem .15rem .7rem; font-size: .92rem; font-weight: 600; }
+    .chip button { border: 0; background: none; padding: 0 .45rem; line-height: 1.3; font-size: 1.05rem; color: var(--accent-dark); border-radius: 999px; }
+    .chip button:hover { background: rgba(30, 90, 110, .15); }
+    .acomp .combo { width: 210px; }
+    .acomp .combo .campo { padding: .22rem 1.8rem .22rem .6rem; font-size: .9rem; border-style: dashed; }
+
+    /* Rodapé fixo: progresso da semana e ações */
+    .rodape { position: sticky; bottom: 0; margin-top: auto; background: var(--bg); border-top: 1px solid var(--line); padding: .6rem 0 .2rem; z-index: 3; }
+    .rodape #semMensagens:empty { display: none; }
+    .rodape #semMensagens .aviso { margin: 0 0 .5rem; max-height: 140px; overflow-y: auto; }
+    .rodape .acoes { margin-top: 0; }
+    .rodape .nao-salvo { color: var(--warn); font-weight: 600; font-size: .92rem; }
+    .rodape .nao-salvo[hidden] { display: none; }
+    .progresso { font-size: .9rem; color: var(--muted); margin-right: .4rem; }
+    .progresso strong { color: var(--text); }
+    button.despublicar { color: var(--danger); }
+    button.despublicar:hover { background: var(--err-bg); }
+    button.despublicar[hidden] { display: none; }
+
+    /* Lista de compras: seções como na planilha da Tati; o que vai ser comprado fica marcado */
+    #aba-compras { display: flex; flex-direction: column; min-height: calc(100vh - 62px); }
+    #aba-compras[hidden] { display: none; }
+    .ferramentas { display: flex; align-items: center; gap: .75rem; margin-bottom: .6rem; }
+    .ferramentas input[type=search] { font: inherit; width: 220px; border: 1.5px solid var(--line); border-radius: 999px; padding: .35rem .8rem; background: var(--surface); color: var(--text); }
+    .ferramentas .espaco { flex: 1; }
+    .ferramentas button[aria-pressed=true] { background: var(--accent); color: var(--accent-text); }
+    .secao-compra { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 10px 16px 12px; margin-bottom: 10px; }
+    .secao-compra[hidden] { display: none; }
+    .secao-compra h3 { display: flex; align-items: baseline; gap: .6rem; font-size: 1.05rem; margin: 2px 0 6px; }
+    .secao-compra h3 .conta { font-size: .85rem; font-weight: 500; color: var(--muted); }
+    .grade-itens { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1.5rem; }
+    .item-compra { display: grid; grid-template-columns: minmax(0, 1fr) 7.5rem; align-items: center; gap: .6rem; padding: 5px 0; border-bottom: 1px solid var(--line); }
+    .item-compra[hidden] { display: none; }
+    .item-compra .nome { min-width: 0; }
+    .item-compra .nome label { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .item-compra .pede { display: block; font-size: .8rem; color: var(--accent); }
+    .item-compra .pede.difere { color: var(--warn); }
+    .item-compra input.qtd { padding: .25rem .5rem; text-align: right; }
+    .item-compra.tem .nome label { font-weight: 700; }
+    .item-compra.tem input.qtd { border-color: var(--accent); background: var(--accent-soft); font-weight: 700; }
+    .item-compra .edicao { display: flex; gap: .3rem; align-items: center; }
+    .item-compra .edicao input { padding: .2rem .45rem; }
+    .novo-item { display: flex; gap: .4rem; margin-top: 8px; max-width: 420px; }
+    .novo-item input { padding: .3rem .55rem; }
+    .copia textarea { width: 100%; height: 120px; font-size: .85rem; margin-top: .4rem; }
+    .copia a { color: var(--accent-dark); font-weight: 700; }
+
+    /* Configurações */
+    .config { max-width: 860px; }
+    .config h2 { margin: .5rem 0 .6rem; }
+    .config h2 + .nota { margin-top: 0; }
+    .link-linha { display: grid; grid-template-columns: 15rem minmax(0, 1fr) auto auto; gap: .5rem; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: .7rem .8rem; margin-bottom: .5rem; }
+    .link-texto .nota { display: block; margin: .1rem 0 0; font-size: .82rem; }
+    .link-linha input { font-size: .82rem; color: var(--muted); padding: .35rem .5rem; }
+    #cfgAtualizar { margin-bottom: .5rem; }
+
+    /* Página de administração no site (fora da planilha): marca no topo, largura limitada, celular */
+    .marca-site { display: none; }
+    .no-site body { padding: 0 16px 16px; max-width: 1120px; margin: 0 auto; }
+    .no-site .marca-site { display: block; font-weight: 800; color: var(--accent); padding: 14px 0 4px; font-size: 1.05rem; }
+    .no-site #aba-cardapio, .no-site #aba-compras { min-height: calc(100vh - 110px); }
+    .sem-link { max-width: 520px; margin: 15vh auto; padding: 0 16px; }
+    .sem-link h1 { font-size: 1.6rem; }
+    @media (max-width: 720px) {
+      nav.abas { overflow-x: auto; }
+      nav.abas button { white-space: nowrap; }
+      .grade, .grade-itens { grid-template-columns: 1fr; }
+      .semana-topo { flex-wrap: wrap; }
+      .semana-topo .espaco { display: none; }
+      li.dia { grid-template-columns: 4.6rem minmax(0, 1fr); padding-right: 10px; }
+      li.dia { --trilho: 3.9rem; }
+      li.dia + li.dia::after { left: 5.5rem; }
+      .dia .lado { grid-column: 2; height: auto; flex-wrap: wrap; margin-left: -.55rem; }
+      .ferramentas { flex-wrap: wrap; }
+      .ferramentas input[type=search] { width: 100%; }
+      .link-linha { grid-template-columns: 1fr auto auto; }
+      .link-texto { grid-column: 1 / -1; }
+      .rodape .acoes { flex-wrap: wrap; }
+    }
 
     /* Pratos */
+    .linha-compra { display: grid; grid-template-columns: minmax(0, 1fr) 7rem auto; gap: .4rem; align-items: center; margin-bottom: .35rem; }
+    .linha-compra select { padding: .3rem .4rem; }
+    .linha-compra input { padding: .3rem .5rem; }
     .caixa-opcoes { max-height: 190px; overflow-y: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); padding: .3rem .5rem; }
     .caixa-opcoes label { display: block; font-size: .9rem; padding: .1rem 0; }
     #colagemPratos, #novos { min-height: 200px; resize: vertical; }
   </style>
 </head>
 <body>
+  <div class="marca-site">Quentinhas · Administração</div>
   <nav class="abas" role="tablist">
     <button role="tab" data-aba="cardapio" aria-selected="true">Cardápio da semana</button>
+    <button role="tab" data-aba="compras" aria-selected="false">Lista de compras</button>
     <button role="tab" data-aba="pratos" aria-selected="false">Pratos</button>
     <button role="tab" data-aba="funcionarios" aria-selected="false">Funcionários</button>
+    <button role="tab" data-aba="config" aria-selected="false">Configurações</button>
   </nav>
 
   <!-- ===================== CARDÁPIO ===================== -->
   <section class="painel" id="aba-cardapio">
-    <div class="semana-nav">
-      <button id="semAnterior" title="Semana anterior">◀</button>
+    <div class="semana-topo">
+      <button class="seta" id="semAnterior" aria-label="Semana anterior" title="Semana anterior"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3 5 8l5 5"/></svg></button>
       <h2 id="semTitulo">Carregando…</h2>
-      <span id="semSituacao" class="etiqueta"></span>
-      <button id="semProxima" title="Próxima semana">▶</button>
-    </div>
-    <p class="nota" id="semNota"></p>
-    <div class="lista" style="max-height:none">
-      <table class="semana">
-        <thead><tr><th>Dia</th><th>Prato principal e acompanhamentos</th><th>Observação</th></tr></thead>
-        <tbody id="semCorpo"></tbody>
-      </table>
-    </div>
-    <div id="semMensagens"></div>
-    <div class="acoes">
-      <button id="semSugerir" title="Sorteia principais para os dias vazios, com as regras da planilha antiga, e completa os acompanhamentos de costume">Sugerir dias vazios</button>
-      <button id="semLimpar">Limpar sugestões</button>
+      <button class="seta" id="semProxima" aria-label="Próxima semana" title="Próxima semana"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 3 5 5-5 5"/></svg></button>
+      <span class="quando" id="semQuando"></span>
       <span class="espaco"></span>
-      <button id="semSalvar">Salvar rascunho</button>
-      <button id="semPublicar" class="primario">Publicar</button>
+      <span class="progresso" id="semProgresso"></span>
+      <span id="semSituacao" class="etiqueta"></span>
+    </div>
+    <p class="intro-semana" id="semNota"></p>
+    <div class="descartar" id="semDescartar" role="alert" hidden>
+      <span>Esta semana tem alterações não salvas.</span>
+      <button class="pequeno" id="semDescartarSim">Descartar e trocar de semana</button>
+      <button class="pequeno primario" id="semDescartarNao">Continuar aqui</button>
+    </div>
+    <ol class="dias" id="semDias"></ol>
+
+    <div class="rodape">
+      <div id="semMensagens" aria-live="polite"></div>
+      <div class="acoes">
+        <button class="discreto despublicar" id="semDespublicar" hidden title="Tira a semana da tela dos funcionários e volta para rascunho. Só é possível enquanto ninguém respondeu.">Despublicar</button>
+        <span class="nao-salvo" id="semNaoSalvo" hidden>Alterações não salvas</span>
+        <span class="espaco"></span>
+        <button class="discreto" id="semDesfazer" hidden>Desfazer sorteio</button>
+        <button id="semSugerir" title="Sorteia principais para os dias vazios com as regras da planilha antiga: sem repetir, sem frango seguido, prato de sexta na sexta, evitando o que saiu nas últimas semanas.">Sugerir dias vazios</button>
+        <button id="semSalvar">Salvar rascunho</button>
+        <button id="semPublicar" class="primario">Publicar</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== LISTA DE COMPRAS ===================== -->
+  <section class="painel" id="aba-compras" hidden>
+    <div class="semana-topo">
+      <button class="seta" id="cmpAnterior" aria-label="Semana anterior" title="Semana anterior"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3 5 8l5 5"/></svg></button>
+      <h2 id="cmpTitulo">Carregando…</h2>
+      <button class="seta" id="cmpProxima" aria-label="Próxima semana" title="Próxima semana"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 3 5 5-5 5"/></svg></button>
+      <span class="quando" id="cmpQuando"></span>
+      <span class="espaco"></span>
+      <span class="progresso" id="cmpContagem"></span>
+      <span id="cmpSituacao" class="etiqueta"></span>
+    </div>
+    <p class="intro-semana" id="cmpNota"></p>
+    <div class="descartar" id="cmpDescartar" role="alert" hidden>
+      <span>Esta lista tem alterações não salvas.</span>
+      <button class="pequeno" id="cmpDescartarSim">Descartar e trocar de semana</button>
+      <button class="pequeno primario" id="cmpDescartarNao">Continuar aqui</button>
+    </div>
+    <div class="ferramentas">
+      <input type="search" id="cmpBusca" placeholder="Buscar item" aria-label="Buscar item">
+      <label class="filtro"><input type="checkbox" id="cmpSoCompra"> Só o que vai comprar</label>
+      <span class="espaco"></span>
+      <button class="discreto" id="cmpCardapio" title="Troca as quantidades dos itens que os pratos da semana pedem pelo que o cardápio soma">Preencher pelo cardápio</button>
+      <button class="discreto" id="cmpEditar" aria-pressed="false">Editar itens</button>
+    </div>
+    <div id="cmpSecoes"></div>
+
+    <div class="rodape">
+      <div id="cmpMensagens" aria-live="polite"></div>
+      <div class="acoes">
+        <span class="nao-salvo" id="cmpNaoSalvo" hidden>Alterações não salvas</span>
+        <span class="espaco"></span>
+        <button id="cmpCopiar">Copiar para o WhatsApp</button>
+        <button class="primario" id="cmpSalvar">Salvar lista</button>
+      </div>
     </div>
   </section>
 
@@ -106,6 +301,8 @@
           <div class="caixa-opcoes" id="pratoAcomp"></div>
           <label class="campo">Vem com <span class="muted">— itens de todo dia</span></label>
           <div id="pratoFixos"></div>
+          <label class="campo">Para comprar <span class="muted">— entra na lista de compras da semana em que o prato estiver no cardápio</span></label>
+          <div id="pratoCompras"></div>
         </div>
         <div class="acoes">
           <button class="primario" id="pratoSalvar">Salvar</button>
@@ -167,6 +364,45 @@
           </table>
         </div>
       </div>
+    </div>
+  </section>
+
+  <!-- ===================== CONFIGURAÇÕES ===================== -->
+  <section class="painel" id="aba-config" hidden>
+    <div class="config">
+      <h2>Links</h2>
+      <div class="link-linha">
+        <div class="link-texto">
+          <strong>Funcionários</strong>
+          <span class="nota">Mande no grupo. Cada um escolhe o próprio nome.</span>
+        </div>
+        <input type="text" readonly id="linkFuncionarios" aria-label="Link dos funcionários">
+        <button class="pequeno" data-copiar="linkFuncionarios">Copiar</button>
+      </div>
+      <div class="link-linha">
+        <div class="link-texto">
+          <strong>Cozinha</strong>
+          <span class="nota">Abra no celular ou tablet da cozinha. Só mostra os pedidos; não mande no grupo.</span>
+        </div>
+        <input type="text" readonly id="linkCozinha" aria-label="Link da cozinha">
+        <button class="pequeno" data-copiar="linkCozinha">Copiar</button>
+        <button class="pequeno perigo" id="trocarCozinha" title="O link atual para de funcionar na hora">Trocar link</button>
+      </div>
+      <div class="link-linha">
+        <div class="link-texto">
+          <strong>Administração</strong>
+          <span class="nota">Esta tela, sem abrir a planilha. Quem tiver o link administra o sistema: guarde só para você.</span>
+        </div>
+        <input type="text" readonly id="linkAdmin" aria-label="Link da administração">
+        <button class="pequeno" data-copiar="linkAdmin">Copiar</button>
+        <button class="pequeno perigo" id="trocarAdmin" title="O link atual para de funcionar na hora, inclusive nos favoritos">Trocar link</button>
+      </div>
+      <div id="cfgLinksMsg"></div>
+
+      <h2>Planilha</h2>
+      <p class="nota">Depois de uma atualização do sistema, cria as abas e colunas que faltarem. Não apaga nem muda o que já está cadastrado.</p>
+      <button id="cfgAtualizar">Atualizar a planilha</button>
+      <div id="cfgMsg"></div>
     </div>
   </section>
 
@@ -236,16 +472,29 @@
         });
         // Atualiza o banco usado no cardápio sem descartar a semana em edição.
         if (b.dataset.aba === 'cardapio' && semana && pratosMudaram) { pratosMudaram = false; semana.pratos = pratos; desenharSemana(); validarSemanaDepois(); }
+        // A lista depende do cardápio e do que cada prato pede: recarrega ao entrar, se não houver edição pendente.
+        if (b.dataset.aba === 'compras' && !ocupado && !cmpAlterado()) carregarCompras(cmp ? cmp.terca : semana ? semana.terca : '');
+        if (b.dataset.aba === 'config' && !ocupado) carregarConfig();
       };
     });
 
     // ================= CARDÁPIO =================
     var semana = null;          // resposta de adminObterSemana
-    var sugeridos = {};         // datas preenchidas pela sugestão (para "Limpar sugestões")
+    var gravado = {};           // data → dia como está gravado (para saber o que mudou)
+    var sugeridos = {};         // data → dia como estava antes do sorteio ("Desfazer sorteio")
+    var validacao = { erros: [], avisos: [], porData: {} };
+    var tentouPublicar = false; // dia vazio só aparece como erro depois de tentar publicar
+    var destinoPendente = null; // semana para onde ir depois de descartar alterações
+    var focarDepois = null;     // data-foco do campo que recebe o foco depois de redesenhar
     var pratosMudaram = false;
     var timerValidacao = null;
+    var DIA_MS = 864e5;
+    var ABREV = { TERCA: 'Ter', QUARTA: 'Qua', QUINTA: 'Qui', SEXTA: 'Sex', SEGUNDA: 'Seg' };
+    var NOME_DIA = { TERCA: 'terça', QUARTA: 'quarta', QUINTA: 'quinta', SEXTA: 'sexta', SEGUNDA: 'segunda' };
 
     function dataBr(iso) { var p = iso.split('-'); return p[2] + '/' + p[1]; }
+    function msDe(iso) { var p = iso.split('-'); return Date.UTC(+p[0], +p[1] - 1, +p[2]); }
+    function listaPt(l) { return l.length < 2 ? l.join('') : l.slice(0, -1).join(', ') + ' e ' + l[l.length - 1]; }
 
     function pratoPorId(id) {
       for (var i = 0; i < semana.pratos.length; i++) if (semana.pratos[i].id === id) return semana.pratos[i];
@@ -269,130 +518,400 @@
 
     function nomeDe(id, fallback) { var p = pratoPorId(id); return p ? p.nome : (fallback || '(removido)'); }
 
-    function carregarSemana(terca) {
-      el('semMensagens').textContent = '';
-      chamar('adminObterSemana', [terca || ''], function (r) {
-        semana = r;
-        sugeridos = {};
-        desenharSemana();
-        validarSemanaDepois();
-      }, el('semMensagens'));
+    // ---- estado de cada dia ----
+    function copiaDia(d) { return { tipo: d.tipo, principal_id: d.principal_id, acompanhamento_ids: d.acompanhamento_ids.slice(), observacao: d.observacao || '' }; }
+    function combinacao(d) { return JSON.stringify([d.tipo, d.principal_id, d.acompanhamento_ids]); }
+    function combinacaoMudou(d) { return combinacao(gravado[d.data]) !== combinacao(d); }
+    function diaMudou(d) { return combinacaoMudou(d) || gravado[d.data].observacao !== (d.observacao || ''); }
+    function haAlteracoes() { return !!semana && semana.dias.some(diaMudou); }
+    function diaPronto(d) { return d.tipo === 'SEM_ALMOCO' || (d.tipo === 'PRATO' && !!pratoPorId(d.principal_id)); }
+    /** Mexer à mão num dia sorteado tira o dia do "Desfazer sorteio". */
+    function mexeu(d) { delete sugeridos[d.data]; }
+
+    function quandoE(s) {
+      var dif = Math.round((msDe(s.terca) - msDe(s.hoje)) / DIA_MS); // dias até a terça do ciclo
+      if (dif <= 0 && dif > -7) return 'semana atual';
+      if (dif > 0 && dif <= 7) return 'próxima semana';
+      if (dif > 7) return 'daqui a ' + Math.ceil(dif / 7) + ' semanas';
+      if (dif > -14) return 'semana passada';
+      return 'há ' + Math.floor(-dif / 7) + ' semanas';
     }
 
+    function ultimaVez(id) {
+      var data = semana.ultima_vez && semana.ultima_vez[id];
+      if (!data) return '';
+      var semanas = Math.ceil((msDe(semana.terca) - msDe(data)) / (7 * DIA_MS));
+      return semanas <= 1 ? 'saiu semana passada' : 'saiu há ' + semanas + ' semanas';
+    }
+
+    // ---- campo com busca (combobox da WAI-ARIA) ----
+    var comboSeq = 0;
+    /**
+     * o: { valor, texto, placeholder, rotulo, classe, foco,
+     *      grupos() → [{ grupo, itens: [{ id, nome, dica, repetido }] }], aoEscolher(id), cadastrar(nome) }
+     * Abre ao clicar, digitar ou com ↓; Enter escolhe; Esc desiste.
+     */
+    function combo(o) {
+      var caixa = criar('div', undefined, 'combo' + (o.classe ? ' ' + o.classe : ''));
+      var campo = criar('input', undefined, 'campo' + (o.classe ? ' ' + o.classe : ''));
+      var lista = criar('ul');
+      var idLista = 'combo-' + (++comboSeq);
+      campo.type = 'text';
+      campo.value = o.texto || '';
+      campo.placeholder = o.placeholder || '';
+      campo.autocomplete = 'off';
+      campo.spellcheck = false;
+      campo.dataset.foco = o.foco;
+      campo.setAttribute('role', 'combobox');
+      campo.setAttribute('aria-autocomplete', 'list');
+      campo.setAttribute('aria-expanded', 'false');
+      campo.setAttribute('aria-controls', idLista);
+      campo.setAttribute('aria-label', o.rotulo);
+      lista.id = idLista;
+      lista.setAttribute('role', 'listbox');
+      lista.setAttribute('aria-label', o.rotulo);
+      lista.hidden = true;
+      caixa.appendChild(campo);
+      caixa.insertAdjacentHTML('beforeend', '<svg class="seta-combo" viewBox="0 0 12 12" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 4.5 3 3 3-3"/></svg>');
+      caixa.appendChild(lista);
+
+      var opcoes = [];
+      var ativo = -1;
+      var semFoco = function (ev) { ev.preventDefault(); }; // clicar na lista não tira o foco do campo
+
+      function abrir(filtro) {
+        desenhar(filtro);
+        lista.hidden = false;
+        campo.setAttribute('aria-expanded', 'true');
+        // Abre para cima quando não cabe acima do rodapé (dias do fim da semana).
+        var r = campo.getBoundingClientRect();
+        var rodape = document.querySelector('.rodape');
+        var limite = rodape ? rodape.getBoundingClientRect().top : window.innerHeight;
+        lista.classList.toggle('acima', limite - r.bottom < 220 && r.top > limite - r.bottom);
+        if (ativo >= 0) opcoes[ativo].scrollIntoView({ block: 'nearest' });
+      }
+      function fechar(restaurar) {
+        lista.hidden = true;
+        campo.setAttribute('aria-expanded', 'false');
+        campo.removeAttribute('aria-activedescendant');
+        if (restaurar) campo.value = o.texto || '';
+      }
+      function marcar(i) {
+        if (opcoes[ativo]) opcoes[ativo].classList.remove('ativo');
+        ativo = opcoes[i] ? i : -1;
+        if (ativo < 0) { campo.removeAttribute('aria-activedescendant'); return; }
+        opcoes[i].classList.add('ativo');
+        campo.setAttribute('aria-activedescendant', opcoes[i].id);
+        if (!lista.hidden) opcoes[i].scrollIntoView({ block: 'nearest' });
+      }
+      function desenhar(filtro) {
+        var texto = (filtro || '').trim();
+        var f = semAcento(texto);
+        lista.textContent = '';
+        opcoes = [];
+        ativo = -1;
+        o.grupos().forEach(function (g) {
+          var itens = g.itens.filter(function (it) { return !f || semAcento(it.nome).indexOf(f) !== -1; });
+          if (!itens.length) return;
+          if (g.grupo) {
+            var cab = criar('li', g.grupo, 'grupo');
+            cab.setAttribute('role', 'presentation');
+            lista.appendChild(cab);
+          }
+          itens.forEach(function (it) {
+            var li = criar('li');
+            li.id = idLista + '-' + opcoes.length;
+            li.dataset.id = it.id;
+            li.setAttribute('role', 'option');
+            li.setAttribute('aria-selected', String(it.id === o.valor));
+            li.appendChild(criar('span', it.nome));
+            if (it.dica) li.appendChild(criar('span', it.dica, 'dica' + (it.repetido ? ' repetido' : '')));
+            li.onmousedown = semFoco;
+            li.onclick = function () { escolher(it.id); };
+            lista.appendChild(li);
+            opcoes.push(li);
+          });
+        });
+        if (!opcoes.length) {
+          var nada = criar('li', undefined, 'nada');
+          nada.setAttribute('role', 'presentation');
+          nada.appendChild(criar('div', texto ? 'Nada com "' + texto + '".' : 'Nenhuma opção disponível.'));
+          if (texto && o.cadastrar) {
+            var b = criar('button', 'Cadastrar "' + texto + '"', 'pequeno');
+            b.onmousedown = semFoco;
+            b.onclick = function () { fechar(true); o.cadastrar(texto); };
+            nada.appendChild(b);
+          }
+          lista.appendChild(nada);
+        }
+        // Com busca, a primeira opção fica pronta para o Enter; sem busca, a escolhida.
+        if (f) marcar(0);
+        else opcoes.some(function (li, i) { if (li.dataset.id === o.valor) { marcar(i); return true; } return false; });
+      }
+      function escolher(id) {
+        fechar(false);
+        if (id !== o.valor) o.aoEscolher(id);
+        else campo.value = o.texto || '';
+      }
+
+      campo.onfocus = function () { campo.select(); };
+      campo.onmousedown = function () { if (lista.hidden && document.activeElement === campo) abrir(''); };
+      campo.onclick = function () { if (lista.hidden) abrir(''); };
+      campo.oninput = function () { abrir(campo.value); };
+      campo.onblur = function () { fechar(true); };
+      campo.onkeydown = function (ev) {
+        if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp') {
+          ev.preventDefault();
+          if (lista.hidden) { abrir(''); return; }
+          if (!opcoes.length) return;
+          var n = ativo + (ev.key === 'ArrowDown' ? 1 : -1);
+          marcar((n + opcoes.length) % opcoes.length);
+        } else if (ev.key === 'Enter') {
+          if (!lista.hidden && opcoes[ativo]) { ev.preventDefault(); escolher(opcoes[ativo].dataset.id); }
+        } else if (ev.key === 'Escape' && !lista.hidden) {
+          ev.preventDefault();
+          ev.stopPropagation();
+          fechar(true);
+          campo.select();
+        }
+      };
+      return caixa;
+    }
+
+    // ---- opções dos campos ----
+    function opcoesPrincipal(d) {
+      var naSemana = {};
+      semana.dias.forEach(function (o) { if (o !== d && o.tipo === 'PRATO' && o.principal_id) naSemana[o.principal_id] = o; });
+      var grupos = {};
+      semana.pratos.forEach(function (p) {
+        if (p.tipo !== 'PRINCIPAL' || (p.situacao !== 'ATIVO' && p.id !== d.principal_id)) return;
+        var g = p.so_sexta === 'SIM' ? 'Só sexta' : CATEGORIA[p.categoria] || p.categoria;
+        var outro = naSemana[p.id];
+        (grupos[g] = grupos[g] || []).push({
+          id: p.id,
+          nome: p.nome + (p.situacao !== 'ATIVO' ? ' (inativo)' : ''),
+          dica: outro ? 'já na ' + NOME_DIA[outro.dia] : ultimaVez(p.id),
+          repetido: !!outro
+        });
+      });
+      var ordem = ['Carne', 'Frango', 'Peixe', 'Porco', 'Linguiça', 'Fígado', 'Outro'];
+      ordem = d.dia === 'SEXTA' ? ['Só sexta'].concat(ordem) : ordem.concat(['Só sexta']);
+      return ordem.filter(function (g) { return grupos[g]; }).map(function (g) { return { grupo: g, itens: grupos[g] }; });
+    }
+
+    /** Acompanhamentos que ainda não estão no dia; os de costume do principal primeiro. */
+    function opcoesAcomp(d) {
+      var deCostume = costume(pratoPorId(d.principal_id));
+      var livres = semana.pratos.filter(function (a) {
+        return a.tipo === 'ACOMPANHAMENTO' && a.situacao === 'ATIVO' && d.acompanhamento_ids.indexOf(a.id) === -1;
+      });
+      var item = function (a) { return { id: a.id, nome: a.nome }; };
+      var costumeLivre = livres.filter(function (a) { return deCostume.indexOf(a.id) !== -1; });
+      var outros = livres.filter(function (a) { return deCostume.indexOf(a.id) === -1; });
+      if (!costumeLivre.length) return [{ grupo: '', itens: outros.map(item) }];
+      return [{ grupo: 'De costume com este prato', itens: costumeLivre.map(item) }, { grupo: 'Outros', itens: outros.map(item) }];
+    }
+
+    // ---- carregar e navegar ----
+    function carregarSemana(terca) {
+      el('semMensagens').textContent = '';
+      el('semDescartar').hidden = true;
+      chamar('adminObterSemana', [terca || ''], receberSemana, el('semMensagens'));
+    }
+
+    function receberSemana(r) {
+      semana = r;
+      sugeridos = {};
+      tentouPublicar = false;
+      validacao = { erros: [], avisos: [], porData: {} };
+      gravado = {};
+      semana.dias.forEach(function (d) { gravado[d.data] = copiaDia(d); });
+      desenharSemana();
+      validarSemanaDepois();
+    }
+
+    function irParaSemana(terca) {
+      if (!haAlteracoes()) { carregarSemana(terca); return; }
+      destinoPendente = terca;
+      el('semDescartar').hidden = false;
+      el('semDescartarNao').focus();
+    }
+
+    el('semAnterior').onclick = function () { irParaSemana(semana.anterior); };
+    el('semProxima').onclick = function () { irParaSemana(semana.proxima); };
+    el('semDescartarSim').onclick = function () { carregarSemana(destinoPendente); };
+    el('semDescartarNao').onclick = function () { el('semDescartar').hidden = true; };
+
+    // ---- desenho ----
     function desenharSemana() {
       var s = semana;
       var dias = s.dias;
       el('semTitulo').textContent = 'Semana de ' + dataBr(dias[0].data) + ' a ' + dataBr(dias[dias.length - 1].data);
-      var sit = { NOVA: ['Nova', 'nova'], RASCUNHO: ['Rascunho', 'rascunho'], PUBLICADA: ['Publicada', ''], FECHADA: ['Fechada', 'nova'] }[s.situacao] || [s.situacao, ''];
+      el('semQuando').textContent = quandoE(s);
+      var sit = { NOVA: ['Não salva', 'nova'], RASCUNHO: ['Rascunho', 'rascunho'], PUBLICADA: ['Publicada', ''], FECHADA: ['Fechada', 'nova'] }[s.situacao] || [s.situacao, ''];
       el('semSituacao').textContent = sit[0];
       el('semSituacao').className = 'etiqueta ' + sit[1];
       var publicada = s.situacao === 'PUBLICADA';
       el('semNota').textContent = publicada
-        ? 'Publicada — os funcionários já veem este cardápio. Se mudar a combinação de um dia, os pedidos daquele dia ficam marcados para revisão.'
-        : 'Terça a segunda. Escolha o principal de cada dia e ajuste os acompanhamentos, ou marque "Sem almoço" (feriado). Os funcionários só veem a semana depois de publicada.';
+        ? 'Os funcionários já veem este cardápio' + (s.respostas ? ' e ' + plural(s.respostas, 'pessoa já respondeu', 'pessoas já responderam') : '; ninguém respondeu ainda') +
+          '. Se você trocar o prato de um dia, quem já pediu aquele dia recebe o aviso para conferir o pedido.'
+        : 'Escolha o principal de cada dia; os acompanhamentos de costume entram sozinhos. Os funcionários só veem a semana depois que você publicar.';
       el('semPublicar').hidden = publicada;
+      el('semDespublicar').hidden = !publicada;
       el('semSalvar').textContent = publicada ? 'Salvar alterações' : 'Salvar rascunho';
       el('semSalvar').className = publicada ? 'primario' : '';
 
-      var principais = s.pratos.filter(function (p) { return p.tipo === 'PRINCIPAL'; });
-      var acompanhamentos = s.pratos.filter(function (p) { return p.tipo === 'ACOMPANHAMENTO'; });
-      var corpo = el('semCorpo');
-      corpo.textContent = '';
+      var lista = el('semDias');
+      lista.textContent = '';
+      dias.forEach(function (d) { lista.appendChild(desenharDia(d)); });
+      atualizarRodape();
+      mostrarNotas();
+      if (focarDepois) {
+        var alvo = document.querySelector('[data-foco="' + focarDepois + '"]');
+        focarDepois = null;
+        if (alvo) alvo.focus();
+      }
+    }
 
-      dias.forEach(function (d) {
-        var tr = criar('tr', undefined, d.tipo === 'SEM_ALMOCO' ? 'sem-almoco' : '');
-        var tdDia = criar('td', undefined, 'dia');
-        tdDia.appendChild(criar('strong', d.rotulo));
-        tdDia.appendChild(criar('span', dataBr(d.data), 'muted'));
-        tr.appendChild(tdDia);
+    function desenharDia(d) {
+      var semAlmoco = d.tipo === 'SEM_ALMOCO';
+      var temPrato = d.tipo === 'PRATO' && !!d.principal_id;
+      var li = criar('li', undefined, 'dia' + (semAlmoco ? ' sem-almoco' : diaPronto(d) ? ' definido' : ' vazio') +
+        (diaMudou(d) ? ' alterado' : '') + (d.dia === 'SEGUNDA' ? ' depois-fds' : ''));
+      var data = criar('div', undefined, 'data');
+      data.title = d.rotulo + ', ' + dataBr(d.data);
+      data.appendChild(criar('span', ABREV[d.dia] || d.rotulo, 'abrev'));
+      data.appendChild(criar('span', String(+d.data.split('-')[2]), 'num'));
+      li.appendChild(criar('span', undefined, 'marco'));
+      li.appendChild(data);
 
-        // --- principal ---
-        var tdPrato = criar('td');
-        var sel = criar('select');
-        sel.appendChild(opcao('', '— escolher o principal —'));
-        sel.appendChild(opcao('SEM_ALMOCO', 'Sem almoço'));
-        var grupos = {};
-        principais.forEach(function (p) {
-          if (p.situacao !== 'ATIVO' && p.id !== d.principal_id) return;
-          var g = p.so_sexta === 'SIM' ? 'Só sexta' : CATEGORIA[p.categoria] || p.categoria;
-          (grupos[g] = grupos[g] || []).push(p);
-        });
-        var ordem = d.dia === 'SEXTA' ? ['Só sexta', 'Carne', 'Frango', 'Peixe', 'Porco', 'Linguiça', 'Fígado', 'Outro'] : ['Carne', 'Frango', 'Peixe', 'Porco', 'Linguiça', 'Fígado', 'Outro', 'Só sexta'];
-        ordem.forEach(function (g) {
-          if (!grupos[g]) return;
-          var og = criar('optgroup');
-          og.label = g;
-          grupos[g].forEach(function (p) { og.appendChild(opcao(p.id, p.nome + (p.situacao !== 'ATIVO' ? ' (inativo)' : ''))); });
-          sel.appendChild(og);
-        });
-        if (d.tipo === 'PRATO' && d.principal_id && !pratoPorId(d.principal_id)) sel.appendChild(opcao(d.principal_id, (d.itens[0] || '?') + ' (removido)'));
-        sel.value = d.tipo === 'SEM_ALMOCO' ? 'SEM_ALMOCO' : d.tipo === 'PRATO' ? d.principal_id : '';
-        sel.onchange = function () {
-          delete sugeridos[d.data];
-          var antigoCostume = costume(pratoPorId(d.principal_id));
-          d.tipo = sel.value === '' ? '' : sel.value === 'SEM_ALMOCO' ? 'SEM_ALMOCO' : 'PRATO';
-          d.principal_id = d.tipo === 'PRATO' ? sel.value : '';
-          if (d.tipo !== 'PRATO') d.acompanhamento_ids = [];
-          // Sem acompanhamentos escolhidos à mão → assume os de costume do novo principal.
-          else if (!d.acompanhamento_ids.length || mesmaLista(d.acompanhamento_ids, antigoCostume)) d.acompanhamento_ids = costume(pratoPorId(d.principal_id));
-          desenharSemana();
-          validarSemanaDepois();
-        };
-        tdPrato.appendChild(sel);
+      var meio = criar('div', undefined, 'meio');
+      var lado = criar('div', undefined, 'lado');
+      var redesenhar = function (foco) { mexeu(d); focarDepois = foco; desenharSemana(); validarSemanaDepois(); };
 
-        // --- acompanhamentos ---
-        if (d.tipo === 'PRATO' && d.principal_id) {
+      if (semAlmoco) {
+        meio.appendChild(criar('div', 'Sem almoço', 'sem-almoco-titulo'));
+        meio.appendChild(campoObs(d, 'Motivo', 'ex.: Feriado'));
+      } else {
+        meio.appendChild(combo({
+          classe: 'principal',
+          valor: d.principal_id,
+          texto: temPrato ? nomeDe(d.principal_id, d.itens[0]) : '',
+          placeholder: 'Escolha o prato principal',
+          rotulo: 'Prato principal de ' + d.rotulo,
+          foco: d.data + ':principal',
+          grupos: function () { return opcoesPrincipal(d); },
+          aoEscolher: function (id) { trocarPrincipal(d, id); redesenhar(d.data + ':principal'); },
+          cadastrar: function (nome) { cadastrarPrato('PRINCIPAL', nome); }
+        }));
+        if (temPrato) {
           var caixa = criar('div', undefined, 'acomp');
           d.acompanhamento_ids.forEach(function (id, i) {
+            var nome = nomeDe(id, d.itens[i + 1]);
             var chip = criar('span', undefined, 'chip');
-            chip.appendChild(criar('span', nomeDe(id, d.itens[i + 1])));
+            chip.appendChild(criar('span', nome));
             var x = criar('button', '×');
-            x.title = 'Tirar este acompanhamento';
-            x.onclick = function () {
-              d.acompanhamento_ids.splice(i, 1);
-              delete sugeridos[d.data];
-              desenharSemana();
-              validarSemanaDepois();
-            };
+            x.title = 'Tirar ' + nome;
+            x.setAttribute('aria-label', 'Tirar ' + nome + ' de ' + d.rotulo);
+            x.onclick = function () { d.acompanhamento_ids.splice(i, 1); redesenhar(d.data + ':acomp'); };
             chip.appendChild(x);
             caixa.appendChild(chip);
           });
           if (d.acompanhamento_ids.length < 5) {
-            var add = criar('select');
-            add.appendChild(opcao('', '+ acompanhamento'));
-            acompanhamentos.forEach(function (a) {
-              if (a.situacao === 'ATIVO' && d.acompanhamento_ids.indexOf(a.id) === -1) add.appendChild(opcao(a.id, a.nome));
-            });
-            add.onchange = function () {
-              if (!add.value) return;
-              d.acompanhamento_ids.push(add.value);
-              delete sugeridos[d.data];
-              desenharSemana();
-              validarSemanaDepois();
-            };
-            caixa.appendChild(add);
+            caixa.appendChild(combo({
+              placeholder: '+ acompanhamento',
+              rotulo: 'Acrescentar acompanhamento em ' + d.rotulo,
+              foco: d.data + ':acomp',
+              grupos: function () { return opcoesAcomp(d); },
+              aoEscolher: function (id) { d.acompanhamento_ids.push(id); redesenhar(d.data + ':acomp'); },
+              cadastrar: function (nome) { cadastrarPrato('ACOMPANHAMENTO', nome); }
+            }));
           }
-          if (sugeridos[d.data]) caixa.appendChild(criar('span', 'sugerido', 'marca'));
-          tdPrato.appendChild(caixa);
+          meio.appendChild(caixa);
           var jaNoPrato = [d.principal_id].concat(d.acompanhamento_ids).map(function (id) { return semAcento(nomeDe(id, '')); });
           var fixos = fixosDe(pratoPorId(d.principal_id)).filter(function (f) { return jaNoPrato.indexOf(semAcento(f)) === -1; });
-          if (fixos.length) tdPrato.appendChild(criar('div', '+ ' + fixos.join(' · '), 'sub'));
+          var vem = criar('div', undefined, 'vem-com');
+          if (sugeridos[d.data]) vem.appendChild(criar('span', 'sorteado', 'sugerido'));
+          if (fixos.length) vem.appendChild(criar('span', 'Vem também com ' + listaPt(fixos) + '.'));
+          if (!d.observacao && !d.verObs) {
+            var bObs = criar('button', '+ observação', 'discreto pequeno');
+            bObs.title = 'Recado que aparece para os funcionários neste dia';
+            bObs.onclick = function () { d.verObs = true; focarDepois = d.data + ':obs'; desenharSemana(); };
+            vem.appendChild(bObs);
+          }
+          meio.appendChild(vem);
+          if (d.observacao || d.verObs) meio.appendChild(campoObs(d, 'Observação', 'aparece para os funcionários'));
         }
-        tr.appendChild(tdPrato);
 
-        var tdObs = criar('td', undefined, 'obs');
-        var obs = criar('input');
-        obs.type = 'text';
-        obs.maxLength = 60;
-        obs.placeholder = d.tipo === 'SEM_ALMOCO' ? 'ex.: Feriado' : '';
-        obs.value = d.observacao || '';
-        obs.oninput = function () { d.observacao = obs.value; };
-        tdObs.appendChild(obs);
-        tr.appendChild(tdObs);
-        corpo.appendChild(tr);
-      });
+        var bSortear = criar('button', temPrato ? 'Sortear outro' : 'Sortear', 'discreto');
+        bSortear.dataset.foco = d.data + ':sortear';
+        bSortear.title = 'Sorteia um principal para este dia com as regras de "Sugerir dias vazios"';
+        bSortear.onclick = function () { sortearDia(d); };
+        lado.appendChild(bSortear);
+      }
+      var notas = criar('div', undefined, 'notas-dia');
+      notas.id = 'notas-' + d.data;
+      meio.appendChild(notas);
+      li.appendChild(meio);
+
+      var bSem = criar('button', semAlmoco ? 'Voltar a ter almoço' : 'Sem almoço', 'discreto');
+      bSem.dataset.foco = d.data + ':sem';
+      bSem.title = semAlmoco ? 'Volta ao prato que estava escolhido' : 'Feriado ou outro dia sem marmita';
+      bSem.onclick = function () {
+        if (semAlmoco) {
+          var antes = d.antesSemAlmoco || { tipo: '', principal_id: '', acompanhamento_ids: [], observacao: '' };
+          d.tipo = antes.tipo; d.principal_id = antes.principal_id; d.acompanhamento_ids = antes.acompanhamento_ids; d.observacao = antes.observacao;
+        } else {
+          d.antesSemAlmoco = copiaDia(d);
+          d.tipo = 'SEM_ALMOCO'; d.principal_id = ''; d.acompanhamento_ids = []; d.observacao = '';
+        }
+        redesenhar(semAlmoco ? d.data + ':sem' : d.data + ':obs');
+      };
+      lado.appendChild(bSem);
+      li.appendChild(lado);
+      return li;
     }
 
+    function campoObs(d, rotulo, exemplo) {
+      var linha = criar('div', undefined, 'linha-obs');
+      var lab = criar('label', rotulo);
+      var campo = criar('input');
+      campo.type = 'text';
+      campo.id = lab.htmlFor = 'obs-' + d.data;
+      campo.maxLength = 60;
+      campo.placeholder = exemplo;
+      campo.value = d.observacao || '';
+      campo.dataset.foco = d.data + ':obs';
+      campo.oninput = function () {
+        d.observacao = campo.value;
+        campo.closest('li').classList.toggle('alterado', diaMudou(d));
+        atualizarRodape();
+      };
+      linha.appendChild(lab);
+      linha.appendChild(campo);
+      return linha;
+    }
+
+    function trocarPrincipal(d, id) {
+      var antigoCostume = costume(pratoPorId(d.principal_id));
+      d.tipo = 'PRATO';
+      d.principal_id = id;
+      // Acompanhamentos não mexidos à mão → passam a ser os de costume do novo principal.
+      if (!d.acompanhamento_ids.length || mesmaLista(d.acompanhamento_ids, antigoCostume)) d.acompanhamento_ids = costume(pratoPorId(id));
+    }
+
+    function atualizarRodape() {
+      var dias = semana.dias;
+      var prontos = dias.filter(diaPronto).length;
+      var p = el('semProgresso');
+      p.textContent = '';
+      if (prontos === dias.length) p.textContent = 'Todos os dias definidos';
+      else { p.appendChild(criar('strong', prontos + ' de ' + dias.length)); p.appendChild(document.createTextNode(' dias definidos')); }
+      el('semNaoSalvo').hidden = !haAlteracoes();
+      el('semDesfazer').hidden = !Object.keys(sugeridos).length;
+    }
+
+    // ---- validação ao vivo: cada problema aparece junto do dia ----
     function diasParaEnvio() {
       return semana.dias.map(function (d) {
         return { data: d.data, tipo: d.tipo, principal_id: d.principal_id, acompanhamento_ids: d.acompanhamento_ids, observacao: d.observacao || '' };
@@ -403,57 +922,90 @@
       clearTimeout(timerValidacao);
       timerValidacao = setTimeout(function () {
         if (ocupado || !semana) return;
-        google.script.run.withSuccessHandler(mostrarValidacao).adminValidarSemana(semana.terca, diasParaEnvio());
+        google.script.run.withSuccessHandler(function (v) { validacao = v; mostrarNotas(); }).adminValidarSemana(semana.terca, diasParaEnvio());
       }, 300);
     }
 
-    function mostrarValidacao(v, extra) {
-      var alvo = el('semMensagens');
-      alvo.textContent = '';
-      if (extra) aviso(alvo, 'ok', extra);
-      if (v.avisos.length) aviso(alvo, 'alerta', 'Atenção:', v.avisos);
-      if (v.erros.length && semana.situacao !== 'NOVA') aviso(alvo, 'alerta', 'Falta para publicar:', v.erros);
+    function mostrarNotas() {
+      var publicada = semana.situacao === 'PUBLICADA';
+      semana.dias.forEach(function (d) {
+        var alvo = el('notas-' + d.data);
+        if (!alvo) return;
+        alvo.textContent = '';
+        var p = (validacao.porData || {})[d.data] || { erros: [], avisos: [] };
+        if (d.tipo || tentouPublicar || publicada) p.erros.forEach(function (t) { alvo.appendChild(criar('div', t, 'erro')); });
+        p.avisos.forEach(function (t) { alvo.appendChild(criar('div', t, 'alerta')); });
+        if (publicada && combinacaoMudou(d)) alvo.appendChild(criar('div', 'Ao salvar, quem já pediu este dia recebe o aviso para conferir o pedido.', 'revisao'));
+      });
     }
 
-    el('semAnterior').onclick = function () { carregarSemana(semana.anterior); };
-    el('semProxima').onclick = function () { carregarSemana(semana.proxima); };
+    // ---- sorteio ----
+    function aplicarSorteio(d, n) {
+      if (!sugeridos[d.data]) sugeridos[d.data] = copiaDia(d);
+      d.tipo = n.tipo;
+      d.principal_id = n.principal_id;
+      d.acompanhamento_ids = n.acompanhamento_ids;
+    }
+
+    function sortearDia(d) {
+      var i = semana.dias.indexOf(d);
+      var dias = diasParaEnvio();
+      dias[i] = { data: d.data, tipo: '', principal_id: '', acompanhamento_ids: [], observacao: d.observacao || '' };
+      el('semMensagens').textContent = '';
+      chamar('adminSugerirSemana', [semana.terca, dias, d.principal_id ? [d.principal_id] : []], function (r) {
+        if (r.dias[i].tipo !== 'PRATO') {
+          aviso(el('semMensagens'), 'alerta', 'Não há outro principal disponível para a ' + d.rotulo.toLowerCase() + '. Cadastre mais pratos na aba Pratos.');
+          return;
+        }
+        aplicarSorteio(d, r.dias[i]);
+        focarDepois = d.data + ':sortear';
+        desenharSemana();
+        validarSemanaDepois();
+      }, el('semMensagens'));
+    }
 
     el('semSugerir').onclick = function () {
-      chamar('adminSugerirSemana', [semana.terca, diasParaEnvio()], function (r) {
+      el('semMensagens').textContent = '';
+      chamar('adminSugerirSemana', [semana.terca, diasParaEnvio(), []], function (r) {
+        var mudaram = 0;
         r.dias.forEach(function (n, i) {
           var d = semana.dias[i];
-          if (d.tipo !== n.tipo || d.principal_id !== n.principal_id || !mesmaLista(d.acompanhamento_ids, n.acompanhamento_ids)) {
-            sugeridos[d.data] = true;
-            d.tipo = n.tipo;
-            d.principal_id = n.principal_id;
-            d.acompanhamento_ids = n.acompanhamento_ids;
-          }
+          if (d.tipo === n.tipo && d.principal_id === n.principal_id && mesmaLista(d.acompanhamento_ids, n.acompanhamento_ids)) return;
+          aplicarSorteio(d, n);
+          mudaram++;
         });
         desenharSemana();
         validarSemanaDepois();
-        if (r.semCandidato.length) aviso(el('semMensagens'), 'alerta', 'Não há principais suficientes no banco para: ' + r.semCandidato.map(dataBr).join(', '));
+        if (r.semCandidato.length) aviso(el('semMensagens'), 'alerta', 'Faltam principais no banco para sortear: ' + r.semCandidato.map(dataBr).join(', ') + '. Cadastre mais na aba Pratos.');
+        else if (!mudaram) aviso(el('semMensagens'), 'ok', 'Todos os dias já estão definidos.');
       }, el('semMensagens'));
     };
 
-    el('semLimpar').onclick = function () {
+    el('semDesfazer').onclick = function () {
       semana.dias.forEach(function (d) {
-        if (sugeridos[d.data]) { d.tipo = ''; d.principal_id = ''; d.acompanhamento_ids = []; }
+        var antes = sugeridos[d.data];
+        if (!antes) return;
+        d.tipo = antes.tipo;
+        d.principal_id = antes.principal_id;
+        d.acompanhamento_ids = antes.acompanhamento_ids;
       });
       sugeridos = {};
       desenharSemana();
       validarSemanaDepois();
     };
 
+    // ---- salvar e publicar ----
     function salvarSemana(publicar) {
+      var publicada = semana.situacao === 'PUBLICADA';
       el('semMensagens').textContent = '';
+      if (publicar) { tentouPublicar = true; mostrarNotas(); }
       chamar('adminSalvarSemana', [semana.terca, diasParaEnvio(), publicar], function (r) {
-        var msg = publicar ? 'Semana publicada.' : 'Semana salva.';
-        if (r.pedidosMarcados) msg += ' ' + plural(r.pedidosMarcados, 'pedido marcado', 'pedidos marcados') + ' para revisão.';
+        var msg = publicar ? 'Semana publicada. Os funcionários já podem fazer os pedidos.'
+          : publicada ? 'Alterações salvas.' : 'Rascunho salvo. Os funcionários ainda não veem esta semana.';
+        if (r.pedidosMarcados) msg += ' ' + plural(r.pedidosMarcados, 'pedido volta', 'pedidos voltam') + ' para os funcionários conferirem.';
         chamar('adminObterSemana', [semana.terca], function (s) {
-          semana = s;
-          sugeridos = {};
-          desenharSemana();
-          mostrarValidacao({ erros: [], avisos: r.avisos }, msg);
+          receberSemana(s);
+          aviso(el('semMensagens'), 'ok', msg);
         }, el('semMensagens'));
       }, el('semMensagens'));
     }
@@ -461,6 +1013,360 @@
     el('semPublicar').onclick = function () {
       if (confirmarNoBotao(el('semPublicar'), 'Publicar', 'Confirmar publicação?')) salvarSemana(true);
     };
+
+    el('semDespublicar').onclick = function () {
+      var alvo = el('semMensagens');
+      alvo.textContent = '';
+      if (semana.respostas) {
+        aviso(alvo, 'alerta', 'Não dá para despublicar: ' + plural(semana.respostas, 'pessoa já respondeu', 'pessoas já responderam') +
+          ' esta semana. Altere o cardápio e salve; quem pediu recebe o aviso para conferir.');
+        return;
+      }
+      if (haAlteracoes()) { aviso(alvo, 'alerta', 'Há alterações não salvas. Salve antes de despublicar.'); return; }
+      if (!confirmarNoBotao(el('semDespublicar'), 'Despublicar', 'Confirmar: tirar dos funcionários?')) return;
+      chamar('adminDespublicarSemana', [semana.terca], function () {
+        chamar('adminObterSemana', [semana.terca], function (s) {
+          receberSemana(s);
+          aviso(el('semMensagens'), 'ok', 'Semana despublicada. Ela voltou a ser rascunho e os funcionários não a veem mais.');
+        }, alvo);
+      }, alvo);
+    };
+
+    /** "Cadastrar" no campo de busca: leva para a aba Pratos com o nome preenchido. */
+    function cadastrarPrato(tipo, nome) {
+      document.querySelector('nav.abas button[data-aba="pratos"]').click();
+      mudarTipoPratos(tipo);
+      editarPrato(null);
+      el('pratoNome').value = nome;
+      aviso(el('pratoMsg'), 'ok', 'Complete e salve. Ao voltar para o Cardápio da semana, o prato já aparece na lista.');
+      (tipo === 'PRINCIPAL' ? el('pratoCategoria') : el('pratoNome')).focus();
+    }
+
+    // ================= LISTA DE COMPRAS =================
+    var SECAO = { ACOUGUE: 'Açougue', MERCEARIA: 'Mercearia', TEMPEROS: 'Temperos', LIMPEZA: 'Limpeza', SACOLAO: 'Sacolão' };
+    var cmp = null;             // resposta de adminObterListaCompras
+    var cmpQtd = {};            // item_id → quantidade na tela
+    var cmpGravado = '{}';      // quantidades como estão gravadas (para saber se mudou)
+    var cmpDestino = null;
+    var cmpEditando = false;
+    var itensCompra = [];       // cadastro (também usado no formulário de prato)
+
+    function cmpVale(t) {
+      t = String(t || '').trim();
+      return !!t && !/^0+([.,]0+)?\s*\D*$/.test(t);
+    }
+    function cmpValidas() {
+      var q = {};
+      Object.keys(cmpQtd).forEach(function (id) { if (cmpVale(cmpQtd[id])) q[id] = String(cmpQtd[id]).trim(); });
+      return q;
+    }
+    function cmpChave(q) { return JSON.stringify(Object.keys(q).sort().map(function (k) { return [k, q[k]]; })); }
+    function cmpAlterado() { return !!cmp && cmpChave(cmpValidas()) !== cmpGravado; }
+    function cmpItemPorId(id) { for (var i = 0; i < itensCompra.length; i++) if (itensCompra[i].id === id) return itensCompra[i]; return null; }
+
+    function carregarCompras(terca) {
+      el('cmpMensagens').textContent = '';
+      el('cmpDescartar').hidden = true;
+      chamar('adminObterListaCompras', [terca || ''], receberCompras, el('cmpMensagens'));
+    }
+
+    function receberCompras(r) {
+      cmp = r;
+      itensCompra = r.itens;
+      cmpQtd = Object.assign({}, r.quantidades);
+      cmpGravado = r.origem === 'SALVA' ? cmpChave(cmpValidas()) : '{}';
+      desenharCompras();
+      if (el('pratoCompras')) desenharComprasPrato();
+    }
+
+    function cmpIr(terca) {
+      if (!cmpAlterado()) { carregarCompras(terca); return; }
+      cmpDestino = terca;
+      el('cmpDescartar').hidden = false;
+      el('cmpDescartarNao').focus();
+    }
+    el('cmpAnterior').onclick = function () { cmpIr(cmp.anterior); };
+    el('cmpProxima').onclick = function () { cmpIr(cmp.proxima); };
+    el('cmpDescartarSim').onclick = function () { carregarCompras(cmpDestino); };
+    el('cmpDescartarNao').onclick = function () { el('cmpDescartar').hidden = true; };
+
+    function desenharCompras() {
+      el('cmpTitulo').textContent = 'Semana de ' + dataBr(cmp.datas[0]) + ' a ' + dataBr(cmp.datas[1]);
+      el('cmpQuando').textContent = quandoE(cmp);
+      var sit = { SALVA: ['Salva', ''], ANTERIOR: ['Não salva', 'nova'], NOVA: ['Não salva', 'nova'] }[cmp.origem];
+      el('cmpSituacao').textContent = sit[0];
+      el('cmpSituacao').className = 'etiqueta ' + sit[1];
+      var semCardapio = cmp.cardapio_definido ? '' : ' O cardápio desta semana ainda está vazio; as carnes entram quando você escolher os pratos.';
+      el('cmpNota').textContent = {
+        SALVA: 'Lista salva. Item vazio ou 0 não entra na lista que vai para o WhatsApp.',
+        ANTERIOR: 'Começou com as quantidades da semana passada, e o açougue com o que os pratos do cardápio pedem. Ajuste e salve.' + semCardapio,
+        NOVA: 'Preencha as quantidades; item vazio ou 0 não entra na lista. O açougue já vem com o que os pratos do cardápio pedem.' + semCardapio
+      }[cmp.origem];
+      el('cmpEditar').setAttribute('aria-pressed', String(cmpEditando));
+      el('cmpEditar').textContent = cmpEditando ? 'Concluir edição' : 'Editar itens';
+
+      var caixa = el('cmpSecoes');
+      caixa.textContent = '';
+      Object.keys(SECAO).forEach(function (secao) {
+        var itens = itensCompra.filter(function (i) { return i.secao === secao && (i.situacao === 'ATIVO' || cmpVale(cmpQtd[i.id])); });
+        var sec = criar('section', undefined, 'secao-compra');
+        sec.dataset.secao = secao;
+        var h = criar('h3', SECAO[secao]);
+        h.appendChild(criar('span', '', 'conta'));
+        sec.appendChild(h);
+        var grade = criar('div', undefined, 'grade-itens');
+        itens.forEach(function (it) { grade.appendChild(linhaItemCompra(it)); });
+        sec.appendChild(grade);
+        if (cmpEditando) sec.appendChild(novoItemCompra(secao));
+        caixa.appendChild(sec);
+      });
+      filtrarCompras();
+    }
+
+    function linhaItemCompra(it) {
+      var linha = criar('div', undefined, 'item-compra');
+      linha.dataset.id = it.id;
+      linha.dataset.busca = semAcento(it.nome);
+      var nome = criar('div', undefined, 'nome');
+      var idCampo = 'qtd-' + it.id;
+      if (cmpEditando) {
+        var ed = criar('div', undefined, 'edicao');
+        var campoNome = criar('input');
+        campoNome.type = 'text';
+        campoNome.maxLength = 60;
+        campoNome.value = it.nome;
+        campoNome.setAttribute('aria-label', 'Nome do item ' + it.nome);
+        campoNome.onchange = function () {
+          var novo = campoNome.value.trim();
+          if (!novo || novo === it.nome) { campoNome.value = it.nome; return; }
+          chamar('adminSalvarItemCompra', [{ id: it.id, secao: it.secao, nome: novo }], function (r) { it.nome = r.nome; }, el('cmpMensagens'));
+        };
+        var remover = criar('button', 'Remover', 'pequeno perigo');
+        remover.title = 'Some da lista; as semanas antigas não mudam';
+        remover.onclick = function () {
+          if (!confirmarNoBotao(remover, 'Remover', 'Confirmar?')) return;
+          chamar('adminAlterarSituacaoItemCompra', [it.id, 'INATIVO'], function () {
+            it.situacao = 'INATIVO';
+            delete cmpQtd[it.id];
+            desenharCompras();
+          }, el('cmpMensagens'));
+        };
+        ed.appendChild(campoNome);
+        ed.appendChild(remover);
+        nome.appendChild(ed);
+      } else {
+        var lab = criar('label', it.nome);
+        lab.htmlFor = idCampo;
+        lab.title = it.nome;
+        nome.appendChild(lab);
+      }
+      var pede = criar('span', '', 'pede');
+      nome.appendChild(pede);
+      linha.appendChild(nome);
+
+      var qtd = criar('input', undefined, 'qtd');
+      qtd.type = 'text';
+      qtd.id = idCampo;
+      qtd.maxLength = 30;
+      qtd.value = cmpQtd[it.id] || '';
+      qtd.placeholder = '—';
+      qtd.setAttribute('aria-label', 'Quantidade de ' + it.nome);
+      qtd.oninput = function () { cmpQtd[it.id] = qtd.value; marcarItemCompra(linha, it); atualizarRodapeCompras(); };
+      qtd.onkeydown = function (ev) {
+        // Enter desce para o próximo item, como na planilha.
+        if (ev.key !== 'Enter') return;
+        ev.preventDefault();
+        var todos = Array.prototype.filter.call(document.querySelectorAll('#cmpSecoes input.qtd'), function (x) { return !x.closest('[hidden]'); });
+        var prox = todos[todos.indexOf(qtd) + 1];
+        if (prox) { prox.focus(); prox.select(); }
+      };
+      linha.appendChild(qtd);
+      marcarItemCompra(linha, it);
+      return linha;
+    }
+
+    /** Destaca o que vai ser comprado e mostra o que o cardápio pede. */
+    function marcarItemCompra(linha, it) {
+      var valor = String(cmpQtd[it.id] || '').trim();
+      linha.classList.toggle('tem', cmpVale(valor));
+      var s = cmp.sugestao[it.id];
+      var pede = linha.querySelector('.pede');
+      if (!s) { pede.textContent = ''; return; }
+      var igual = semAcento(valor).replace(/\s+/g, '') === semAcento(s.quantidade).replace(/\s+/g, '');
+      pede.textContent = igual ? s.pratos.join(', ') : 'Cardápio pede ' + s.quantidade + ' (' + s.pratos.join(', ') + ')';
+      pede.classList.toggle('difere', !igual);
+    }
+
+    function novoItemCompra(secao) {
+      var caixa = criar('div', undefined, 'novo-item');
+      var campo = criar('input');
+      campo.type = 'text';
+      campo.maxLength = 60;
+      campo.placeholder = 'Novo item em ' + SECAO[secao];
+      campo.setAttribute('aria-label', 'Novo item em ' + SECAO[secao]);
+      var b = criar('button', 'Adicionar', 'pequeno');
+      var adicionar = function () {
+        var nome = campo.value.trim();
+        if (!nome) return;
+        chamar('adminSalvarItemCompra', [{ secao: secao, nome: nome }], function (novo) {
+          itensCompra.push(novo);
+          desenharCompras();
+          var c = document.querySelector('.secao-compra[data-secao="' + secao + '"] .novo-item input');
+          if (c) c.focus();
+        }, el('cmpMensagens'));
+      };
+      b.onclick = adicionar;
+      campo.onkeydown = function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); adicionar(); } };
+      caixa.appendChild(campo);
+      caixa.appendChild(b);
+      return caixa;
+    }
+
+    function filtrarCompras() {
+      var f = semAcento(el('cmpBusca').value.trim());
+      var so = el('cmpSoCompra').checked;
+      Array.prototype.forEach.call(document.querySelectorAll('.secao-compra'), function (sec) {
+        var visiveis = 0;
+        var marcados = 0;
+        Array.prototype.forEach.call(sec.querySelectorAll('.item-compra'), function (linha) {
+          var tem = cmpVale(cmpQtd[linha.dataset.id]);
+          if (tem) marcados++;
+          linha.hidden = (f && linha.dataset.busca.indexOf(f) === -1) || (so && !tem);
+          if (!linha.hidden) visiveis++;
+        });
+        sec.querySelector('.conta').textContent = marcados ? plural(marcados, 'item para comprar', 'itens para comprar') : '';
+        sec.hidden = !visiveis && !cmpEditando;
+      });
+      atualizarRodapeCompras();
+    }
+
+    function atualizarRodapeCompras() {
+      var n = Object.keys(cmpValidas()).length;
+      el('cmpContagem').textContent = plural(n, 'item para comprar', 'itens para comprar');
+      el('cmpNaoSalvo').hidden = !cmpAlterado();
+    }
+
+    el('cmpBusca').oninput = filtrarCompras;
+    el('cmpSoCompra').onchange = filtrarCompras;
+    el('cmpEditar').onclick = function () { cmpEditando = !cmpEditando; desenharCompras(); };
+    el('cmpCardapio').onclick = function () {
+      var ids = Object.keys(cmp.sugestao);
+      el('cmpMensagens').textContent = '';
+      if (!ids.length) {
+        aviso(el('cmpMensagens'), 'alerta', cmp.cardapio_definido
+          ? 'Os pratos desta semana não têm nada cadastrado para comprar. Cadastre em Pratos → Para comprar.'
+          : 'O cardápio desta semana ainda está vazio.');
+        return;
+      }
+      ids.forEach(function (id) { cmpQtd[id] = cmp.sugestao[id].quantidade; });
+      desenharCompras();
+      aviso(el('cmpMensagens'), 'ok', plural(ids.length, 'item preenchido', 'itens preenchidos') + ' pelo cardápio.');
+    };
+
+    el('cmpSalvar').onclick = function () {
+      el('cmpMensagens').textContent = '';
+      chamar('adminSalvarListaCompras', [cmp.terca, cmpValidas()], function (r) {
+        chamar('adminObterListaCompras', [cmp.terca], function (novo) {
+          receberCompras(novo);
+          aviso(el('cmpMensagens'), 'ok', 'Lista salva com ' + plural(r.itens, 'item', 'itens') + '.');
+        }, el('cmpMensagens'));
+      }, el('cmpMensagens'));
+    };
+
+    /** Texto para o WhatsApp: só o que vai ser comprado, por seção (*negrito* do WhatsApp nos títulos). */
+    function textoWhatsApp() {
+      var q = cmpValidas();
+      var partes = ['*Compras da semana de ' + dataBr(cmp.datas[0]) + ' a ' + dataBr(cmp.datas[1]) + '*'];
+      Object.keys(SECAO).forEach(function (secao) {
+        var linhas = itensCompra.filter(function (i) { return i.secao === secao && q[i.id]; })
+          .map(function (i) { return '- ' + i.nome + ': ' + q[i.id]; });
+        if (linhas.length) partes.push('*' + SECAO[secao] + '*\n' + linhas.join('\n'));
+      });
+      return partes.join('\n\n');
+    }
+
+    el('cmpCopiar').onclick = function () {
+      var alvo = el('cmpMensagens');
+      alvo.textContent = '';
+      var n = Object.keys(cmpValidas()).length;
+      if (!n) { aviso(alvo, 'alerta', 'A lista está vazia. Preencha a quantidade de pelo menos um item.'); return; }
+      var texto = textoWhatsApp();
+      var caixa = criar('div', undefined, 'aviso ok copia');
+      var status = criar('div');
+      caixa.appendChild(status);
+      var area = criar('textarea');
+      area.readOnly = true;
+      area.value = texto;
+      area.setAttribute('aria-label', 'Lista em texto');
+      var link = criar('a', 'Abrir o WhatsApp com a lista');
+      link.href = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(texto);
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      alvo.appendChild(caixa);
+      var copiou = function () { status.textContent = 'Lista copiada (' + plural(n, 'item', 'itens') + '). Cole na conversa do WhatsApp, ou '; status.appendChild(link); status.appendChild(document.createTextNode('.')); };
+      var manual = function () {
+        // O diálogo do Sheets às vezes bloqueia a área de transferência: fica o texto selecionado para Ctrl+C.
+        status.textContent = 'Selecione o texto abaixo e copie com Ctrl+C, ou ';
+        status.appendChild(link);
+        status.appendChild(document.createTextNode('.'));
+        caixa.appendChild(area);
+        area.focus();
+        area.select();
+      };
+      var antigo = function () {
+        caixa.appendChild(area);
+        area.select();
+        var ok = false;
+        try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+        if (ok) { caixa.removeChild(area); copiou(); } else manual();
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(texto).then(copiou, antigo);
+      else antigo();
+    };
+
+    // ---- "Para comprar" no formulário do prato principal ----
+    var comprasForm = [];   // [{ item_id, quantidade }]
+
+    function desenharComprasPrato() {
+      var caixa = el('pratoCompras');
+      caixa.textContent = '';
+      if (!itensCompra.length) { caixa.appendChild(criar('div', 'Carregando os itens da lista de compras…', 'muted')); return; }
+      comprasForm.forEach(function (c, i) {
+        var linha = criar('div', undefined, 'linha-compra');
+        var sel = criar('select');
+        sel.setAttribute('aria-label', 'Item para comprar');
+        sel.appendChild(opcao('', 'Escolha o item'));
+        Object.keys(SECAO).forEach(function (secao) {
+          var og = criar('optgroup');
+          og.label = SECAO[secao];
+          itensCompra.forEach(function (it) {
+            if (it.secao === secao && (it.situacao === 'ATIVO' || it.id === c.item_id)) og.appendChild(opcao(it.id, it.nome));
+          });
+          if (og.children.length) sel.appendChild(og);
+        });
+        sel.value = c.item_id;
+        sel.onchange = function () { c.item_id = sel.value; };
+        var qtd = criar('input');
+        qtd.type = 'text';
+        qtd.maxLength = 30;
+        qtd.placeholder = 'ex.: 4 kg';
+        qtd.value = c.quantidade || '';
+        qtd.setAttribute('aria-label', 'Quantidade');
+        qtd.oninput = function () { c.quantidade = qtd.value; };
+        var x = criar('button', '×', 'pequeno');
+        x.setAttribute('aria-label', 'Tirar este item');
+        x.onclick = function () { comprasForm.splice(i, 1); desenharComprasPrato(); };
+        linha.appendChild(sel);
+        linha.appendChild(qtd);
+        linha.appendChild(x);
+        caixa.appendChild(linha);
+      });
+      if (comprasForm.length < 8) {
+        var add = criar('button', '+ item para comprar', 'discreto pequeno');
+        add.onclick = function () { comprasForm.push({ item_id: '', quantidade: '' }); desenharComprasPrato(); };
+        caixa.appendChild(add);
+      }
+    }
 
     // ================= PRATOS =================
     var pratos = [];
@@ -510,6 +1416,9 @@
           td.appendChild(criar('div', 'com ' + p.acompanhamentos.map(function (id) { var a = pratoNaLista(id); return a ? a.nome : '?'; }).join(' · '), 'sub'));
         }
         if (p.tipo === 'PRINCIPAL' && p.sem_fixos.length) td.appendChild(criar('div', 'sem ' + p.sem_fixos.join(', '), 'sub'));
+        if (p.tipo === 'PRINCIPAL' && (p.compras || []).length) {
+          td.appendChild(criar('div', 'compra ' + p.compras.map(function (c) { var i = cmpItemPorId(c.item_id); return (i ? i.nome : '?') + (c.quantidade ? ' ' + c.quantidade : ''); }).join(', '), 'sub'));
+        }
         tr.appendChild(td);
         var tdCat = criar('td');
         if (p.tipo === 'PRINCIPAL') {
@@ -593,6 +1502,8 @@
       el('pratoMsg').textContent = '';
       desenharCaixaAcomp(p && principal ? p.acompanhamentos : []);
       desenharFixos(p && principal ? p.sem_fixos : []);
+      comprasForm = (p && principal ? p.compras || [] : []).map(function (c) { return { item_id: c.item_id, quantidade: c.quantidade }; });
+      desenharComprasPrato();
       if (p) el('pratoNome').focus();
     }
 
@@ -613,7 +1524,8 @@
         sem_fixos: tipoPratos === 'PRINCIPAL'
           ? Array.prototype.filter.call(el('pratoFixos').querySelectorAll('input[type=checkbox]'), function (cb) { return !cb.checked; })
               .map(function (cb) { return cb.value; })
-          : []
+          : [],
+        compras: tipoPratos === 'PRINCIPAL' ? comprasForm.filter(function (c) { return c.item_id; }) : []
       };
       el('pratoMsg').textContent = '';
       chamar('adminSalvarPrato', [dados], function () {
@@ -736,17 +1648,78 @@
     };
     el('mostrarInativos').onchange = desenharFuncionarios;
 
+    // ================= CONFIGURAÇÕES =================
+    var noSite = document.documentElement.classList.contains('no-site');
+
+    function mostrarLinks(l) {
+      el('linkFuncionarios').value = l.funcionarios || '';
+      el('linkCozinha').value = l.cozinha || 'Ainda não gerado: use "Atualizar a planilha".';
+      el('linkAdmin').value = l.admin || 'Ainda não gerado: use "Atualizar a planilha".';
+    }
+
+    function carregarConfig() {
+      el('cfgLinksMsg').textContent = '';
+      chamar('adminLinks', [], mostrarLinks, el('cfgLinksMsg'));
+    }
+
+    Array.prototype.forEach.call(document.querySelectorAll('[data-copiar]'), function (b) {
+      b.onclick = function () {
+        var campo = el(b.dataset.copiar);
+        var feito = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1800); };
+        var manual = function () {
+          campo.focus();
+          campo.select();
+          var ok = false;
+          try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+          if (ok) feito(); else b.textContent = 'Use Ctrl+C';
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(campo.value).then(feito, manual);
+        else manual();
+      };
+    });
+
+    function trocarLink(qual, botao) {
+      if (!confirmarNoBotao(botao, 'Trocar link', 'Confirmar troca?')) return;
+      var alvo = el('cfgLinksMsg');
+      alvo.textContent = '';
+      chamar('adminTrocarLink', [qual], function (l) {
+        mostrarLinks(l);
+        if (qual === 'ADMIN' && noSite) {
+          // O link aberto deixou de valer: segue para o novo (e é ele que deve ir para os favoritos).
+          aviso(alvo, 'ok', 'Link trocado. Abrindo o link novo; salve-o nos favoritos no lugar do antigo.');
+          setTimeout(function () { location.replace(l.admin); }, 1500);
+          return;
+        }
+        aviso(alvo, 'ok', qual === 'ADMIN'
+          ? 'Link da administração trocado. O antigo não funciona mais.'
+          : 'Link da cozinha trocado. Abra o link novo no celular ou tablet da cozinha.');
+      }, alvo);
+    }
+    el('trocarCozinha').onclick = function () { trocarLink('COZINHA', el('trocarCozinha')); };
+    el('trocarAdmin').onclick = function () { trocarLink('ADMIN', el('trocarAdmin')); };
+
+    el('cfgAtualizar').onclick = function () {
+      var alvo = el('cfgMsg');
+      alvo.textContent = '';
+      chamar('adminConfigurar', [], function (linhas) {
+        aviso(alvo, 'ok', 'Planilha atualizada.', linhas);
+        carregarConfig();
+      }, alvo);
+    };
+
     // ---------------- início ----------------
     // Uma chamada por vez: as cargas são encadeadas para não disputar o estado "ocupado".
     chamar('adminObterSemana', [''], function (r) {
-      semana = r;
       pratos = r.pratos;
-      desenharSemana();
+      receberSemana(r);
       desenharPratos();
       desenharCaixaAcomp([]);
       desenharFixos([]);
-      validarSemanaDepois();
-      carregarFuncionarios();
+      chamar('adminListarFuncionarios', [], function (lista) {
+        funcionarios = lista;
+        desenharFuncionarios();
+        chamar('adminObterListaCompras', [r.terca], function (c) { receberCompras(c); desenharPratos(); }, el('cmpMensagens'));
+      }, el('erroLista'));
     }, el('semMensagens'));
   </script>
 </body>

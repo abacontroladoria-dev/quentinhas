@@ -6,14 +6,14 @@ Substitui as enquetes do WhatsApp para pedidos de marmitas. Telas no GitHub Page
 |---|---|---|
 | Funcionário | https://abacontroladoria-dev.github.io/quentinhas/ no celular | Escolhe o próprio nome (sem senha) |
 | Cozinha | `…/quentinhas/cozinha.html?k=<token>` no celular/tablet | Token da cozinha no link (somente leitura) |
-| Administrador | Menu "Quentinhas" dentro da planilha | Conta Google com acesso de edição + e-mail na lista de administradores |
+| Administrador | `…/quentinhas/admin.html?k=<token>` (qualquer navegador) ou menu "Quentinhas" dentro da planilha | Página: token no link (sem login). Planilha: conta Google + e-mail na lista de administradores |
 
-> Status: em produção desde 15/10/2026. Links prontos em *Quentinhas → Links (funcionários e cozinha)*. Admin inicial: a conta proprietária da planilha.
+> Status: em produção desde 15/10/2026. Links prontos em *Quentinhas → Links (funcionários, cozinha e administração)*. Admin inicial: a conta proprietária da planilha.
 
 ## Arquitetura
 
 ```
-celular ──► GitHub Pages (index.html, cozinha.html)   montado de src/*.html por scripts/montar-site.js
+celular ──► GitHub Pages (index.html, cozinha.html, admin.html)   montado de src/*.html por scripts/montar-site.js
               │  fetch POST texto puro {acao, args}, sem cookies
               ▼
            Apps Script /exec  (src/Api.js → apiInicio, apiPedidosDoFuncionario, apiSalvarPedidos, apiCozinha)
@@ -28,6 +28,7 @@ As telas saíram do Apps Script porque, servidas por ele, não abrem em navegado
 
 - [docs/modelo-dados.md](docs/modelo-dados.md) — abas, colunas, IDs e regras de integridade.
 - [docs/cardapio.md](docs/cardapio.md) — banco de pratos, montagem da semana (terça a segunda), sugestão automática e publicação.
+- [docs/compras.md](docs/compras.md) — lista de compras semanal (antiga aba LISTA DE MERCADO SEMANAL).
 - [docs/seguranca.md](docs/seguranca.md) — autorização, implantação, permissões OAuth e limitações.
 
 ## Estrutura
@@ -39,7 +40,7 @@ quentinhas/
 ├── docs/                 # documentação técnica
 ├── tests/                # testes locais (Node) da lógica pura
 ├── scripts/montar-site.js # monta _site/ (GitHub Pages) a partir de src/*.html + web/
-├── web/                  # arquivos só do site: api.js (fetch para a API), icone.svg
+├── web/                  # arquivos só do site: api.js (fetch para a API), admin-run.js (google.script.run da página de administração), icone.svg
 ├── .github/workflows/pages.yml # testes + montagem + publicação no Pages a cada push na main
 └── src/                  # tudo que vai para o Apps Script (rootDir do clasp)
     ├── appsscript.json   # manifesto: fuso, escopos, web app
@@ -52,6 +53,7 @@ quentinhas/
     ├── Funcionarios.js   # cadastro de funcionários
     ├── Pratos.js         # banco: principais (categoria, só sexta, acompanhamentos de costume) e acompanhamentos
     ├── Cardapio.js       # semana: sugestão, validação, publicação, alterações controladas
+    ├── Compras.js        # lista de compras semanal: itens por seção, sugestão a partir do cardápio
     ├── Pedidos.js        # registro/edição com LockService
     ├── Cozinha.js        # totalizadores e exceções
     ├── Seguranca.js      # autorização (funcionário ativo, token, admin)

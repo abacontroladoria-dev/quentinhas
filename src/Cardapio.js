@@ -5,6 +5,7 @@
 var TIPOS_DIA_ = ['', 'PRATO', 'SEM_ALMOCO'];
 var OBSERVACAO_MAX_ = 60;
 var SEMANAS_RECENTES_ = 2; // a sugestão evita principais usados nos ciclos anteriores, quando possível
+var CICLOS_HISTORICO_ = 6; // a tela mostra quando cada principal saiu pela última vez nesses ciclos
 
 // ---------- Lógica pura (testada em Node) ----------
 
@@ -31,35 +32,42 @@ function retratoDoDia_(dia, pratosPorId, fixos) {
 /**
  * Problemas da semana. `dias`: [{ data, dia, rotulo, tipo, principal_id, acompanhamento_ids }].
  * Erros impedem a publicação; avisos só informam.
+ * `porData[data]` repete cada problema sem o nome do dia, para a tela mostrá-lo junto do dia.
  */
 function validarSemana_(dias, pratosPorId) {
   var erros = [];
   var avisos = [];
+  var porData = {};
   var rotulo = function (d) { return (d.rotulo || d.dia) + ' (' + dataCurta_(d.data) + ')'; };
+  var anotar = function (lista, d, geral, local) {
+    lista.push(geral);
+    var p = porData[d.data] = porData[d.data] || { erros: [], avisos: [] };
+    p[lista === erros ? 'erros' : 'avisos'].push(local);
+  };
   var principalDe = function (d) {
     var p = d && d.tipo === 'PRATO' ? pratosPorId[d.principal_id] : null;
     return p && p.tipo === 'PRINCIPAL' ? p : null;
   };
   var vistos = {};
   dias.forEach(function (d, i) {
-    if (!d.tipo) { erros.push(rotulo(d) + ': escolha o prato ou marque "sem almoço".'); return; }
+    if (!d.tipo) { anotar(erros, d, rotulo(d) + ': escolha o prato ou marque "sem almoço".', 'Escolha o prato ou marque "sem almoço".'); return; }
     if (d.tipo !== 'PRATO') return;
     var p = principalDe(d);
-    if (!p) { erros.push(rotulo(d) + ': escolha o prato principal.'); return; }
+    if (!p) { anotar(erros, d, rotulo(d) + ': escolha o prato principal.', 'Escolha o prato principal.'); return; }
     var acomp = d.acompanhamento_ids || [];
     if (acomp.some(function (a) { return !pratosPorId[a] || pratosPorId[a].tipo !== 'ACOMPANHAMENTO'; })) {
-      erros.push(rotulo(d) + ': acompanhamento não encontrado.');
+      anotar(erros, d, rotulo(d) + ': acompanhamento não encontrado.', 'Um acompanhamento não existe mais no banco. Tire-o e escolha outro.');
     }
-    if (!acomp.length) avisos.push(rotulo(d) + ': sem acompanhamento.');
-    if (vistos[p.id]) avisos.push(p.nome + ' aparece mais de uma vez na semana.');
-    vistos[p.id] = true;
-    if (p.so_sexta === 'SIM' && d.dia !== 'SEXTA') avisos.push(rotulo(d) + ': ' + p.nome + ' costuma ser só de sexta.');
+    if (!acomp.length) anotar(avisos, d, rotulo(d) + ': sem acompanhamento.', 'Sem acompanhamento.');
+    if (vistos[p.id]) anotar(avisos, d, p.nome + ' aparece mais de uma vez na semana.', 'Já está na ' + String(vistos[p.id].rotulo).toLowerCase() + '.');
+    else vistos[p.id] = d;
+    if (p.so_sexta === 'SIM' && d.dia !== 'SEXTA') anotar(avisos, d, rotulo(d) + ': ' + p.nome + ' costuma ser só de sexta.', 'Costuma ser só de sexta.');
     var pAnt = principalDe(dias[i - 1]);
     if (pAnt && pAnt.categoria === 'FRANGO' && p.categoria === 'FRANGO') {
-      avisos.push('Frango em dias seguidos: ' + rotulo(dias[i - 1]) + ' e ' + rotulo(d) + '.');
+      anotar(avisos, d, 'Frango em dias seguidos: ' + rotulo(dias[i - 1]) + ' e ' + rotulo(d) + '.', 'Frango em dias seguidos: a ' + String(dias[i - 1].rotulo).toLowerCase() + ' também é frango.');
     }
   });
-  return { erros: erros, avisos: avisos };
+  return { erros: erros, avisos: avisos, porData: porData };
 }
 
 /**
@@ -68,15 +76,16 @@ function validarSemana_(dias, pratosPorId) {
  * evita frango em dias seguidos; prefere principais que não saíram nas semanas recentes.
  * Dia com principal e sem acompanhamentos recebe os acompanhamentos de costume do principal.
  * Dias "sem almoço" e escolhas já feitas são mantidos.
+ * `evitar`: ids que não podem ser sorteados (ex.: o principal que a pessoa quer trocar).
  */
-function sugerirSemana_(dias, pratos, recentes, aleatorio) {
+function sugerirSemana_(dias, pratos, recentes, aleatorio, evitar) {
   aleatorio = aleatorio || Math.random;
   recentes = recentes || new Set();
   var porId = {};
   pratos.forEach(function (p) { porId[p.id] = p; });
   var principais = pratos.filter(function (p) { return p.tipo === 'PRINCIPAL' && p.situacao === 'ATIVO'; });
   var res = dias.map(function (d) { return Object.assign({}, d, { acompanhamento_ids: (d.acompanhamento_ids || []).slice() }); });
-  var usados = new Set();
+  var usados = new Set(evitar || []);
   res.forEach(function (d) { if (d.tipo === 'PRATO' && d.principal_id) usados.add(d.principal_id); });
   var ehFrango = function (d) { return d && d.tipo === 'PRATO' && porId[d.principal_id] && porId[d.principal_id].categoria === 'FRANGO'; };
   var semCandidato = [];
@@ -147,6 +156,25 @@ function lerSemanaCompleta_(ss, terca) {
   return { semanas: semanas, cardapio: cardapio, semana: semana, porData: porData };
 }
 
+/** Última data em que cada principal saiu nos `ciclos` anteriores a `terca`: { principal_id: 'yyyy-MM-dd' }. */
+function ultimaVezPorPrincipal_(cardapioLinhas, terca, ciclos) {
+  var desde = somarDias_(terca, -7 * ciclos);
+  var ultima = {};
+  cardapioLinhas.forEach(function (l) {
+    var data = String(l.data);
+    if (l.tipo !== 'PRATO' || !l.principal_id || data < desde || data >= terca) return;
+    if (!ultima[l.principal_id] || ultima[l.principal_id] < data) ultima[l.principal_id] = data;
+  });
+  return ultima;
+}
+
+/** Funcionários distintos com algum pedido (quero ou não quero) na semana. */
+function pessoasQueResponderam_(pedidosLinhas, terca) {
+  var pessoas = {};
+  pedidosLinhas.forEach(function (p) { if (p.semana_id === terca && p.funcionario_id) pessoas[p.funcionario_id] = true; });
+  return Object.keys(pessoas).length;
+}
+
 function pratosRecentes_(cardapioLinhas, terca) {
   var ciclos = [];
   for (var i = 1; i <= SEMANAS_RECENTES_; i++) ciclos.push(somarDias_(terca, -7 * i));
@@ -183,15 +211,21 @@ function marcarRevisaoPedidos_(ss, datas) {
 /** Dados para a tela de cardápio. `terca` vazio → próximo ciclo. */
 function adminObterSemana(terca) {
   exigirAdmin_();
-  terca = terca ? inicioDoCiclo_(String(terca)) : proximoCiclo_(hojeTexto_());
+  var hoje = hojeTexto_();
+  terca = terca ? inicioDoCiclo_(String(terca)) : proximoCiclo_(hoje);
   var ss = abrirPlanilha_();
   var s = lerSemanaCompleta_(ss, terca);
   return {
     terca: terca,
+    hoje: hoje,
+    // Para a tela mostrar há quanto tempo cada principal não sai (ajuda a variar).
+    ultima_vez: ultimaVezPorPrincipal_(s.cardapio.linhas, terca, CICLOS_HISTORICO_),
     anterior: somarDias_(terca, -7),
     proxima: somarDias_(terca, 7),
     situacao: s.semana ? String(s.semana.situacao) : 'NOVA',
     publicada_em: s.semana ? String(s.semana.publicada_em || '') : '',
+    // Quantas pessoas já responderam (só despublica com zero).
+    respostas: s.semana && s.semana.situacao === 'PUBLICADA' ? pessoasQueResponderam_(lerTabela_(obterAba_(ss, 'Pedidos')).linhas, terca) : 0,
     dias: diasDoCiclo_(terca).map(function (c) {
       var l = s.porData[c.data];
       return {
@@ -209,14 +243,38 @@ function adminObterSemana(terca) {
   };
 }
 
-/** Sugestão para os dias vazios (não grava nada). */
-function adminSugerirSemana(terca, dias) {
+/**
+ * Volta uma semana publicada para rascunho: os funcionários deixam de vê-la.
+ * Só enquanto ninguém respondeu; depois disso, o caminho é alterar e salvar (os pedidos vão para revisão).
+ */
+function adminDespublicarSemana(terca) {
+  var email = exigirAdmin_();
+  terca = inicioDoCiclo_(String(terca));
+  return comLock_(function () {
+    var ss = abrirPlanilha_();
+    var s = lerSemanaCompleta_(ss, terca);
+    if (!s.semana || s.semana.situacao !== 'PUBLICADA') throw new Error('Esta semana não está publicada.');
+    var respostas = pessoasQueResponderam_(lerTabela_(obterAba_(ss, 'Pedidos')).linhas, terca);
+    if (respostas) {
+      throw new Error('Não dá para despublicar: ' + respostas + (respostas === 1 ? ' pessoa já respondeu' : ' pessoas já responderam') +
+        ' esta semana. Altere o cardápio e salve; quem pediu recebe o aviso para conferir.');
+    }
+    var semana = Object.assign({}, s.semana, { situacao: 'RASCUNHO', publicada_em: '', publicada_por: '', atualizado_em: agoraIso_() });
+    regravarPorId_(obterAba_(ss, 'Semanas'), s.semanas.cabecalho, semana);
+    registrarAuditoria_(ss, 'DESPUBLICAR_SEMANA', 'Semanas', terca, email, '');
+    return { situacao: 'RASCUNHO' };
+  });
+}
+
+/** Sugestão para os dias vazios (não grava nada). `evitar`: ids de principais que não devem ser sorteados. */
+function adminSugerirSemana(terca, dias, evitar) {
   exigirAdmin_();
   terca = inicioDoCiclo_(String(terca));
   var entrada = normalizarDiasEntrada_(terca, dias);
+  evitar = Array.isArray(evitar) ? evitar.slice(0, 20).map(String) : [];
   var ss = abrirPlanilha_();
   var cardapio = lerTabela_(obterAba_(ss, 'Cardapio'));
-  return sugerirSemana_(entrada, lerPratos_(ss), pratosRecentes_(cardapio.linhas, terca));
+  return sugerirSemana_(entrada, lerPratos_(ss), pratosRecentes_(cardapio.linhas, terca), null, evitar);
 }
 
 /** Valida sem gravar (avisos ao vivo na tela). */

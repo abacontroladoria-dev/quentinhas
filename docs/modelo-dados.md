@@ -41,8 +41,10 @@ Principais e acompanhamentos ficam na mesma aba, distinguidos por `tipo`. A resp
 | `so_sexta` | `SIM` \| `NAO` | só principal (feijoada, lasanha…) |
 | `acompanhamentos` | JSON (lista de IDs) | só principal: acompanhamentos **de costume**, até 5, que já vêm marcados ao escolher o principal |
 | `sem_fixos` | JSON (lista de nomes) | só principal: itens de todo dia (`ITENS_FIXOS`) que **não** vêm com ele. Ex.: estrogonofe → `["Feijão","Farofa"]` (só arroz). Coluna acrescentada depois; fica à direita |
+| `compras` | JSON (lista de `{item_id, quantidade}`) | só principal: o que o prato pede na lista de compras (ex.: Carré → `4 kg`), até 8. Coluna acrescentada depois; fica à direita |
 | `situacao` | `ATIVO` \| `INATIVO` | inativos não aparecem para novos cardápios |
 | `criado_em` / `atualizado_em` | data/hora | |
+
 ### 3. `Semanas`
 
 | Coluna | Tipo | Regra |
@@ -109,6 +111,29 @@ Parâmetros **não sensíveis**, editáveis pelo admin.
 | `registro_id` | ID afetado |
 | `responsavel` | e-mail do admin, `FUNC:<id>` ou `SISTEMA` |
 | `detalhes` | JSON curto (antes/depois). **Nunca** contém tokens ou outros segredos. |
+
+### 8. `ItensCompra`
+
+Cadastro da lista de compras (substitui a aba LISTA DE MERCADO SEMANAL da planilha antiga, de onde vieram os itens iniciais). Ver [compras.md](compras.md).
+
+| Coluna | Tipo | Regra |
+|---|---|---|
+| `id` | texto `IC-…` | único, imutável |
+| `secao` | `ACOUGUE` \| `MERCEARIA` \| `TEMPEROS` \| `LIMPEZA` \| `SACOLAO` | |
+| `nome` | texto até 60 | único entre ativos (sem diferenciar maiúsculas/acentos) |
+| `ordem` | número (texto) | posição dentro da seção; item novo vai para o fim |
+| `situacao` | `ATIVO` \| `INATIVO` | removido na tela = inativo; listas antigas não mudam |
+| `criado_em` / `atualizado_em` | data/hora | |
+
+### 9. `ListasCompra`
+
+Uma linha por ciclo.
+
+| Coluna | Tipo | Regra |
+|---|---|---|
+| `id` | `yyyy-MM-dd` | terça do ciclo (mesmo id de `Semanas`, mas não depende dela) |
+| `quantidades` | JSON `{item_id: "texto"}` | só os itens que vão ser comprados; texto livre até 30 (`4 kg`, `6 bandejas`). Vazio ou zero não é gravado |
+| `atualizado_em` / `atualizado_por` | data/hora / e-mail | |
 
 ### Script Properties (fora da planilha)
 

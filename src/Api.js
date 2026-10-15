@@ -7,10 +7,48 @@ var ACOES_API_ = {
   apiInicio: function () { return apiInicio(); },
   apiPedidosDoFuncionario: function (a) { return apiPedidosDoFuncionario(a[0]); },
   apiSalvarPedidos: function (a) { return apiSalvarPedidos(a[0], a[1]); },
-  apiCozinha: function (a) { return apiCozinha(a[0], a[1]); }
+  apiCozinha: function (a) { return apiCozinha(a[0], a[1]); },
+  apiAdmin: function (a) { return apiAdmin(a[0], a[1], a[2]); }
 };
 
-var CORPO_MAX_ = 20000;
+// Página de administração do site (admin.html?k=<token>): as mesmas funções do diálogo da planilha.
+var ACOES_ADMIN_ = {
+  adminObterSemana: function (a) { return adminObterSemana(a[0]); },
+  adminValidarSemana: function (a) { return adminValidarSemana(a[0], a[1]); },
+  adminSugerirSemana: function (a) { return adminSugerirSemana(a[0], a[1], a[2]); },
+  adminSalvarSemana: function (a) { return adminSalvarSemana(a[0], a[1], a[2]); },
+  adminDespublicarSemana: function (a) { return adminDespublicarSemana(a[0]); },
+  adminObterListaCompras: function (a) { return adminObterListaCompras(a[0]); },
+  adminSalvarListaCompras: function (a) { return adminSalvarListaCompras(a[0], a[1]); },
+  adminSalvarItemCompra: function (a) { return adminSalvarItemCompra(a[0]); },
+  adminAlterarSituacaoItemCompra: function (a) { return adminAlterarSituacaoItemCompra(a[0], a[1]); },
+  adminListarPratos: function () { return adminListarPratos(); },
+  adminSalvarPrato: function (a) { return adminSalvarPrato(a[0]); },
+  adminImportarPratos: function (a) { return adminImportarPratos(a[0]); },
+  adminAlterarSituacaoPrato: function (a) { return adminAlterarSituacaoPrato(a[0], a[1]); },
+  adminListarFuncionarios: function () { return adminListarFuncionarios(); },
+  adminAdicionarFuncionarios: function (a) { return adminAdicionarFuncionarios(a[0]); },
+  adminRenomearFuncionario: function (a) { return adminRenomearFuncionario(a[0], a[1]); },
+  adminAlterarSituacaoFuncionario: function (a) { return adminAlterarSituacaoFuncionario(a[0], a[1]); },
+  adminLinks: function () { return adminLinks(); },
+  adminTrocarLink: function (a) { return adminTrocarLink(a[0]); },
+  adminConfigurar: function () { return adminConfigurar(); }
+};
+
+/** Confere o token do link e executa a função administrativa como "LINK_ADMIN" (é o que aparece na Auditoria). */
+function apiAdmin(token, acao, args) {
+  exigirTokenAdmin_(token);
+  if (typeof acao !== 'string' || !Object.prototype.hasOwnProperty.call(ACOES_ADMIN_, acao)) throw new Error('Ação inválida.');
+  ADMIN_PELO_LINK_ = 'LINK_ADMIN';
+  try {
+    return ACOES_ADMIN_[acao](Array.isArray(args) ? args : []);
+  } finally {
+    ADMIN_PELO_LINK_ = '';
+  }
+}
+
+// A importação de pratos colados do Excel aceita até 50 kB de texto.
+var CORPO_MAX_ = 60000;
 
 /** Interpreta o corpo e executa a ação. Puro em relação ao transporte (testado em Node). */
 function executarApi_(texto, acoes) {

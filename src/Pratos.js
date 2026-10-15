@@ -5,6 +5,8 @@ var CATEGORIAS_ = ['CARNE', 'FRANGO', 'PEIXE', 'PORCO', 'LINGUICA', 'FIGADO', 'O
 var PRATO_NOME_MAX_ = 80;
 var ACOMPANHAMENTOS_MAX_ = 5;
 var FIXOS_MAX_ = 6;
+var QUANTIDADE_MAX_ = 30;       // quantidade de compra, texto livre ("4 kg", "6 bandejas")
+var COMPRAS_POR_PRATO_MAX_ = 8;
 
 // ---------- Lógica pura (testada em Node) ----------
 
@@ -66,7 +68,7 @@ function validarPrato_(entrada) {
   var erro = erroTextoLivre_(nome, PRATO_NOME_MAX_);
   if (erro) return { erro: 'Nome: ' + erro + '.' };
   if (entrada.tipo === 'ACOMPANHAMENTO') {
-    return { erro: '', prato: { tipo: 'ACOMPANHAMENTO', nome: nome, categoria: '', so_sexta: 'NAO', acompanhamentos: [], sem_fixos: [] } };
+    return { erro: '', prato: { tipo: 'ACOMPANHAMENTO', nome: nome, categoria: '', so_sexta: 'NAO', acompanhamentos: [], sem_fixos: [], compras: [] } };
   }
   if (CATEGORIAS_.indexOf(entrada.categoria) === -1) return { erro: 'Categoria inválida.' };
   var acomp = (Array.isArray(entrada.acompanhamentos) ? entrada.acompanhamentos : []).map(String);
@@ -76,13 +78,35 @@ function validarPrato_(entrada) {
   if (semFixos.length > FIXOS_MAX_ || semFixos.some(function (f) { return erroTextoLivre_(f, PRATO_NOME_MAX_); })) {
     return { erro: 'Itens de todo dia inválidos.' };
   }
+  var compras = validarComprasDoPrato_(entrada.compras);
+  if (compras.erro) return { erro: compras.erro };
   return {
     erro: '',
     prato: {
       tipo: 'PRINCIPAL', nome: nome, categoria: entrada.categoria, so_sexta: entrada.so_sexta === 'SIM' ? 'SIM' : 'NAO',
-      acompanhamentos: acomp, sem_fixos: semFixos
+      acompanhamentos: acomp, sem_fixos: semFixos, compras: compras.compras
     }
   };
+}
+
+/** Valida a lista de compras de um prato: [{ item_id, quantidade }]. */
+function validarComprasDoPrato_(compras) {
+  if (!Array.isArray(compras)) return { erro: '', compras: [] };
+  if (compras.length > COMPRAS_POR_PRATO_MAX_) return { erro: 'No máximo ' + COMPRAS_POR_PRATO_MAX_ + ' itens para comprar por prato.' };
+  var vistos = {};
+  var saida = [];
+  for (var i = 0; i < compras.length; i++) {
+    var c = compras[i] || {};
+    var id = String(c.item_id || '');
+    if (!id) continue;
+    if (vistos[id]) return { erro: 'Item de compra repetido no prato.' };
+    vistos[id] = true;
+    var qt = limparNome_(c.quantidade);
+    var erro = qt ? erroTextoLivre_(qt, QUANTIDADE_MAX_) : '';
+    if (erro) return { erro: 'Quantidade para comprar: ' + erro + '.' };
+    saida.push({ item_id: id, quantidade: qt });
+  }
+  return { erro: '', compras: saida };
 }
 
 /**
@@ -132,14 +156,15 @@ function pratoDaLinha_(l) {
   return {
     id: String(l.id), tipo: String(l.tipo), nome: String(l.nome), categoria: String(l.categoria || ''),
     so_sexta: String(l.so_sexta || 'NAO'), acompanhamentos: lerLista_(l.acompanhamentos),
-    sem_fixos: lerLista_(l.sem_fixos), situacao: String(l.situacao)
+    sem_fixos: lerLista_(l.sem_fixos), compras: lerLista_(l.compras), situacao: String(l.situacao)
   };
 }
 
 function linhaDoPrato_(p) {
   return {
     tipo: p.tipo, nome: p.nome, categoria: p.categoria, so_sexta: p.so_sexta,
-    acompanhamentos: JSON.stringify(p.acompanhamentos || []), sem_fixos: JSON.stringify(p.sem_fixos || [])
+    acompanhamentos: JSON.stringify(p.acompanhamentos || []), sem_fixos: JSON.stringify(p.sem_fixos || []),
+    compras: JSON.stringify(p.compras || [])
   };
 }
 
@@ -213,6 +238,11 @@ function adminSalvarPrato(entrada) {
     v.prato.acompanhamentos.forEach(function (a) {
       if (!porId[a] || porId[a].tipo !== 'ACOMPANHAMENTO') throw new Error('Acompanhamento não encontrado.');
     });
+    if (v.prato.compras.length) {
+      var itens = {};
+      lerItensCompra_(ss).forEach(function (i) { itens[i.id] = true; });
+      v.prato.compras.forEach(function (c) { if (!itens[c.item_id]) throw new Error('Item de compra não encontrado. Recarregue a tela.'); });
+    }
     var agora = agoraIso_();
     var dados = Object.assign(linhaDoPrato_(v.prato), { atualizado_em: agora });
     if (!id) {

@@ -72,6 +72,40 @@ test('sugerirSemana_: evita principais recentes quando há alternativa', () => {
   }
 });
 
+test('sugerirSemana_: não sorteia os principais a evitar', () => {
+  const dias = vazia();
+  const evitar = principais.filter((x) => x.so_sexta === 'NAO').slice(0, 10).map((x) => x.id);
+  for (let s = 1; s <= 100; s++) {
+    const r = c.sugerirSemana_(dias, pratos, new Set(), semente(s), evitar);
+    r.dias.forEach((d) => assert.ok(!evitar.includes(d.principal_id)));
+  }
+  const unicoDeSexta = principais.filter((x) => x.so_sexta === 'SIM').map((x) => x.id);
+  const r = c.sugerirSemana_(dias, pratos, new Set(), semente(1), unicoDeSexta);
+  assert.equal(porId[r.dias[3].principal_id].so_sexta, 'NAO', 'sexta usa os demais quando os de sexta estão evitados');
+});
+
+test('ultimaVezPorPrincipal_: última data de cada principal nos ciclos anteriores', () => {
+  const linhas = [
+    { tipo: 'PRATO', principal_id: 'PR-1', data: '2026-10-06' },
+    { tipo: 'PRATO', principal_id: 'PR-1', data: '2026-10-14' },
+    { tipo: 'PRATO', principal_id: 'PR-2', data: '2026-10-20' }, // do próprio ciclo: fora
+    { tipo: 'PRATO', principal_id: 'PR-3', data: '2026-08-04' }, // antigo demais: fora
+    { tipo: 'SEM_ALMOCO', principal_id: '', data: '2026-10-13' },
+  ];
+  assert.deepEqual({ ...c.ultimaVezPorPrincipal_(linhas, '2026-10-20', 6) }, { 'PR-1': '2026-10-14' });
+});
+
+test('pessoasQueResponderam_: conta funcionários distintos da semana', () => {
+  const pedidos = [
+    { funcionario_id: 'F1', semana_id: '2026-10-20', situacao: 'CONFIRMADO' },
+    { funcionario_id: 'F1', semana_id: '2026-10-20', situacao: 'CANCELADO' },
+    { funcionario_id: 'F2', semana_id: '2026-10-20', situacao: 'CANCELADO' },
+    { funcionario_id: 'F3', semana_id: '2026-10-13', situacao: 'CONFIRMADO' },
+  ];
+  assert.equal(c.pessoasQueResponderam_(pedidos, '2026-10-20'), 2);
+  assert.equal(c.pessoasQueResponderam_(pedidos, '2026-10-27'), 0);
+});
+
 test('sugerirSemana_: banco sem principais informa dias sem candidato', () => {
   assert.equal(c.sugerirSemana_(vazia(), acomp, new Set(), semente(1)).semCandidato.length, 5);
 });
@@ -108,6 +142,16 @@ test('validarSemana_: erros e avisos', () => {
   assert.equal(v.erros.length, 1);
   assert.match(v.erros[0], /Segunda-feira \(26\/10\)/);
   assert.equal(v.avisos.length, 3); // frango seguido + sexta na quinta + quinta sem acompanhamento
+  // Os mesmos problemas, junto de cada dia e sem repetir o nome do dia.
+  assert.deepEqual([...v.porData['2026-10-21'].avisos], ['Frango em dias seguidos: a terça-feira também é frango.']);
+  assert.equal(v.porData['2026-10-22'].avisos.length, 2);
+  assert.deepEqual([...v.porData['2026-10-26'].erros], ['Escolha o prato ou marque "sem almoço".']);
+  assert.equal(v.porData['2026-10-20'], undefined);
+
+  const repetido = vazia();
+  repetido[0] = { ...repetido[0], tipo: 'PRATO', principal_id: frangos[0].id, acompanhamento_ids: ['AC-0'] };
+  repetido[2] = { ...repetido[2], tipo: 'PRATO', principal_id: frangos[0].id, acompanhamento_ids: ['AC-0'] };
+  assert.deepEqual([...c.validarSemana_(repetido, porId).porData['2026-10-22'].avisos], ['Já está na terça-feira.']);
 
   const ruim = vazia();
   ruim[0] = { ...ruim[0], tipo: 'PRATO', principal_id: 'AC-0' }; // acompanhamento no lugar do principal

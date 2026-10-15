@@ -34,6 +34,17 @@ Decisão do responsável pelo projeto: funcionários **não** usam senha nem có
 - Como funções globais também são chamáveis pelo web app, essa verificação é o que bloqueia chamadas anônimas: no web app "executar como eu", o e-mail do visitante vem vazio → acesso negado.
 - **Limitação:** edições feitas diretamente nas abas pelo admin não passam pela validação nem pela auditoria. As abas de dados terão proteção com aviso.
 
+### Administrador — página no site, token no link
+
+Decisão do responsável pelo projeto: administrar também **sem login**, por uma página do site (`…/quentinhas/admin.html?k=<token>`), com a mesma tela do diálogo.
+
+- O token (`ADMIN_TOKEN`, 256 bits) fica em Script Properties, gerado pela configuração inicial. O link aparece em *Quentinhas → Links* e na aba Configurações.
+- A página chama uma única ação da API, `apiAdmin(token, função, argumentos)`. Ela confere o token (comparação em tempo constante) e só executa as funções de `ACOES_ADMIN_` (`src/Api.js`). Durante a chamada, `exigirAdmin_()` aceita o link e devolve `LINK_ADMIN`, que é o que fica registrado em `Auditoria` e em `publicada_por`; a liberação vale só dentro daquela execução.
+- **Quem tiver o link administra tudo**: muda cardápio, publica/despublica, vê e edita funcionários e troca os links. Não é login; é um segredo compartilhável. Guardar só com quem administra.
+- Se vazar: *Configurações → Administração → Trocar link* (ou pela planilha, que continua exigindo conta Google de admin). O link antigo para de funcionar na hora.
+- A página tem `referrer` desligado, para o token não ir junto ao abrir links externos (ex.: o WhatsApp da lista de compras), e `noindex`.
+- O link fica no histórico e nos favoritos do navegador onde foi aberto.
+
 ## Regras no servidor
 
 - Só funções sem `_` final são expostas ao navegador; todas validam o perfil antes de qualquer leitura/gravação.
@@ -66,6 +77,6 @@ Execuções simultâneas por usuário são limitadas; como tudo roda como o prop
 
 - As telas de pedido e cozinha são arquivos estáticos públicos (repositório público). Não contêm segredos: o token da cozinha só existe no link entregue à cozinha e em Script Properties.
 - O site chama `doPost` (`src/Api.js`) com `fetch` em texto puro e `credentials: 'omit'`: requisição simples (sem preflight), sem cookies do Google. A resposta do Apps Script libera qualquer origem (`Access-Control-Allow-Origin: *`).
-- Só quatro ações podem ser chamadas (`ACOES_API_`): `apiInicio`, `apiPedidosDoFuncionario`, `apiSalvarPedidos`, `apiCozinha` — as mesmas regras e validações do `google.script.run`. Funções administrativas não estão na lista.
-- Corpo limitado a 20 kB; JSON inválido ou ação desconhecida → `{"ok": false, "erro": ...}`.
+- Só cinco ações podem ser chamadas (`ACOES_API_`): `apiInicio`, `apiPedidosDoFuncionario`, `apiSalvarPedidos`, `apiCozinha` e `apiAdmin` — as mesmas regras e validações do `google.script.run`. As funções administrativas só passam por `apiAdmin`, com o token da administração.
+- Corpo limitado a 60 kB (a importação de pratos aceita até 50 kB); JSON inválido ou ação desconhecida → `{"ok": false, "erro": ...}`.
 - Páginas com `noindex, nofollow` para ficarem fora de buscadores. Ainda assim, quem tiver o link do site vê a lista de nomes e o cardápio (o mesmo risco aceito do link `/exec`).

@@ -19,11 +19,16 @@ function resolverIncludes(html) {
 }
 
 function montarPagina(nomeOrigem, titulo) {
+  // Administração: a tela do diálogo chama google.script.run; no site, admin-run.js imita isso sobre a API.
+  // Sem referrer, para o token do link não vazar ao abrir links externos (ex.: WhatsApp).
+  const extras = nomeOrigem === 'Admin'
+    ? '\n  <meta name="referrer" content="no-referrer">\n  <meta name="viewport" content="width=device-width, initial-scale=1">\n  <script src="api.js"></script>\n  <script src="admin-run.js"></script>'
+    : '';
   let html = resolverIncludes(ler(nomeOrigem))
     .replace('<base target="_top">', '')
     .replace('data-k="<?= token ?>"', 'data-k=""')
     // Página interna: fora dos buscadores.
-    .replace('<meta charset="utf-8">', '<meta charset="utf-8">\n  <meta name="robots" content="noindex, nofollow">\n  <title>' + titulo + '</title>\n  <link rel="icon" href="icone.svg">');
+    .replace('<meta charset="utf-8">', '<meta charset="utf-8">\n  <meta name="robots" content="noindex, nofollow">\n  <title>' + titulo + '</title>\n  <link rel="icon" href="icone.svg">' + extras);
   const sobra = html.match(/<\?[\s\S]*?\?>/);
   if (sobra) throw new Error(nomeOrigem + ': scriptlet do Apps Script não resolvido: ' + sobra[0]);
   return html;
@@ -32,7 +37,11 @@ function montarPagina(nomeOrigem, titulo) {
 function montar(saida = saidaPadrao) {
   fs.rmSync(saida, { recursive: true, force: true });
   fs.mkdirSync(saida, { recursive: true });
-  const paginas = { 'index.html': ['Index', 'Quentinhas'], 'cozinha.html': ['PainelCozinha', 'Quentinhas · Cozinha'] };
+  const paginas = {
+    'index.html': ['Index', 'Quentinhas'],
+    'cozinha.html': ['PainelCozinha', 'Quentinhas · Cozinha'],
+    'admin.html': ['Admin', 'Quentinhas · Administração']
+  };
   for (const [destino, [origem, titulo]] of Object.entries(paginas)) {
     fs.writeFileSync(path.join(saida, destino), montarPagina(origem, titulo));
   }

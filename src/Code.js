@@ -4,9 +4,7 @@ function onOpen() {
   SpreadsheetApp.getUi()
     .createMenu('Quentinhas')
     .addItem('Administração', 'menuAdministracao')
-    .addSeparator()
-    .addItem('Links (funcionários e cozinha)', 'menuLinkCozinha')
-    .addItem('Trocar link da cozinha', 'menuTrocarLinkCozinha')
+    .addItem('Links (funcionários, cozinha e administração)', 'menuLinkCozinha')
     .addSeparator()
     .addItem('Configuração inicial', 'menuConfiguracaoInicial')
     .addToUi();
@@ -63,68 +61,55 @@ function menuLinkCozinha() {
   var ui = SpreadsheetApp.getUi();
   try {
     exigirAdmin_();
-    var link = linkCozinha_();
-    if (!link) throw new Error('Web app ainda não disponível ou token não gerado. Execute a Configuração inicial.');
+    var links = linksDoSistema_();
+    if (!links.cozinha || !links.admin) throw new Error('Links ainda não gerados. Execute a Configuração inicial.');
     var caixa = function (texto) {
-      return '<textarea readonly style="width:100%;height:64px;font:13px monospace" onclick="this.select()">' + escaparHtml_(texto) + '</textarea>';
+      return '<textarea readonly style="width:100%;height:56px;font:13px monospace" onclick="this.select()">' + escaparHtml_(texto) + '</textarea>';
     };
     var html = HtmlService.createHtmlOutput(
       '<div style="font:14px system-ui,sans-serif">' +
-      '<p><b>Funcionários</b> — mande este link no grupo. Cada um escolhe o próprio nome.</p>' + caixa(URL_SITE_) +
-      '<p><b>Cozinha</b> — abra no celular/tablet da cozinha. Quem tiver este link vê o painel (somente leitura); não compartilhe no grupo.</p>' + caixa(link) +
-      '</div>').setWidth(580).setHeight(330);
+      '<p><b>Funcionários</b> — mande este link no grupo. Cada um escolhe o próprio nome.</p>' + caixa(links.funcionarios) +
+      '<p><b>Cozinha</b> — abra no celular/tablet da cozinha. Quem tiver este link vê o painel (somente leitura); não compartilhe no grupo.</p>' + caixa(links.cozinha) +
+      '<p><b>Administração</b> — cardápio, lista de compras, pratos e funcionários, sem precisar abrir a planilha. ' +
+      'Quem tiver este link administra o sistema: guarde só para você. Para trocar, use Administração → Configurações.</p>' + caixa(links.admin) +
+      '</div>').setWidth(600).setHeight(470);
     ui.showModalDialog(html, 'Links do Quentinhas');
   } catch (e) {
     ui.alert('Quentinhas', e.message, ui.ButtonSet.OK);
   }
 }
 
-function menuTrocarLinkCozinha() {
-  var ui = SpreadsheetApp.getUi();
-  try {
-    var email = exigirAdmin_();
-    var r = ui.alert('Trocar link da cozinha',
-      'O link atual deixa de funcionar imediatamente. Depois será preciso abrir o novo link no tablet da cozinha. Continuar?',
-      ui.ButtonSet.YES_NO);
-    if (r !== ui.Button.YES) return;
-    comLock_(function () {
-      PropertiesService.getScriptProperties().setProperty('COZINHA_TOKEN', gerarToken_());
-      registrarAuditoria_(abrirPlanilha_(), 'TROCAR_TOKEN_COZINHA', 'Configuracoes', '', email, '');
-    });
-    menuLinkCozinha();
-  } catch (e) {
-    ui.alert('Quentinhas', e.message, ui.ButtonSet.OK);
-  }
-}
-
 // Callbacks de menu não podem terminar com "_", então esta função também é chamável via google.script.run.
-// É segura: configurarPlanilha_ exige planilha ativa (inexistente no web app) e e-mail de proprietário/admin.
+// É segura: sem planilha ativa (web app) ela recusa, e configurarPlanilha_ exige e-mail de proprietário/admin.
 function menuConfiguracaoInicial() {
   var ui = SpreadsheetApp.getUi();
   try {
-    var r = configurarPlanilha_();
-    var linhas = ['Configuração concluída.', ''];
-    if (r.abasCriadas.length) linhas.push('Abas criadas/atualizadas: ' + r.abasCriadas.join(', '));
-    if (r.colunasAcrescentadas.length) linhas.push('Colunas acrescentadas: ' + r.colunasAcrescentadas.join(', '));
-    if (r.configuracoesInseridas.length) linhas.push('Configurações padrão: ' + r.configuracoesInseridas.join(', '));
-    if (r.estrogonofes.length) linhas.push('Só com arroz (sem feijão e farofa): ' + r.estrogonofes.join(', '));
-    if (r.tokenGerado) linhas.push('Token da cozinha gerado (o link será exibido após a implantação do web app).');
-    if (r.primeiraVez) linhas.push('Administrador inicial: ' + r.email);
-    if (!r.abasCriadas.length && !r.colunasAcrescentadas.length && !r.configuracoesInseridas.length && !r.tokenGerado) {
-      linhas.push('Nada a alterar: a planilha já estava configurada.');
-    }
-    ui.alert('Quentinhas', linhas.join('\n'), ui.ButtonSet.OK);
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    if (!ss) throw new Error('Execute a configuração pelo menu da planilha.');
+    var r = configurarPlanilha_(ss, autorizarConfiguracaoInicial_(ss));
+    ui.alert('Quentinhas', ['Configuração concluída.', ''].concat(resumoConfiguracao_(r)).join('\n'), ui.ButtonSet.OK);
   } catch (e) {
     ui.alert('Quentinhas', 'Erro: ' + e.message, ui.ButtonSet.OK);
   }
 }
 
-/** Cria/verifica abas, configurações padrão e Script Properties. Idempotente. */
-function configurarPlanilha_() {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  if (!ss) throw new Error('Execute a configuração pelo menu da planilha.');
-  var auth = autorizarConfiguracaoInicial_(ss);
+/** Linhas que explicam o que a configuração fez (menu e página de administração). */
+function resumoConfiguracao_(r) {
+  var linhas = [];
+  if (r.abasCriadas.length) linhas.push('Abas criadas/atualizadas: ' + r.abasCriadas.join(', '));
+  if (r.colunasAcrescentadas.length) linhas.push('Colunas acrescentadas: ' + r.colunasAcrescentadas.join(', '));
+  if (r.configuracoesInseridas.length) linhas.push('Configurações padrão: ' + r.configuracoesInseridas.join(', '));
+  if (r.estrogonofes.length) linhas.push('Só com arroz (sem feijão e farofa): ' + r.estrogonofes.join(', '));
+  if (r.itensCompra) linhas.push('Lista de compras: ' + r.itensCompra + ' itens da planilha antiga cadastrados.');
+  if (r.comprasPratos.length) linhas.push('Compras sugeridas para ' + r.comprasPratos.length + ' pratos (confira em Pratos → Para comprar).');
+  if (r.tokensGerados.length) linhas.push('Links gerados: ' + r.tokensGerados.join(', ') + ' (veja em Links).');
+  if (r.primeiraVez) linhas.push('Administrador inicial: ' + r.email);
+  if (!linhas.length) linhas.push('Nada a alterar: a planilha já estava configurada.');
+  return linhas;
+}
 
+/** Cria/verifica abas, configurações padrão, dados iniciais e Script Properties. Idempotente. */
+function configurarPlanilha_(ss, auth) {
   return comLock_(function () {
     var props = PropertiesService.getScriptProperties();
     var abasCriadas = [];
@@ -140,32 +125,63 @@ function configurarPlanilha_() {
     var configuracoesInseridas = garantirConfiguracoesPadrao_(ss);
     // Migração única: quando a coluna sem_fixos nasce, os estrogonofes passam a vir só com arroz.
     var estrogonofes = colunasAcrescentadas.indexOf('Pratos.sem_fixos') !== -1 ? aplicarPadraoEstrogonofe_(ss) : [];
+    // Lista de compras: itens da planilha antiga e, quando a coluna Pratos.compras nasce, o que cada principal pede.
+    var itensCompra = garantirItensCompraPadrao_(ss);
+    var comprasPratos = colunasAcrescentadas.indexOf('Pratos.compras') !== -1 ? aplicarComprasPadrao_(ss) : [];
 
     props.setProperty('SPREADSHEET_ID', ss.getId());
-    var tokenGerado = false;
-    if (!props.getProperty('COZINHA_TOKEN')) {
-      props.setProperty('COZINHA_TOKEN', gerarToken_());
-      tokenGerado = true;
-    }
+    var tokensGerados = [];
+    [['COZINHA_TOKEN', 'cozinha'], ['ADMIN_TOKEN', 'administração']].forEach(function (t) {
+      if (props.getProperty(t[0])) return;
+      props.setProperty(t[0], gerarToken_());
+      tokensGerados.push(t[1]);
+    });
     if (auth.primeiraVez) props.setProperty('ADMIN_EMAILS', auth.email);
 
-    registrarAuditoria_(ss, 'CONFIGURACAO_INICIAL', 'Planilha', ss.getId(), auth.email, {
-      abasCriadas: abasCriadas,
-      colunasAcrescentadas: colunasAcrescentadas,
-      configuracoesInseridas: configuracoesInseridas,
-      estrogonofes: estrogonofes,
-      tokenGerado: tokenGerado,
-      primeiraVez: auth.primeiraVez
-    });
-
-    return {
+    var r = {
       email: auth.email,
       primeiraVez: auth.primeiraVez,
       abasCriadas: abasCriadas,
       colunasAcrescentadas: colunasAcrescentadas,
       configuracoesInseridas: configuracoesInseridas,
       estrogonofes: estrogonofes,
-      tokenGerado: tokenGerado
+      itensCompra: itensCompra,
+      comprasPratos: comprasPratos,
+      tokensGerados: tokensGerados
     };
+    registrarAuditoria_(ss, 'CONFIGURACAO_INICIAL', 'Planilha', ss.getId(), auth.email, r);
+    return r;
   });
+}
+
+// ---------- API administrativa: o que antes só existia no menu ----------
+
+/** Links do sistema (os tokens só vão para quem já é administrador). */
+function linksDoSistema_() {
+  var props = PropertiesService.getScriptProperties();
+  var admin = props.getProperty('ADMIN_TOKEN');
+  return { funcionarios: URL_SITE_, cozinha: linkCozinha_(), admin: admin ? URL_SITE_ + 'admin.html?k=' + admin : '' };
+}
+
+function adminLinks() {
+  exigirAdmin_();
+  return linksDoSistema_();
+}
+
+/** Troca o link da cozinha ou o da administração; o antigo para de funcionar na hora. Retorna os links novos. */
+function adminTrocarLink(qual) {
+  var email = exigirAdmin_();
+  var chave = { COZINHA: 'COZINHA_TOKEN', ADMIN: 'ADMIN_TOKEN' }[qual];
+  if (!chave) throw new Error('Link inválido.');
+  comLock_(function () {
+    PropertiesService.getScriptProperties().setProperty(chave, gerarToken_());
+    registrarAuditoria_(abrirPlanilha_(), qual === 'ADMIN' ? 'TROCAR_TOKEN_ADMIN' : 'TROCAR_TOKEN_COZINHA', 'Configuracoes', '', email, '');
+  });
+  return linksDoSistema_();
+}
+
+/** Configuração inicial a partir da administração (a planilha já existe; só cria o que falta). */
+function adminConfigurar() {
+  var email = exigirAdmin_();
+  return resumoConfiguracao_(configurarPlanilha_(abrirPlanilha_(), { email: email, primeiraVez: false }));
 }

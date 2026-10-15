@@ -37,8 +37,20 @@ function emailAtivo_() {
   return String(Session.getActiveUser().getEmail() || '').trim().toLowerCase();
 }
 
-/** Garante que quem executa é administrador. Retorna o e-mail. */
+// Preenchido só por apiAdmin, depois de conferir o token da página de administração, e limpo ao terminar.
+// Cada execução do Apps Script tem as próprias variáveis globais, então não vaza entre requisições.
+var ADMIN_PELO_LINK_ = '';
+
+function exigirTokenAdmin_(token) {
+  var certo = PropertiesService.getScriptProperties().getProperty('ADMIN_TOKEN');
+  if (!tokensIguais_(token, certo)) {
+    throw new Error('Link de administração inválido ou trocado. Pegue o link atual na planilha: Quentinhas → Links.');
+  }
+}
+
+/** Garante que quem executa é administrador (conta Google da lista ou link de administração). Retorna quem responde pela ação. */
 function exigirAdmin_() {
+  if (ADMIN_PELO_LINK_) return ADMIN_PELO_LINK_;
   var email = emailAtivo_();
   var admins = PropertiesService.getScriptProperties().getProperty('ADMIN_EMAILS');
   if (!emailEhAdmin_(email, admins)) {
