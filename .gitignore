@@ -2,3 +2,4 @@ node_modules/
 .clasprc.json
 *.log
 _site/
+dados/

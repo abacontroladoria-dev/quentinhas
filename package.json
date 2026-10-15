@@ -5,6 +5,7 @@
   "description": "Gestão de pedidos semanais de quentinhas (Google Apps Script + Sheets)",
   "scripts": {
     "test": "node --test \"tests/*.test.js\"",
+    "servidor": "node server/servidor.js",
     "push": "clasp push",
     "pull": "clasp pull"
   },

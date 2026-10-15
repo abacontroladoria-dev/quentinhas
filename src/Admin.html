@@ -406,7 +406,7 @@
       <div class="link-linha">
         <div class="link-texto">
           <strong>Administração</strong>
-          <span class="nota">Esta tela, sem abrir a planilha. Quem tiver o link administra o sistema: guarde só para você.</span>
+          <span class="nota">Esta tela. Quem tiver o link administra o sistema: guarde só para você.</span>
         </div>
         <input type="text" readonly id="linkAdmin" aria-label="Link da administração">
         <button class="pequeno" data-copiar="linkAdmin">Copiar</button>
@@ -428,9 +428,9 @@
       </div>
       <div id="cfgPrazoMsg"></div>
 
-      <h2>Planilha</h2>
-      <p class="nota">Depois de uma atualização do sistema, cria as abas e colunas que faltarem. Não apaga nem muda o que já está cadastrado.</p>
-      <button id="cfgAtualizar">Atualizar a planilha</button>
+      <h2>Dados</h2>
+      <p class="nota">Tudo o que está cadastrado (funcionários, pratos, cardápios, pedidos, lista de compras e o histórico de alterações) num arquivo do Excel, para consultar ou guardar.</p>
+      <button id="cfgExcel">Baixar tudo em Excel</button>
       <div id="cfgMsg"></div>
     </div>
   </section>
@@ -1712,8 +1712,8 @@
 
     function mostrarLinks(l) {
       el('linkFuncionarios').value = l.funcionarios || '';
-      el('linkCozinha').value = l.cozinha || 'Ainda não gerado: use "Atualizar a planilha".';
-      el('linkAdmin').value = l.admin || 'Ainda não gerado: use "Atualizar a planilha".';
+      el('linkCozinha').value = l.cozinha || '';
+      el('linkAdmin').value = l.admin || '';
     }
 
     function carregarConfig() {
@@ -1769,12 +1769,22 @@
       }, alvo);
     };
 
-    el('cfgAtualizar').onclick = function () {
+    el('cfgExcel').onclick = function () {
       var alvo = el('cfgMsg');
       alvo.textContent = '';
-      chamar('adminConfigurar', [], function (linhas) {
-        aviso(alvo, 'ok', 'Planilha atualizada.', linhas);
-        carregarConfig();
+      chamar('adminExportarExcel', [], function (r) {
+        var bin = atob(r.base64);
+        var bytes = new Uint8Array(bin.length);
+        for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+        var url = URL.createObjectURL(new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = r.nome;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(function () { URL.revokeObjectURL(url); }, 10000);
+        aviso(alvo, 'ok', 'Arquivo ' + r.nome + ' baixado.');
       }, alvo);
     };
 

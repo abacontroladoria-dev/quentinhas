@@ -30,6 +30,7 @@ As telas saíram do Apps Script porque, servidas por ele, não abrem em navegado
 - [docs/cardapio.md](docs/cardapio.md) — banco de pratos, montagem da semana (terça a segunda), sugestão automática e publicação.
 - [docs/compras.md](docs/compras.md) — lista de compras semanal (antiga aba LISTA DE MERCADO SEMANAL).
 - [docs/seguranca.md](docs/seguranca.md) — autorização, implantação, permissões OAuth e limitações.
+- [docs/servidor.md](docs/servidor.md) — servidor no VPS (Coolify) que substitui o Apps Script, e a migração da planilha.
 
 ## Estrutura
 

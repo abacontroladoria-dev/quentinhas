@@ -44,7 +44,7 @@ var ADMIN_PELO_LINK_ = '';
 function exigirTokenAdmin_(token) {
   var certo = PropertiesService.getScriptProperties().getProperty('ADMIN_TOKEN');
   if (!tokensIguais_(token, certo)) {
-    throw new Error('Link de administração inválido ou trocado. Pegue o link atual na planilha: Quentinhas → Links.');
+    throw new Error('Link de administração inválido ou trocado. Use o link atual, que aparece em Administração → Configurações.');
   }
 }
 

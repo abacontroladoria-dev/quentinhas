@@ -42,7 +42,7 @@
       var h = document.createElement('h1');
       h.textContent = 'Abra pelo link de administração';
       var p = document.createElement('p');
-      p.textContent = 'Este endereço precisa do link completo. Na planilha do Quentinhas, use o menu Quentinhas → Links e copie o link de Administração.';
+      p.textContent = 'Este endereço precisa do link completo de Administração (o que termina em ?k=...). Use o link salvo nos favoritos.';
       caixa.appendChild(h);
       caixa.appendChild(p);
       document.body.appendChild(caixa);
