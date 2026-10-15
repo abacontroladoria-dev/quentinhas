@@ -1,14 +1,14 @@
 # Quentinhas — Gestão de pedidos semanais
 
-Substitui as enquetes do WhatsApp para pedidos de marmitas. Telas no GitHub Pages; dados e regras em Google Apps Script + Google Sheets.
+Substitui as enquetes do WhatsApp para pedidos de marmitas. Telas no GitHub Pages; dados e API num servidor Node + SQLite no VPS (Coolify), rodando as mesmas regras de `src/` escritas para o Apps Script.
 
 | Perfil | Onde usa | Como se identifica |
 |---|---|---|
 | Funcionário | https://abacontroladoria-dev.github.io/quentinhas/ no celular | Escolhe o próprio nome (sem senha) |
 | Cozinha | `…/quentinhas/cozinha.html?k=<token>` no celular/tablet | Token da cozinha no link (somente leitura) |
-| Administrador | `…/quentinhas/admin.html?k=<token>` (qualquer navegador) ou menu "Quentinhas" dentro da planilha | Página: token no link (sem login). Planilha: conta Google + e-mail na lista de administradores |
+| Administrador | `…/quentinhas/admin.html?k=<token>` (qualquer navegador) | Token no link (sem login) |
 
-> Status: em produção desde 15/10/2026. Links prontos em *Quentinhas → Links (funcionários, cozinha e administração)*. Admin inicial: a conta proprietária da planilha.
+> Status: em produção desde 15/10/2026; no servidor do VPS desde a mesma data (antes, Apps Script + planilha). Os links estão em Administração → Configurações.
 
 ## Arquitetura
 
@@ -16,13 +16,15 @@ Substitui as enquetes do WhatsApp para pedidos de marmitas. Telas no GitHub Page
 celular ──► GitHub Pages (index.html, cozinha.html, admin.html)   montado de src/*.html por scripts/montar-site.js
               │  fetch POST texto puro {acao, args}, sem cookies
               ▼
-           Apps Script /exec  (src/Api.js → apiInicio, apiPedidosDoFuncionario, apiSalvarPedidos, apiCozinha)
-              │
+           VPS · Coolify  https://bzqiu5mhr363hinibuaujsk5.143.95.211.211.sslip.io/api   (server/servidor.js)
+              │  o mesmo código de src/*.js (src/Api.js → apiInicio, apiSalvarPedidos, apiCozinha, apiAdmin…)
               ▼
-           Planilha "Quentinhas" ◄── menu Quentinhas (administração, src/Admin.html)
+           /data/quentinhas.db (SQLite) + backups diários
 ```
 
-As telas saíram do Apps Script porque, servidas por ele, não abrem em navegadores com mais de uma conta Google logada ("Não é possível abrir o arquivo"). O site chama a API sem enviar cookies do Google, então esse problema não ocorre. O link `/exec` continua servindo as mesmas telas (via `google.script.run`, `src/Transporte.html`) como reserva.
+Detalhes, configuração no Coolify e migração: [docs/servidor.md](docs/servidor.md).
+
+As telas saíram do Apps Script porque, servidas por ele, não abrem em navegadores com mais de uma conta Google logada. Depois a API também saiu, porque o Apps Script levava de 8 a 20 s por chamada. A planilha "Quentinhas" e o `/exec` do Apps Script ficaram como histórico: não recebem mais dados.
 
 ## Documentação
 
@@ -40,10 +42,13 @@ quentinhas/
 ├── package.json          # scripts locais (clasp, testes)
 ├── docs/                 # documentação técnica
 ├── tests/                # testes locais (Node) da lógica pura
+├── Dockerfile            # imagem do servidor (Coolify)
+├── server/               # servidor Node: HTTP, imitação do SpreadsheetApp/PropertiesService sobre SQLite, Excel
 ├── scripts/montar-site.js # monta _site/ (GitHub Pages) a partir de src/*.html + web/
-├── web/                  # arquivos só do site: api.js (fetch para a API), admin-run.js (google.script.run da página de administração), icone.svg
+├── scripts/migrar.js     # migração única da planilha (.xlsx) para o servidor
+├── web/                  # arquivos só do site: api.js (URL_API e fetch), admin-run.js (google.script.run da página de administração), icone.svg
 ├── .github/workflows/pages.yml # testes + montagem + publicação no Pages a cada push na main
-└── src/                  # tudo que vai para o Apps Script (rootDir do clasp)
+└── src/                  # regras e telas (escritas para o Apps Script; o servidor carrega os mesmos arquivos)
     ├── appsscript.json   # manifesto: fuso, escopos, web app
     ├── Code.js           # doGet, roteamento, menu da planilha
     ├── Api.js            # doPost: API JSON usada pelo site
@@ -115,27 +120,20 @@ Depois, na planilha: menu **Quentinhas → Configuração inicial** cria as abas
 - Quem tem acesso: **Qualquer pessoa** (funcionários não precisam de conta Google).
 - Toda autorização é feita no servidor (ver [docs/seguranca.md](docs/seguranca.md)).
 
-Implantação de produção do Apps Script (criada em 14/10/2026), usada como API pelo site:
+Implantação do Apps Script (criada em 14/10/2026), hoje só histórico, com os dados da planilha até a migração:
 
-- `/exec`: https://script.google.com/macros/s/AKfycbx_JKo5ajDM8Mg4Rht-BgtmF3nDamP8cpYvplji8Wtcxm3vXoxXyRx3VXvT8nuFvyQ8_w/exec (endereço fixo em `web/api.js`)
-- Teste (só editores, sempre o código mais recente): https://script.google.com/macros/s/AKfycbysPDRa901yDiqWOW4Ej0nD7YJ0CWHlHqAbHvdIs37P/dev
+- `/exec`: https://script.google.com/macros/s/AKfycbx_JKo5ajDM8Mg4Rht-BgtmF3nDamP8cpYvplji8Wtcxm3vXoxXyRx3VXvT8nuFvyQ8_w/exec (para voltar a ele, ver comentário em `web/api.js`)
 
 Site: repositório `abacontroladoria-dev/quentinhas`, publicado pelo GitHub Actions em https://abacontroladoria-dev.github.io/quentinhas/ (endereço fixo em `URL_SITE_`, `src/Cozinha.js`).
 
-**Publicar uma alteração** — são dois destinos:
+**Publicar uma alteração**:
 
 ```powershell
 npm test
-
-# 1) Apps Script (regras, API, administração). O push sozinho só muda o /dev.
-npx clasp push --force
-npx clasp update-deployment AKfycbx_JKo5ajDM8Mg4Rht-BgtmF3nDamP8cpYvplji8Wtcxm3vXoxXyRx3VXvT8nuFvyQ8_w --description "o que mudou"
-
-# 2) Site (telas): commit + push na main; o Actions testa, monta e publica.
-git add -A; git commit -m "o que mudou"; git push
+git add -A; git commit -m "o que mudou"; git push   # o Actions testa, monta e publica o site
 ```
 
-Mudança só em `src/Pedido.html`, `src/PainelCozinha.html`, `src/Tema.html` ou `src/JavaScript.html` afeta as telas: precisa do passo 2 (e do 1, se quiser o `/exec` reserva igual). O ID da implantação não muda entre versões.
+Depois do push, no Coolify: **Redeploy** do app Quentinhas, para o servidor pegar as mudanças em `src/*.js` e `server/`. Mudança só em telas (`src/*.html`, `web/`) precisa só do push.
 
 Prévia local do site: `node scripts/montar-site.js` gera `_site/` (as chamadas vão para a API de produção).
 

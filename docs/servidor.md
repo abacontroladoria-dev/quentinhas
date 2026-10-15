@@ -43,6 +43,12 @@ npm test
 6. **Healthcheck**: caminho `/saude`, porta 3000 (o Dockerfile já declara).
 7. Deploy. Teste: `https://<domínio>/saude` → `{"ok":true}`.
 
+### Ambiente atual
+
+- Domínio: `https://bzqiu5mhr363hinibuaujsk5.143.95.211.211.sslip.io` (gerado pelo Coolify; VPS `143.95.211.211`).
+- O certificado do Let's Encrypt é renovado a cada 90 dias e, no `sslip.io`, a renovação pode falhar por limite de emissões. Se o site passar a dar erro de conexão por certificado, crie um subdomínio gratuito (ex.: DuckDNS) apontando para o IP do VPS, troque o domínio no Coolify e o `URL_API` em [web/api.js](../web/api.js).
+- Migração feita em 15/10/2026, sem semanas, cardápios, pedidos e lista de compras da semana (recomeçaram do zero no servidor).
+
 ## Migração da planilha (uma vez)
 
 1. Escolha um horário sem pedidos. O que for feito na planilha depois do download não vai para o servidor.

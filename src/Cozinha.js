@@ -50,8 +50,8 @@ function exigirTokenCozinha_(token) {
   if (!tokensIguais_(token, certo)) throw new Error('Link da cozinha inválido. Peça o link atualizado ao administrador.');
 }
 
-// Site no GitHub Pages (telas de pedido e cozinha). O Apps Script serve os dados pela API (Api.js),
-// na implantação de produção cujo endereço está em web/api.js.
+// Site no GitHub Pages (telas de pedido e cozinha). Os dados vêm da API (Api.js), servida pelo
+// servidor do VPS cujo endereço está em web/api.js.
 var URL_SITE_ = 'https://abacontroladoria-dev.github.io/quentinhas/';
 
 /** Link do painel da cozinha no site (usado pelo menu do administrador). */
