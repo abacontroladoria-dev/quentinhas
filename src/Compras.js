@@ -256,7 +256,10 @@ function adminObterListaCompras(terca) {
   var s = lerSemanaCompleta_(ss, terca);
   var dias = diasDoCiclo_(terca).map(function (c) {
     var l = s.porData[c.data];
-    return { data: c.data, dia: c.dia, rotulo: c.rotulo, tipo: l ? String(l.tipo) : '', principal_id: l ? String(l.principal_id || '') : '' };
+    return {
+      data: c.data, dia: c.dia, rotulo: c.rotulo, tipo: l ? String(l.tipo) : '', principal_id: l ? String(l.principal_id || '') : '',
+      prato: l ? String(l.prato || '') : '', observacao: l ? String(l.observacao || '') : ''
+    };
   });
   var listas = lerListasCompra_(ss);
   var salva = listas[terca];
@@ -267,6 +270,11 @@ function adminObterListaCompras(terca) {
     terca: terca, hoje: hoje, anterior: somarDias_(terca, -7), proxima: somarDias_(terca, 7),
     datas: [dias[0].data, dias[dias.length - 1].data],
     cardapio_definido: dias.filter(function (d) { return d.tipo; }).length,
+    // Cardápio salvo da semana, para a tela mostrar junto da lista (o retrato `prato` é o que os funcionários veem).
+    cardapio: dias.map(function (d) {
+      var p = pratosPorId[d.principal_id];
+      return { data: d.data, dia: d.dia, tipo: d.tipo, prato: d.prato || (d.tipo === 'PRATO' && p ? p.nome : ''), observacao: d.observacao };
+    }),
     origem: lista.origem,
     salva_em: salva ? String(salva.atualizado_em || '') : '',
     quantidades: lista.quantidades,

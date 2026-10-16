@@ -159,9 +159,22 @@
     #aba-compras[hidden] { display: none; }
     .ferramentas { display: flex; align-items: center; gap: .75rem; margin-bottom: .6rem; }
     .ferramentas input[type=search] { width: 220px; }
+    /* Cardápio salvo da semana, preso logo abaixo das abas: montar a lista sem trocar de aba para lembrar os pratos. */
+    .cardapio-faixa { position: sticky; top: var(--altura-abas, 0); z-index: 2; background: var(--bg); padding: 6px 0 10px; }
+    /* Campo que recebe foco rola para baixo das abas e da faixa presas, não para trás delas. */
+    html { scroll-padding-top: var(--altura-abas, 0); }
+    html:has(#aba-compras:not([hidden]) .cardapio-faixa:not([hidden])) { scroll-padding-top: calc(var(--altura-abas, 0px) + var(--altura-faixa, 0px) + 8px); }
+    .cardapio-faixa[hidden] { display: none; }
+    .cardapio-faixa ol { list-style: none; margin: 0; padding: 8px 4px; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); background: var(--surface); border: 1.5px solid var(--line); border-radius: 14px; }
+    .cardapio-faixa li { padding: 0 10px; min-width: 0; }
+    .cardapio-faixa li + li { border-left: 1px solid var(--line); }
+    .cardapio-faixa .dia-faixa { display: block; font-size: .8125rem; color: var(--muted); }
+    .cardapio-faixa .prato-faixa { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: .92rem; font-weight: 700; line-height: 1.3; }
+    .cardapio-faixa .sem .prato-faixa { color: var(--muted); font-weight: 500; }
+    .cardapio-faixa .obs-faixa { display: block; font-size: .8rem; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     @media (max-height: 560px) {
-      nav.abas, .rodape { position: static; }
-      html { scroll-padding-bottom: 0; }
+      nav.abas, .rodape, .cardapio-faixa { position: static; }
+      html, html:has(#aba-compras:not([hidden]) .cardapio-faixa:not([hidden])) { scroll-padding-bottom: 0; scroll-padding-top: 0; }
     }
     .dia .pedidos .conferir { color: var(--warn); }
     .cabecalho-lista input[type=search] { width: 180px; }
@@ -246,6 +259,10 @@
       .dia .lado { grid-column: 2; height: auto; flex-wrap: wrap; margin-left: -.55rem; }
       .ferramentas { flex-wrap: wrap; }
       .ferramentas input[type=search] { width: 100%; }
+      /* Celular: os dias rolam de lado, como as abas. */
+      .cardapio-faixa ol { display: flex; overflow-x: auto; scrollbar-width: none; }
+      .cardapio-faixa ol::-webkit-scrollbar { display: none; }
+      .cardapio-faixa li { flex: 0 0 9.5rem; }
       .link-linha { grid-template-columns: 1fr auto auto; }
       .link-texto { grid-column: 1 / -1; }
       .rodape .acoes { flex-wrap: wrap; }
@@ -336,6 +353,7 @@
     </div>
     <p class="intro-semana" id="cmpNota"></p>
     <div id="cmpAvisoCardapio"></div>
+    <div class="cardapio-faixa" id="cmpCardapioSemana" role="region" aria-label="Cardápio desta semana" hidden></div>
     <div class="descartar" id="cmpDescartar" role="alert" hidden>
       <span>Esta lista tem alterações não salvas.</span>
       <button class="pequeno" id="cmpDescartarSim">Descartar e trocar de semana</button>
@@ -646,6 +664,15 @@
     navAbas.addEventListener('scroll', marcarFimAbas, { passive: true });
     window.addEventListener('resize', marcarFimAbas);
     marcarFimAbas();
+    // O cardápio preso na Lista de compras fica logo abaixo das abas, que também ficam presas.
+    function medirAbas() {
+      var raiz = document.documentElement.style;
+      raiz.setProperty('--altura-abas', navAbas.offsetHeight + 'px');
+      var faixa = el('cmpCardapioSemana');
+      if (faixa.offsetHeight) raiz.setProperty('--altura-faixa', faixa.offsetHeight + 'px');
+    }
+    window.addEventListener('resize', medirAbas);
+    medirAbas();
 
     abas.forEach(function (b) {
       b.onclick = function () {
@@ -1666,6 +1693,7 @@
       if (cardapioPendente) {
         aviso(el('cmpAvisoCardapio'), 'alerta', 'O cardápio desta semana tem alterações não salvas. A lista usa o cardápio salvo: salve o cardápio e volte aqui para atualizar.');
       }
+      desenharCardapioCompras();
       el('cmpEditar').setAttribute('aria-pressed', String(cmpEditando));
       el('cmpEditar').textContent = cmpEditando ? 'Concluir edição' : 'Editar itens';
 
@@ -1697,6 +1725,26 @@
         caixa.appendChild(sec);
       });
       filtrarCompras();
+    }
+
+    /** Os pratos da semana (cardápio salvo), para não precisar voltar à aba Cardápio. Some enquanto não há nenhum dia definido. */
+    function desenharCardapioCompras() {
+      var faixa = el('cmpCardapioSemana');
+      faixa.textContent = '';
+      faixa.hidden = !cmp.cardapio_definido || !cmp.cardapio;
+      if (faixa.hidden) return;
+      var ol = criar('ol');
+      cmp.cardapio.forEach(function (d) {
+        var prato = d.tipo === 'PRATO' ? d.prato : d.tipo === 'SEM_ALMOCO' ? 'Sem almoço' : 'A definir';
+        var li = criar('li', undefined, d.tipo === 'PRATO' ? '' : 'sem');
+        li.appendChild(criar('span', (ABREV[d.dia] || d.dia) + ' ' + dataBr(d.data), 'dia-faixa'));
+        li.appendChild(criar('span', prato, 'prato-faixa'));
+        if (d.observacao) li.appendChild(criar('span', d.observacao, 'obs-faixa'));
+        li.title = prato + (d.observacao ? ' — ' + d.observacao : '');
+        ol.appendChild(li);
+      });
+      faixa.appendChild(ol);
+      medirAbas();
     }
 
     function linhaItemCompra(it) {
