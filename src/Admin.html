@@ -1080,6 +1080,17 @@
         bSortear.setAttribute('aria-label', (temPrato ? 'Sugerir outro prato para ' : 'Sugerir prato para ') + NOME_DIA[d.dia] + ', ' + dataBr(d.data));
         bSortear.onclick = function () { sortearDia(d); };
         lado.appendChild(bSortear);
+        if (temPrato) {
+          var bLimpar = criar('button', 'Limpar', 'discreto');
+          bLimpar.dataset.foco = d.data + ':limpar';
+          bLimpar.title = 'Tira o prato, os acompanhamentos e a observação deste dia';
+          bLimpar.setAttribute('aria-label', 'Limpar o prato de ' + NOME_DIA[d.dia] + ', ' + dataBr(d.data));
+          bLimpar.onclick = function () {
+            d.tipo = ''; d.principal_id = ''; d.acompanhamento_ids = []; d.observacao = ''; delete d.verObs;
+            redesenhar(d.data + ':principal');
+          };
+          lado.appendChild(bLimpar);
+        }
       }
       var notas = criar('div', undefined, 'notas-dia');
       notas.id = 'notas-' + d.data; // vira região viva depois do primeiro preenchimento (mostrarNotas)
