@@ -159,6 +159,11 @@
     #aba-compras[hidden] { display: none; }
     .ferramentas { display: flex; align-items: center; gap: .75rem; margin-bottom: .6rem; }
     .ferramentas input[type=search] { width: 220px; }
+    @media (max-height: 560px) {
+      nav.abas, .rodape { position: static; }
+      html { scroll-padding-bottom: 0; }
+    }
+    .dia .pedidos .conferir { color: var(--warn); }
     .cabecalho-lista input[type=search] { width: 180px; }
     .ferramentas input[type=search], .cabecalho-lista input[type=search] { font: inherit; border: 1.5px solid var(--line); border-radius: 999px; padding: .35rem .8rem; background: var(--surface); color: var(--text); }
     .ferramentas .espaco { flex: 1; }
@@ -227,6 +232,7 @@
       /* Rodapé: botões dividem a largura; o que sobra sozinho numa linha (ex.: Publicar) ocupa a linha toda. */
       .rodape .acoes { gap: .4rem; }
       .rodape .acoes > button { flex: 1 1 calc(50% - .4rem); }
+      .rodape .acoes > button.sem-alteracao { flex: 0 0 auto; margin-left: auto; }
       .rodape .acoes .espaco, .rodape .falta { display: none; }
       .rodape .nao-salvo { flex-basis: 100%; }
       .cabecalho-lista { flex-wrap: wrap; }
@@ -475,6 +481,7 @@
         <button class="pequeno" data-copiar="linkAdmin">Copiar</button>
         <button class="pequeno perigo" id="trocarAdmin" title="O link atual para de funcionar na hora, inclusive nos favoritos">Trocar link</button>
       </div>
+      <p class="nota">"Trocar link" cria um link novo: o antigo para de funcionar na hora, inclusive nos favoritos. Use se o link vazou.</p>
       <div id="cfgLinksMsg"></div>
 
       <h2>Prazo de cada dia</h2>
@@ -966,7 +973,7 @@
       el('semNota').textContent = publicada
         ? 'Os funcionários já veem este cardápio' + (s.respostas ? ' e ' + plural(s.respostas, 'pessoa já respondeu', 'pessoas já responderam') : '; ninguém respondeu ainda') +
           '. Para mudar um dia, use "Alterar este dia"; quem já pediu aquele dia recebe o aviso para conferir o pedido.'
-        : 'Escolha o principal de cada dia; os acompanhamentos de costume entram sozinhos. Os funcionários só veem a semana depois que você publicar.';
+        : 'Escolha o principal de cada dia; os acompanhamentos de costume entram sozinhos. "Sugerir" escolhe sem repetir prato, sem frango em dias seguidos e com o prato de sexta na sexta. Os funcionários só veem a semana depois que você publicar.';
       el('semPublicar').hidden = publicada;
       // Depois que alguém respondeu, despublicar não é mais possível (a nota acima explica o caminho: alterar e salvar).
       el('semDespublicar').hidden = !publicada || !!s.respostas;
@@ -1058,6 +1065,7 @@
           if (fixos.length) vem.appendChild(criar('span', 'Vem também com ' + listaPt(fixos) + '.'));
           if (!d.observacao && !d.verObs) {
             var bObs = criar('button', '+ observação', 'discreto pequeno');
+            bObs.setAttribute('aria-label', 'Acrescentar observação na ' + NOME_DIA[d.dia]);
             bObs.title = 'Recado que aparece para os funcionários neste dia';
             bObs.onclick = function () { d.verObs = true; focarDepois = d.data + ':obs'; desenharSemana(); };
             vem.appendChild(bObs);
@@ -1069,6 +1077,7 @@
         var bSortear = criar('button', temPrato ? 'Sugerir outro' : 'Sugerir', 'discreto');
         bSortear.dataset.foco = d.data + ':sortear';
         bSortear.title = 'Sugere um principal para este dia com as regras de "Sugerir dias vazios"';
+        bSortear.setAttribute('aria-label', (temPrato ? 'Sugerir outro prato para ' : 'Sugerir prato para ') + NOME_DIA[d.dia] + ', ' + dataBr(d.data));
         bSortear.onclick = function () { sortearDia(d); };
         lado.appendChild(bSortear);
       }
@@ -1079,6 +1088,7 @@
 
       var bSem = criar('button', semAlmoco ? 'Voltar a ter almoço' : 'Sem almoço', 'discreto');
       bSem.dataset.foco = d.data + ':sem';
+      bSem.setAttribute('aria-label', (semAlmoco ? 'Voltar a ter almoço na ' : 'Sem almoço na ') + NOME_DIA[d.dia] + ', ' + dataBr(d.data));
       bSem.title = semAlmoco ? 'Volta ao prato que estava escolhido' : 'Feriado ou outro dia sem marmita';
       bSem.onclick = function () {
         if (semAlmoco) {
@@ -1108,6 +1118,13 @@
       }
       li.appendChild(lado);
       return li;
+    }
+
+    /** Pedidos do dia na semana publicada: total confirmado e quantos ainda estão para o funcionário conferir. */
+    function contagemDoDia(d) {
+      var total = (semana.confirmados_por_dia || {})[d.data] || 0;
+      var revisaveis = (semana.pedidos_por_dia || {})[d.data] || 0;
+      return { total: total, conferir: Math.max(0, total - revisaveis) };
     }
 
     function fixosDoDia(d) {
@@ -1147,8 +1164,10 @@
       li.appendChild(meio);
       var lado = criar('div', undefined, 'lado');
       if (!semAlmoco) {
-        var n = (semana.confirmados_por_dia || {})[d.data] || 0;
-        lado.appendChild(criar('span', n ? plural(n, 'pedido', 'pedidos') : 'nenhum pedido', 'pedidos' + (n ? '' : ' zero')));
+        var c = contagemDoDia(d);
+        var cont = criar('span', c.total ? plural(c.total, 'pedido', 'pedidos') : 'nenhum pedido', 'pedidos' + (c.total ? '' : ' zero'));
+        if (c.conferir) cont.appendChild(criar('span', ' · ' + c.conferir + ' para conferir', 'conferir'));
+        lado.appendChild(cont);
       }
       var bAlterar = criar('button', 'Alterar este dia', 'discreto');
       bAlterar.dataset.foco = d.data + ':alterar';
@@ -1230,7 +1249,7 @@
       if (haAlteracoes()) Array.prototype.forEach.call(el('semMensagens').querySelectorAll('.aviso.ok'), function (c) { c.remove(); });
       el('semDesfazer').hidden = !Object.keys(sugeridos).length;
       // Semana publicada: "Salvar alterações" só ganha destaque quando há o que salvar (no rascunho, o destaque é do Publicar).
-      el('semSalvar').className = semana.situacao === 'PUBLICADA' && haAlteracoes() ? 'primario' : '';
+      el('semSalvar').className = semana.situacao !== 'PUBLICADA' ? '' : haAlteracoes() ? 'primario' : 'sem-alteracao';
       var faltam = dias.length - prontos;
       el('semFalta').hidden = !faltam || semana.situacao === 'PUBLICADA';
       el('semSugerir').hidden = !faltam; // sem dia vazio, não há o que sugerir
@@ -1272,10 +1291,12 @@
         p.avisos.forEach(function (t) { notas.push(['alerta', t]); });
         if (publicada && combinacaoMudou(d)) {
           // Só avisa revisão quando há pedidos; sem pedidos, diz que a troca não afeta ninguém.
-          var pedidos = (semana.confirmados_por_dia || {})[d.data] || 0;
-          notas.push(pedidos
-            ? ['revisao', 'Ao salvar, ' + (pedidos === 1 ? 'o pedido deste dia volta' : 'os ' + pedidos + ' pedidos deste dia voltam') + ' para os funcionários conferirem.']
-            : ['neutra', 'Ninguém pediu este dia ainda: a troca não afeta pedidos.']);
+          var c = contagemDoDia(d);
+          var voltam = c.total - c.conferir;
+          if (voltam) notas.push(['revisao', 'Ao salvar, ' + (voltam === 1 ? 'o pedido deste dia volta' : 'os ' + voltam + ' pedidos deste dia voltam') + ' para os funcionários conferirem.' +
+            (c.conferir ? ' ' + plural(c.conferir, 'outro já estava', 'outros já estavam') + ' para conferir.' : '')]);
+          else if (c.conferir) notas.push(['revisao', (c.conferir === 1 ? 'O pedido deste dia já está' : 'Os ' + c.conferir + ' pedidos deste dia já estão') + ' para os funcionários conferirem; eles vão ver a combinação nova.']);
+          else notas.push(['neutra', 'Ninguém pediu este dia ainda: a troca não afeta pedidos.']);
         }
         // Só reescreve quando muda: a região é anunciada pelo leitor de tela a cada reescrita.
         var chave = JSON.stringify(notas);
@@ -1468,7 +1489,7 @@
       pedirConfirmacao({
         gatilho: el('semPublicar'),
         atencao: !ativos,
-        titulo: 'Publicar a semana de' + dataBr(semana.dias[0].data) + ' a ' + dataBr(semana.dias[semana.dias.length - 1].data) + '?',
+        titulo: 'Publicar a semana de ' + dataBr(semana.dias[0].data) + ' a ' + dataBr(semana.dias[semana.dias.length - 1].data) + '?',
         itens: [
           !ativos ? 'Não há funcionários ativos: ninguém vai ver o cardápio. Cadastre os nomes na aba Funcionários.'
             : (ativos === 1 ? 'O único funcionário ativo passa' : 'Os ' + ativos + ' funcionários ativos passam') + ' a ver o cardápio e já podem pedir.',
@@ -1576,7 +1597,14 @@
     function receberCompras(r, manterTela) {
       var tela = manterTela && cmp && cmp.terca === r.terca ? cmpQtd : null;
       // Semana nova na tela: lista já salva abre só com o que vai comprar; lista a montar abre com todos os itens.
-      if (!cmp || cmp.terca !== r.terca) el('cmpSoCompra').checked = r.origem === 'SALVA';
+      if (!cmp || cmp.terca !== r.terca) {
+        el('cmpSoCompra').checked = r.origem === 'SALVA';
+        // Lista a montar: seção sem nenhuma quantidade começa recolhida (abre pelo título ou pela busca).
+        cmpRecolhidas = {};
+        if (r.origem !== 'SALVA') Object.keys(SECAO).forEach(function (s) {
+          cmpRecolhidas[s] = !r.itens.some(function (i) { return i.secao === s && cmpVale((r.quantidades || {})[i.id]); });
+        });
+      }
       cmp = r;
       itensCompra = r.itens;
       // A situação (salva ou não) fica na etiqueta; "alterações não salvas" é só o que mudou na tela.
@@ -1608,12 +1636,19 @@
       var cardapioPendente = !!semana && semana.terca === cmp.terca && haAlteracoes();
       // Só promete o açougue preenchido quando algum prato da semana tem "Para comprar".
       var pedeAlgo = Object.keys(cmp.sugestao).length > 0;
+      // Quantos itens vieram de fato da semana passada (o açougue não se repete: vem do cardápio).
+      var repetidos = Object.keys(cmp.quantidades || {}).filter(function (id) {
+        return cmpVale(cmp.quantidades[id]) && (cmp.semana_passada || {})[id] && !cmp.sugestao[id];
+      }).length;
       var doCardapio = !cmp.cardapio_definido
         ? (cardapioPendente ? '' : ' O cardápio desta semana ainda está vazio; as carnes entram quando você escolher os pratos.')
         : pedeAlgo ? '' : ' Os pratos desta semana não têm nada em "Para comprar" (aba Pratos), então o açougue não vem preenchido.';
       el('cmpNota').textContent = {
         SALVA: 'Lista salva. Item vazio ou 0 não entra na lista que vai para o WhatsApp.',
-        ANTERIOR: 'Começou com as quantidades da semana passada' + (pedeAlgo ? ', e o açougue com o que os pratos do cardápio pedem' : '') + '. Ajuste e salve.' + doCardapio,
+        ANTERIOR: (repetidos
+          ? 'Repetimos ' + plural(repetidos, 'item', 'itens') + ' da semana passada'
+          : 'Nada da semana passada se repete aqui (o açougue vem do cardápio)') +
+          (pedeAlgo ? (repetidos ? ', e o açougue veio do que os pratos do cardápio pedem' : '; ele já veio do que os pratos pedem') : '') + '. Ajuste e salve.' + doCardapio,
         NOVA: 'Preencha as quantidades; item vazio ou 0 não entra na lista.' + (pedeAlgo ? ' O açougue já vem com o que os pratos do cardápio pedem.' : '') + doCardapio
       }[cmp.origem];
       el('cmpAvisoCardapio').textContent = '';
@@ -1722,7 +1757,7 @@
       linha.classList.toggle('tem', cmpVale(valor));
       // Dica da semana passada, só quando a quantidade desta semana é diferente.
       var passada = String((cmp.semana_passada || {})[it.id] || '').trim();
-      var mesmo = function (a, b) { return semAcento(a).replace(/s+/g, '') === semAcento(b).replace(/s+/g, ''); };
+      var mesmo = function (a, b) { return semAcento(a).replace(/\s+/g, '') === semAcento(b).replace(/\s+/g, ''); };
       linha.querySelector('.antes').textContent = passada && !mesmo(passada, valor) ? 'semana passada: ' + passada : '';
       var s = cmp.sugestao[it.id];
       var pede = linha.querySelector('.pede');
@@ -1792,6 +1827,7 @@
       var n = Object.keys(cmpValidas()).length;
       el('cmpContagem').textContent = plural(n, 'item para comprar', 'itens para comprar');
       el('cmpNaoSalvo').hidden = !cmpAlterado();
+      el('cmpSalvar').className = cmp && (cmpAlterado() || cmp.origem !== 'SALVA') ? 'primario' : '';
     }
 
     el('cmpBusca').oninput = filtrarCompras;

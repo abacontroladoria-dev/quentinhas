@@ -298,7 +298,7 @@ Cinco casas iguais de 74px de altura, uma por dia: abreviatura (label), número 
 ### Trilho do Cardápio (assinatura)
 Na administração, a semana é uma folha branca com um trilho vertical de 2px à esquerda ligando terça a segunda; o trecho antes da segunda é tracejado (fim de semana). Cada dia tem data grande à esquerda e um marco de 14px no trilho: petróleo = definido, tracejado = sem almoço, âmbar com halo (contorno âmbar-alerta) = alterado depois de publicar. No rascunho o marco nunca fica âmbar; o "não salvo" fica no rodapé.
 
-Na semana publicada, cada dia aparece em leitura, como os funcionários veem: prato em title 700, acompanhamentos e itens de todo dia numa linha secundária, e à direita a contagem ("2 pedidos" em 700; "nenhum pedido" em tinta-suave) com "Alterar este dia". O dia aberto ganha "Fechar" ou "Desfazer mudanças".
+Na semana publicada, cada dia aparece em leitura, como os funcionários veem: prato em title 700, acompanhamentos e itens de todo dia numa linha secundária, e à direita a contagem ("2 pedidos" em 700; "nenhum pedido" em tinta-suave; "· 2 para conferir" em âmbar-alerta enquanto houver pedidos em revisão) com "Alterar este dia". O dia aberto ganha "Fechar" ou "Desfazer mudanças".
 
 ### Seletor Deslizante Quero / Não quero
 Trilho em pílula de 54px (trilho-claro) com uma pílula que corre até a opção escolhida: verde no "Quero", tinta-suave no "Não quero", texto branco na opção ativa. Movimento de 0,28s com `cubic-bezier(.3,.8,.3,1)`; aceita arrastar na horizontal.
