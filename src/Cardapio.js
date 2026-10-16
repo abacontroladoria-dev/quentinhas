@@ -175,6 +175,27 @@ function pessoasQueResponderam_(pedidosLinhas, terca) {
   return Object.keys(pessoas).length;
 }
 
+/**
+ * Pedidos confirmados por dia da semana que ainda não estão em revisão: os que uma troca de combinação
+ * marcaria (ver marcarRevisaoPedidos_). A tela mostra a conta antes de salvar.
+ */
+function pedidosPorDia_(pedidosLinhas, terca) {
+  var porDia = {};
+  pedidosLinhas.forEach(function (p) {
+    if (p.semana_id === terca && p.situacao === 'CONFIRMADO' && p.revisao !== 'PENDENTE') porDia[p.data] = (porDia[p.data] || 0) + 1;
+  });
+  return porDia;
+}
+
+/** Todos os pedidos confirmados por dia da semana (inclusive os em revisão): a contagem que a tela mostra em cada dia. */
+function confirmadosPorDia_(pedidosLinhas, terca) {
+  var porDia = {};
+  pedidosLinhas.forEach(function (p) {
+    if (p.semana_id === terca && p.situacao === 'CONFIRMADO') porDia[p.data] = (porDia[p.data] || 0) + 1;
+  });
+  return porDia;
+}
+
 function pratosRecentes_(cardapioLinhas, terca) {
   var ciclos = [];
   for (var i = 1; i <= SEMANAS_RECENTES_; i++) ciclos.push(somarDias_(terca, -7 * i));
@@ -215,6 +236,8 @@ function adminObterSemana(terca) {
   terca = terca ? inicioDoCiclo_(String(terca)) : proximoCiclo_(hoje);
   var ss = abrirPlanilha_();
   var s = lerSemanaCompleta_(ss, terca);
+  var publicada = !!s.semana && s.semana.situacao === 'PUBLICADA';
+  var pedidos = publicada ? lerTabela_(obterAba_(ss, 'Pedidos')).linhas : [];
   return {
     terca: terca,
     hoje: hoje,
@@ -227,7 +250,10 @@ function adminObterSemana(terca) {
     confirmar_ate: s.semana ? String(s.semana.confirmar_ate || '') : '',
     prazo: configPrazo_(lerConfiguracoes_(ss)),
     // Quantas pessoas já responderam (só despublica com zero).
-    respostas: s.semana && s.semana.situacao === 'PUBLICADA' ? pessoasQueResponderam_(lerTabela_(obterAba_(ss, 'Pedidos')).linhas, terca) : 0,
+    respostas: publicada ? pessoasQueResponderam_(pedidos, terca) : 0,
+    // Por dia: pedidos que vão para revisão se a combinação daquele dia mudar.
+    pedidos_por_dia: pedidosPorDia_(pedidos, terca),
+    confirmados_por_dia: confirmadosPorDia_(pedidos, terca),
     dias: diasDoCiclo_(terca).map(function (c) {
       var l = s.porData[c.data];
       return {

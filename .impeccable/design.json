@@ -1,0 +1,524 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-15T19:30:02.118Z",
+  "title": "Design System: Quentinhas",
+  "extensions": {
+    "colorMeta": {
+      "azul-petroleo": {
+        "role": "primary",
+        "displayName": "Azul-Petróleo",
+        "canonical": "oklch(43.8% 0.069 224.0)",
+        "tonalRamp": [
+          "#000E15",
+          "#002A37",
+          "#06495D",
+          "#2F6A7E",
+          "#528BA1",
+          "#75AFC5",
+          "#98D3EA",
+          "#D8F4FF"
+        ]
+      },
+      "azul-petroleo-escuro": {
+        "role": "primary",
+        "displayName": "Azul-Petróleo Escuro",
+        "canonical": "oklch(36.2% 0.055 221.3)",
+        "tonalRamp": [
+          "#000E14",
+          "#002A36",
+          "#1A4957",
+          "#3B6977",
+          "#5C8A9A",
+          "#7FADBE",
+          "#A2D2E3",
+          "#D7F4FE"
+        ]
+      },
+      "azul-petroleo-claro": {
+        "role": "primary",
+        "displayName": "Azul-Petróleo Claro",
+        "canonical": "oklch(94.2% 0.011 217.5)",
+        "tonalRamp": [
+          "#060C0E",
+          "#1F2629",
+          "#3B4446",
+          "#5A6365",
+          "#7B8487",
+          "#9EA7AA",
+          "#C1CBCE",
+          "#E6F1F4"
+        ]
+      },
+      "verde-confirmacao": {
+        "role": "secondary",
+        "displayName": "Verde-Confirmação",
+        "canonical": "oklch(51.9% 0.106 153.5)",
+        "tonalRamp": [
+          "#001004",
+          "#002E14",
+          "#005028",
+          "#247244",
+          "#499564",
+          "#6DB986",
+          "#91DEA9",
+          "#C6FFD6"
+        ]
+      },
+      "verde-confirmacao-escuro": {
+        "role": "secondary",
+        "displayName": "Verde-Confirmação Escuro",
+        "canonical": "oklch(41.9% 0.085 154.2)",
+        "tonalRamp": [
+          "#001004",
+          "#002E15",
+          "#114F2C",
+          "#366F4B",
+          "#57916B",
+          "#7AB58D",
+          "#9EDAB0",
+          "#C6FFD7"
+        ]
+      },
+      "verde-confirmacao-claro": {
+        "role": "secondary",
+        "displayName": "Verde-Confirmação Claro",
+        "canonical": "oklch(94.9% 0.017 159.1)",
+        "tonalRamp": [
+          "#050D09",
+          "#1E2822",
+          "#3A453F",
+          "#59645E",
+          "#7A867F",
+          "#9CA9A1",
+          "#C0CDC5",
+          "#E5F2EA"
+        ]
+      },
+      "ambar-alerta": {
+        "role": "tertiary",
+        "displayName": "Âmbar-Alerta",
+        "canonical": "oklch(47.6% 0.098 72.0)",
+        "tonalRamp": [
+          "#150800",
+          "#361F00",
+          "#5C3900",
+          "#835712",
+          "#A6783A",
+          "#CB9B5D",
+          "#F1BF81",
+          "#FFEBD3"
+        ]
+      },
+      "ambar-fundo": {
+        "role": "tertiary",
+        "displayName": "Âmbar-Fundo",
+        "canonical": "oklch(96.0% 0.030 85.6)",
+        "tonalRamp": [
+          "#110A00",
+          "#2C2414",
+          "#494130",
+          "#69604E",
+          "#8A816E",
+          "#ADA490",
+          "#D2C8B4",
+          "#F8EED9"
+        ]
+      },
+      "ambar-marco": {
+        "role": "tertiary",
+        "displayName": "Âmbar-Marco",
+        "canonical": "oklch(69.7% 0.129 77.9)",
+        "tonalRamp": [
+          "#140900",
+          "#342100",
+          "#593C00",
+          "#815800",
+          "#AB7706",
+          "#D19A38",
+          "#F7BE60",
+          "#FFECCF"
+        ]
+      },
+      "vermelho-sem": {
+        "role": "tertiary",
+        "displayName": "Vermelho-Sem",
+        "canonical": "oklch(49.5% 0.155 26.9)",
+        "tonalRamp": [
+          "#200000",
+          "#4D0003",
+          "#810009",
+          "#A7312D",
+          "#CF564D",
+          "#F77A6F",
+          "#FEB3AA",
+          "#FEE9E6"
+        ]
+      },
+      "vermelho-sem-fundo": {
+        "role": "tertiary",
+        "displayName": "Vermelho-Sem Fundo",
+        "canonical": "oklch(95.4% 0.017 26.6)",
+        "tonalRamp": [
+          "#110908",
+          "#2D2221",
+          "#4B3F3D",
+          "#6A5E5C",
+          "#8C7F7D",
+          "#AFA19F",
+          "#D4C5C3",
+          "#FAEBE9"
+        ]
+      },
+      "branco-gelo": {
+        "role": "neutral",
+        "displayName": "Branco-Gelo",
+        "canonical": "oklch(97.5% 0.002 197.1)",
+        "tonalRamp": [
+          "#0A0B0B",
+          "#242525",
+          "#414242",
+          "#606161",
+          "#818383",
+          "#A3A5A5",
+          "#C8C9C9",
+          "#EDEFEF"
+        ]
+      },
+      "superficie": {
+        "role": "neutral",
+        "displayName": "Superfície",
+        "canonical": "oklch(100.0% 0.000 89.9)",
+        "tonalRamp": [
+          "#0B0B0B",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#A5A5A5",
+          "#C9C9C9",
+          "#EEEEEE"
+        ]
+      },
+      "trilho-claro": {
+        "role": "neutral",
+        "displayName": "Trilho-Claro",
+        "canonical": "oklch(94.5% 0.007 208.8)",
+        "tonalRamp": [
+          "#080C0D",
+          "#222627",
+          "#3E4344",
+          "#5D6263",
+          "#7E8384",
+          "#A1A6A7",
+          "#C4CACB",
+          "#EAF0F1"
+        ]
+      },
+      "tinta": {
+        "role": "neutral",
+        "displayName": "Tinta",
+        "canonical": "oklch(26.9% 0.025 222.2)",
+        "tonalRamp": [
+          "#010D13",
+          "#17282E",
+          "#33454C",
+          "#52656C",
+          "#73868D",
+          "#95A9B0",
+          "#B8CDD5",
+          "#DDF3FB"
+        ]
+      },
+      "tinta-suave": {
+        "role": "neutral",
+        "displayName": "Tinta-Suave",
+        "canonical": "oklch(51.0% 0.026 221.1)",
+        "tonalRamp": [
+          "#000E13",
+          "#16282E",
+          "#32454C",
+          "#51656C",
+          "#72868E",
+          "#94A9B1",
+          "#B7CED5",
+          "#DCF3FB"
+        ]
+      },
+      "linha": {
+        "role": "neutral",
+        "displayName": "Linha",
+        "canonical": "oklch(91.3% 0.009 214.3)",
+        "tonalRamp": [
+          "#070C0D",
+          "#202628",
+          "#3D4345",
+          "#5C6364",
+          "#7D8486",
+          "#9FA7A8",
+          "#C3CBCD",
+          "#E8F0F2"
+        ]
+      },
+      "linha-forte": {
+        "role": "neutral",
+        "displayName": "Linha-Forte",
+        "canonical": "oklch(82.3% 0.017 215.5)",
+        "tonalRamp": [
+          "#040D10",
+          "#1B272A",
+          "#384448",
+          "#576467",
+          "#778589",
+          "#99A8AC",
+          "#BDCCD0",
+          "#E2F2F6"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Título da tela e contagem de marmitas da cozinha (800)."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Inicial grande da lista de chamada."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Número do dia, nome na checklist; em 400, prato do dia e nomes."
+      },
+      "body-lg": {
+        "displayName": "Body grande",
+        "purpose": "Corpo das telas de celular."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Corpo da administração; texto secundário no celular."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Abreviatura do dia, prazos, notas curtas."
+      }
+    },
+    "shadows": [
+      {
+        "name": "pilula-quero",
+        "value": "0 1px 2px rgba(24,41,47,.14), 0 4px 10px rgba(31,90,55,.22)",
+        "purpose": "Pílula do seletor no Quero."
+      },
+      {
+        "name": "pilula-nao-quero",
+        "value": "0 1px 2px rgba(24,41,47,.14), 0 4px 10px rgba(24,41,47,.18)",
+        "purpose": "Pílula do seletor no Não quero."
+      },
+      {
+        "name": "toast",
+        "value": "0 6px 20px rgba(21,68,82,.25)",
+        "purpose": "Confirmação flutuante após salvar."
+      },
+      {
+        "name": "lista-suspensa",
+        "value": "0 10px 28px rgba(24,41,47,.16)",
+        "purpose": "Opções da busca de pratos na administração."
+      },
+      {
+        "name": "halo-marco-alterado",
+        "value": "0 0 0 4px #FBF1DC",
+        "purpose": "Anel em volta do marco âmbar do dia alterado no trilho."
+      }
+    ],
+    "motion": [
+      {
+        "name": "pilula",
+        "value": "transform .28s cubic-bezier(.3,.8,.3,1)",
+        "purpose": "Pílula do seletor correndo entre Quero e Não quero."
+      },
+      {
+        "name": "cor-texto",
+        "value": "color .22s",
+        "purpose": "Texto das opções do seletor."
+      },
+      {
+        "name": "marcador",
+        "value": "background-color .18s",
+        "purpose": "Marcador do item da marmita."
+      },
+      {
+        "name": "nome-escolhido",
+        "value": "background-color .15s, color .15s",
+        "purpose": "Nome escolhido na lista de chamada."
+      },
+      {
+        "name": "reduzir-movimento",
+        "value": "prefers-reduced-motion: transition/animation none",
+        "purpose": "Todas as telas zeram movimento quando o sistema pede."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "pedido-max",
+        "value": "560px"
+      },
+      {
+        "name": "administracao-uma-coluna",
+        "value": "720px"
+      },
+      {
+        "name": "cozinha-max",
+        "value": "760px"
+      },
+      {
+        "name": "administracao-max",
+        "value": "1120px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Botão principal",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Ação principal do sistema: Salvar, Publicar.",
+      "html": "<button class=\"ds-btn-principal\">Salvar</button>",
+      "css": ".ds-btn-principal { font-family: \"Atkinson Hyperlegible Next\", \"Atkinson Hyperlegible\", system-ui, -apple-system, \"Segoe UI\", sans-serif; font-variant-numeric: tabular-nums; display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: .6rem 1.1rem; border: 1.5px solid var(--petroleo, #1E5A6E); border-radius: 10px; background: var(--petroleo, #1E5A6E); color: #fff; font-size: 1rem; font-weight: 600; cursor: pointer; } .ds-btn-principal:hover, .ds-btn-principal:active { background: var(--petroleo-escuro, #154452); border-color: var(--petroleo-escuro, #154452); } .ds-btn-principal:focus-visible { outline: 3px solid var(--petroleo, #1E5A6E); outline-offset: 2px; }"
+    },
+    {
+      "name": "Botão secundário",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Ação de apoio ao lado da principal: Desfazer.",
+      "html": "<button class=\"ds-btn-secundario\">Desfazer</button>",
+      "css": ".ds-btn-secundario { font-family: \"Atkinson Hyperlegible Next\", \"Atkinson Hyperlegible\", system-ui, -apple-system, \"Segoe UI\", sans-serif; font-variant-numeric: tabular-nums; display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: .6rem 1.1rem; border: 1.5px solid var(--linha-forte, #B9C8CC); border-radius: 10px; background: #fff; color: var(--tinta, #18292F); font-size: 1rem; font-weight: 600; cursor: pointer; } .ds-btn-secundario:hover { border-color: var(--tinta-suave, #566A71); } .ds-btn-secundario:focus-visible { outline: 3px solid var(--petroleo, #1E5A6E); outline-offset: 2px; }"
+    },
+    {
+      "name": "Botão discreto",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Ação leve em texto petróleo: trocar pessoa, ações secundárias da administração.",
+      "html": "<button class=\"ds-btn-discreto\">Sortear outro</button>",
+      "css": ".ds-btn-discreto { font-family: \"Atkinson Hyperlegible Next\", \"Atkinson Hyperlegible\", system-ui, -apple-system, \"Segoe UI\", sans-serif; font-variant-numeric: tabular-nums; min-height: 44px; padding: .6rem .6rem; border: 1.5px solid transparent; border-radius: 10px; background: transparent; color: var(--petroleo, #1E5A6E); font-size: 1rem; font-weight: 600; cursor: pointer; } .ds-btn-discreto:hover { background: var(--petroleo-claro, #E4EEF1); } .ds-btn-discreto:focus-visible { outline: 3px solid var(--petroleo, #1E5A6E); outline-offset: 2px; }"
+    },
+    {
+      "name": "Busca de nomes",
+      "kind": "input",
+      "refersTo": "input-busca",
+      "description": "Campo em pílula com lupa, para achar o próprio nome.",
+      "html": "<label class=\"ds-busca\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke-width=\"2.2\" stroke-linecap=\"round\" aria-hidden=\"true\"><circle cx=\"10.5\" cy=\"10.5\" r=\"6.5\"/><path d=\"M15.5 15.5 20 20\"/></svg><input type=\"search\" placeholder=\"Buscar\" aria-label=\"Buscar nome\"></label>",
+      "css": ".ds-busca { position: relative; display: block; max-width: 360px; } .ds-busca svg { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; stroke: var(--tinta-suave, #566A71); pointer-events: none; } .ds-busca input { font-family: \"Atkinson Hyperlegible Next\", \"Atkinson Hyperlegible\", system-ui, -apple-system, \"Segoe UI\", sans-serif; font-variant-numeric: tabular-nums; width: 100%; min-height: 46px; font-size: 1.0625rem; padding: .55rem 1rem .55rem 2.5rem; border: 1.5px solid var(--linha, #DCE4E6); border-radius: 999px; background: #fff; color: var(--tinta, #18292F); } .ds-busca input:focus-visible { outline: 3px solid var(--petroleo, #1E5A6E); outline-offset: 2px; }"
+    },
+    {
+      "name": "Abas da administração",
+      "kind": "nav",
+      "refersTo": "nav-abas",
+      "description": "Navegação entre Cardápio, Compras, Pratos, Funcionários e Configurações.",
+      "html": "<nav class=\"ds-abas\" role=\"tablist\"><button role=\"tab\" aria-selected=\"true\">Cardápio da semana</button><button role=\"tab\" aria-selected=\"false\">Lista de compras</button><button role=\"tab\" aria-selected=\"false\">Pratos</button></nav>",
+      "css": ".ds-abas { font-family: \"Atkinson Hyperlegible Next\", \"Atkinson Hyperlegible\", system-ui, -apple-system, \"Segoe UI\", sans-serif; font-variant-numeric: tabular-nums; display: flex; gap: .25rem; border-bottom: 1px solid var(--line, #DCE4E6); background: var(--bg, #F5F7F7); font-size: 15px; } .ds-abas button { font: inherit; border: 0; border-bottom: 2px solid transparent; background: none; padding: .6rem .9rem; color: var(--muted, #566A71); cursor: pointer; } .ds-abas button:hover { color: var(--text, #18292F); } .ds-abas button[aria-selected=true] { color: var(--text, #18292F); border-bottom-color: var(--accent, #1E5A6E); font-weight: 600; } .ds-abas button:focus-visible { outline: 3px solid var(--accent, #1E5A6E); outline-offset: 1px; }"
+    },
+    {
+      "name": "Etiqueta",
+      "kind": "chip",
+      "refersTo": "etiqueta",
+      "description": "Situação curta: publicada, rascunho, inativo.",
+      "html": "<span class=\"ds-etiqueta\">Publicada</span> <span class=\"ds-etiqueta ds-rascunho\">Rascunho</span> <span class=\"ds-etiqueta ds-inativo\">Inativo</span>",
+      "css": ".ds-etiqueta { font-family: \"Atkinson Hyperlegible Next\", \"Atkinson Hyperlegible\", system-ui, -apple-system, \"Segoe UI\", sans-serif; font-variant-numeric: tabular-nums; display: inline-block; font-size: .78rem; font-weight: 600; padding: .1rem .55rem; border-radius: 999px; background: var(--accent-soft, #E4EEF1); color: var(--accent-dark, #154452); } .ds-etiqueta.ds-rascunho { background: var(--warn-bg, #FBF1DC); color: var(--warn, #7E520A); } .ds-etiqueta.ds-inativo { background: var(--line, #DCE4E6); color: var(--muted, #566A71); }"
+    },
+    {
+      "name": "Faixa da Semana",
+      "kind": "custom",
+      "refersTo": "dia-faixa",
+      "description": "Cinco casas, uma por dia, com o marco de situação: quero, não quero, pendente, sem almoço, encerrado.",
+      "html": "<div class=\"ds-faixa\"><button class=\"ds-ok\"><span class=\"ds-abrev\">ter</span><span class=\"ds-num\">20</span><span class=\"ds-marco\">✓</span></button><button class=\"ds-nao\"><span class=\"ds-abrev\">qua</span><span class=\"ds-num\">21</span><span class=\"ds-marco\"></span></button><button class=\"ds-pendente\"><span class=\"ds-abrev\">qui</span><span class=\"ds-num\">22</span><span class=\"ds-marco\">!</span></button><button class=\"ds-semalmoco\"><span class=\"ds-abrev\">sex</span><span class=\"ds-num\">23</span><span class=\"ds-marco\"></span></button><button class=\"ds-ok\"><span class=\"ds-abrev\">seg</span><span class=\"ds-num\">26</span><span class=\"ds-marco\">✓</span></button></div>",
+      "css": ".ds-faixa { font-family: \"Atkinson Hyperlegible Next\", \"Atkinson Hyperlegible\", system-ui, -apple-system, \"Segoe UI\", sans-serif; font-variant-numeric: tabular-nums; display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; max-width: 420px; } .ds-faixa button { font: inherit; display: grid; justify-items: center; gap: 2px; min-height: 74px; padding: 8px 2px 6px; border: 1.5px solid var(--linha, #DCE4E6); border-radius: 10px; background: #fff; color: var(--tinta, #18292F); cursor: pointer; } .ds-faixa button:hover { border-color: var(--linha-forte, #B9C8CC); } .ds-faixa button:focus-visible { outline: 3px solid var(--petroleo, #1E5A6E); outline-offset: 2px; } .ds-abrev { font-size: .8125rem; color: var(--tinta-suave, #566A71); } .ds-num { font-size: 1.25rem; font-weight: 700; line-height: 1.1; } .ds-marco { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--linha-forte, #B9C8CC); display: grid; place-items: center; font-size: 11px; font-weight: 800; line-height: 1; color: #fff; } .ds-ok .ds-marco { background: var(--verde, #2D7A4B); border-color: var(--verde, #2D7A4B); } .ds-nao .ds-marco { border-color: var(--tinta-suave, #566A71); } .ds-pendente { border-color: var(--ambar, #7E520A) !important; } .ds-pendente .ds-marco { background: var(--ambar, #7E520A); border-color: var(--ambar, #7E520A); } .ds-semalmoco { background: transparent !important; } .ds-semalmoco .ds-num { color: var(--tinta-suave, #566A71); font-weight: 600; } .ds-semalmoco .ds-marco { border-style: dashed; }"
+    },
+    {
+      "name": "Seletor Quero / Não quero",
+      "kind": "custom",
+      "refersTo": "deslizante-trilho",
+      "description": "Trilho em pílula com uma pílula que corre até a escolha: verde no Quero, tinta-suave no Não quero.",
+      "html": "<div class=\"ds-deslizante\" data-valor=\"sim\"><span class=\"ds-pilula\"></span><button class=\"ds-sim\" onclick=\"this.parentNode.dataset.valor='sim'\">Quero</button><button class=\"ds-naoq\" onclick=\"this.parentNode.dataset.valor='nao'\">Não quero</button></div>",
+      "css": ".ds-deslizante { font-family: \"Atkinson Hyperlegible Next\", \"Atkinson Hyperlegible\", system-ui, -apple-system, \"Segoe UI\", sans-serif; font-variant-numeric: tabular-nums; position: relative; display: grid; grid-template-columns: 1fr 1fr; padding: 4px; border-radius: 999px; background: #E8EEEF; min-height: 54px; max-width: 360px; } .ds-deslizante button { font: inherit; position: relative; z-index: 1; border: 0; background: transparent; border-radius: 999px; font-size: 1.0625rem; font-weight: 600; color: var(--tinta-suave, #566A71); cursor: pointer; transition: color .22s; } .ds-deslizante button:focus-visible { outline: 3px solid var(--petroleo, #1E5A6E); outline-offset: -3px; } .ds-pilula { position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc(50% - 4px); border-radius: 999px; background: var(--verde, #2D7A4B); box-shadow: 0 1px 2px rgba(24,41,47,.14), 0 4px 10px rgba(31,90,55,.22); transition: transform .28s cubic-bezier(.3,.8,.3,1), background-color .28s; } .ds-deslizante[data-valor=nao] .ds-pilula { transform: translateX(100%); background: var(--tinta-suave, #566A71); box-shadow: 0 1px 2px rgba(24,41,47,.14), 0 4px 10px rgba(24,41,47,.18); } .ds-deslizante[data-valor=sim] .ds-sim, .ds-deslizante[data-valor=nao] .ds-naoq { color: #fff; } @media (prefers-reduced-motion: reduce) { .ds-pilula, .ds-deslizante button { transition: none; } }"
+    },
+    {
+      "name": "Itens da marmita",
+      "kind": "custom",
+      "refersTo": "item-marmita",
+      "description": "Um item por linha; retirado fica vermelho-sem, tachado, com marcador vazio.",
+      "html": "<div class=\"ds-itens\"><button class=\"ds-item\" aria-pressed=\"true\"><span class=\"ds-nome\">Frango Grelhado</span><span class=\"ds-marcador\">✓</span></button><button class=\"ds-item\" aria-pressed=\"false\"><span class=\"ds-nome\">Batata Frita</span><span class=\"ds-marcador\"></span></button><button class=\"ds-item\" aria-pressed=\"true\"><span class=\"ds-nome\">Arroz</span><span class=\"ds-marcador\">✓</span></button></div>",
+      "css": ".ds-itens { font-family: \"Atkinson Hyperlegible Next\", \"Atkinson Hyperlegible\", system-ui, -apple-system, \"Segoe UI\", sans-serif; font-variant-numeric: tabular-nums; max-width: 400px; border: 1.5px solid var(--linha, #DCE4E6); border-radius: 10px; overflow: hidden; } .ds-item { font: inherit; width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 50px; padding: .55rem .9rem; border: 0; background: #fff; text-align: left; font-size: 1.0625rem; font-weight: 600; color: var(--tinta, #18292F); cursor: pointer; } .ds-item + .ds-item { border-top: 1px solid var(--linha, #DCE4E6); } .ds-item:focus-visible { outline: 3px solid var(--petroleo, #1E5A6E); outline-offset: 2px; outline-offset: -3px; } .ds-marcador { flex: none; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: var(--verde, #2D7A4B); color: #fff; font-size: 15px; font-weight: 800; transition: background-color .18s; } .ds-item[aria-pressed=false] { background: #FAFBFB; } .ds-item[aria-pressed=false] .ds-nome { color: var(--sem, #A8322D); text-decoration: line-through; text-decoration-thickness: 2px; font-weight: 500; } .ds-item[aria-pressed=false] .ds-marcador { background: transparent; border: 2px solid var(--linha-forte, #B9C8CC); }"
+    },
+    {
+      "name": "Avisos",
+      "kind": "custom",
+      "refersTo": "aviso-ok",
+      "description": "Mensagens em faixa: sucesso em petróleo, alerta em âmbar, erro em vermelho.",
+      "html": "<div class=\"ds-avisos\"><div class=\"ds-aviso ds-ok\">Pedidos salvos.</div><div class=\"ds-aviso ds-alerta\">O cardápio de quarta mudou. Confira sua marmita.</div><div class=\"ds-aviso ds-erro\">Passou do prazo deste dia.</div></div>",
+      "css": ".ds-avisos { font-family: \"Atkinson Hyperlegible Next\", \"Atkinson Hyperlegible\", system-ui, -apple-system, \"Segoe UI\", sans-serif; font-variant-numeric: tabular-nums; display: grid; gap: 8px; max-width: 420px; } .ds-aviso { border-radius: 10px; padding: .7rem .9rem; font-size: .9375rem; } .ds-ok { background: var(--petroleo-claro, #E4EEF1); color: var(--petroleo-escuro, #154452); } .ds-alerta { background: var(--ambar-fundo, #FBF1DC); color: var(--ambar, #7E520A); } .ds-erro { background: var(--sem-fundo, #FBECEA); color: var(--sem, #A8322D); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "O Quadro da Semana",
+    "overview": "Quentinhas é a semana de terça a segunda pendurada num quadro: cinco dias lado a lado, cada um com um marco que diz a situação num relance — confirmado, recusado, pendente, sem almoço. O funcionário vê a semana como uma faixa de cinco casas; a administração monta a semana sobre um trilho vertical que liga terça à segunda, com um trecho tracejado onde fica o fim de semana; a cozinha percorre o quadro dia a dia, com o total em destaque. A mesma gramática de marcos e linhas atravessa as três telas.\n\nO tom é calmo e discreto. A base é branco-gelo, superfícies brancas e linhas finas cinza-azuladas; a cor só aparece onde há decisão. O azul-petróleo é a voz do sistema (marca, ação principal, navegação, o que a administração já definiu); o verde só confirma uma escolha do funcionário; o âmbar marca o que mudou ou ainda falta; o vermelho só diz \"sem\". Nada decora: não há imagens, gradientes nem ilustração. Uma única família tipográfica, de alta legibilidade, com números tabulares em tudo, carrega a hierarquia por tamanho e peso.\n\nA densidade muda com o lugar de uso. As telas de celular (pedido e cozinha) são espaçosas, com alvos de toque de 48px ou mais e uma coluna estreita. A administração, usada no computador, é mais densa: corpo de 15px, controles mais baixos, tabelas e grade de duas colunas.",
+    "keyCharacteristics": [
+      "Semana como faixa ou trilho de cinco dias, cada dia com um marco circular de situação.",
+      "Plano: superfícies brancas sobre branco-gelo, separadas por linhas de 1px e contornos de 1,5px; sombra só no que flutua.",
+      "Cor por significado, nunca por enfeite: petróleo = sistema, verde = confirmado, âmbar = mudou/falta, vermelho = sem.",
+      "Uma família (Atkinson Hyperlegible Next), números grandes e pesados para datas e totais.",
+      "Mobile-first nas telas de funcionário e cozinha; administração densa no desktop.",
+      "Folha impressa A4 da cozinha em preto e branco puro."
+    ],
+    "rules": [
+      {
+        "name": "A Regra do Verde que Confirma",
+        "body": "Verde aparece somente quando o funcionário escolheu algo. Ação do sistema, navegação ou estado definido pela administração usa petróleo, nunca verde.",
+        "section": "colors"
+      },
+      {
+        "name": "A Regra do Vermelho-Sem",
+        "body": "Vermelho significa \"sai da marmita\" ou \"deu erro\". Item retirado é sempre vermelho com tachado de 2px, o mesmo sinal na tela do funcionário e no painel da cozinha.",
+        "section": "colors"
+      },
+      {
+        "name": "A Regra das Duas Folhas",
+        "body": "Os valores vivem em dois arquivos com nomes diferentes: `src/Tema.html` (pedido e cozinha, nomes em português: `--petroleo`, `--papel`…) e `src/Styles.html` (administração: `--accent`, `--bg`…). Qualquer mudança de cor entra nos dois.",
+        "section": "colors"
+      },
+      {
+        "name": "A Regra do Número Grande",
+        "body": "Datas e totais são os elementos mais pesados da tela (800, tracking negativo). O que se conta precisa ser lido de longe, num tablet apoiado na bancada.",
+        "section": "typography"
+      },
+      {
+        "name": "A Regra dos Números Tabulares",
+        "body": "Todo número usa algarismos tabulares, para que totais, horários e datas fiquem alinhados em colunas.",
+        "section": "typography"
+      },
+      {
+        "name": "A Regra do Polegar",
+        "body": "Nas telas de celular, todo alvo de toque tem pelo menos 46–48px de altura (itens e nomes 50px, seletor Quero 54px, Salvar 52px).",
+        "section": "layout"
+      },
+      {
+        "name": "A Regra do Plano",
+        "body": "Cartões, painéis e listas não têm sombra. Se algo precisa se destacar em repouso, usa contorno ou cor de significado.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do usar petróleo (#1E5A6E) para tudo que é do sistema e verde (#2D7A4B) só para a escolha do funcionário.",
+      "Do marcar item retirado sempre do mesmo jeito: vermelho-sem (#A8322D), tachado de 2px.",
+      "Do mostrar a situação de cada dia com o marco circular (cheio, contorno, âmbar, tracejado), na faixa e no trilho.",
+      "Do manter alvos de toque de 48px ou mais nas telas de pedido e cozinha.",
+      "Do usar números tabulares e peso 800 para datas grandes e totais.",
+      "Do atualizar `src/Tema.html` e `src/Styles.html` juntos quando um valor mudar.",
+      "Do respeitar `prefers-reduced-motion`: as telas zeram transições e animações."
+    ],
+    "donts": [
+      "Don't pôr sombra em cartões, painéis ou listas em repouso; sombra só no que flutua (toast, lista suspensa, pílula do deslizante).",
+      "Don't usar verde para ações do sistema nem vermelho para qualquer coisa além de retirado e erro.",
+      "Don't introduzir uma segunda família tipográfica.",
+      "Don't usar cor na folha impressa da cozinha; ela é preto e branco.",
+      "Don't colorir por decoração: sem gradientes, ilustrações ou fundos de cor fora dos avisos e etiquetas."
+    ]
+  }
+}

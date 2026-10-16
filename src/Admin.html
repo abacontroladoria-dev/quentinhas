@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
   <base target="_top">
   <meta charset="utf-8">
@@ -13,19 +13,19 @@
     .grade { display: grid; grid-template-columns: 1fr 1.4fr; gap: 1.25rem; align-items: start; }
     .acoes { display: flex; gap: .5rem; margin-top: .75rem; align-items: center; flex-wrap: wrap; }
     .acoes .espaco { flex: 1; }
-    .lista { max-height: 470px; overflow-y: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+    .lista { max-height: 470px; overflow-y: auto; border: 1.5px solid var(--line); border-radius: var(--radius); background: var(--surface); }
     .lista table th { position: sticky; top: 0; background: var(--surface); z-index: 1; }
     td.botoes { white-space: nowrap; text-align: right; }
     td.botoes button + button { margin-left: .3rem; }
     .cabecalho-lista { display: flex; justify-content: space-between; align-items: center; gap: .75rem; margin-bottom: .4rem; }
-    label.filtro { font-size: .85rem; color: var(--muted); white-space: nowrap; }
-    label.campo { display: block; margin: .6rem 0 .2rem; font-weight: 600; font-size: .9rem; }
-    select { font: inherit; width: 100%; border: 1px solid var(--line); border-radius: var(--radius); padding: .4rem .5rem; background: var(--surface); color: var(--text); }
+    label.filtro { font-size: .8125rem; color: var(--muted); white-space: nowrap; }
+    label.campo { display: block; margin: .6rem 0 .2rem; font-weight: 600; font-size: .9375rem; }
+    select { font: inherit; width: 100%; border: 1.5px solid var(--line); border-radius: var(--radius); padding: .4rem .5rem; background: var(--surface); color: var(--text); }
     details { margin-top: 1rem; }
     summary { cursor: pointer; color: var(--accent); font-weight: 600; }
-    .nota { font-size: .88rem; color: var(--muted); margin: .25rem 0 .5rem; }
+    .nota { font-size: .8125rem; color: var(--muted); margin: .25rem 0 .5rem; }
     .sub { font-size: .82rem; color: var(--muted); margin-top: .2rem; }
-    .alternador { display: inline-flex; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+    .alternador { display: inline-flex; border: 1.5px solid var(--line); border-radius: var(--radius); overflow: hidden; }
     .alternador button { border: 0; border-radius: 0; padding: .35rem .8rem; }
     .alternador button[aria-pressed=true] { background: var(--accent); color: var(--accent-text); }
 
@@ -33,13 +33,15 @@
     #aba-cardapio { display: flex; flex-direction: column; min-height: calc(100vh - 62px); }
     #aba-cardapio[hidden] { display: none; }
     .semana-topo { display: flex; align-items: center; gap: .5rem; }
-    .semana-topo h2 { margin: 0; font-size: 1.3rem; font-weight: 700; letter-spacing: -.01em; }
+    .semana-topo h2 { margin: 0; font-size: 1.25rem; font-weight: 700; letter-spacing: -.01em; }
     .semana-topo .quando { color: var(--muted); }
     .semana-topo .espaco { flex: 1; }
     button.seta { width: 36px; height: 36px; padding: 0; border-radius: 50%; display: grid; place-items: center; }
     button.seta svg { width: 16px; height: 16px; }
     .etiqueta.rascunho { background: var(--warn-bg); color: var(--warn); }
-    .etiqueta.nova { background: var(--line); color: var(--muted); }
+    .etiqueta.nova { background: var(--line); color: var(--muted-forte); }
+    .etiqueta.contorno { background: transparent; color: var(--accent-dark); box-shadow: inset 0 0 0 1.5px var(--accent); }
+    .etiqueta.fechada { background: transparent; color: var(--muted); box-shadow: inset 0 0 0 1.5px var(--line-strong); }
     .intro-semana { color: var(--muted); font-size: .92rem; margin: .3rem 0 .6rem; max-width: 68ch; }
     .respostas-ate { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; margin: 0 0 .7rem; }
     .respostas-ate label { font-weight: 700; font-size: .92rem; }
@@ -52,7 +54,7 @@
     /* A semana numa folha: cada dia se lê como o cardápio impresso.
        O trilho à esquerda liga terça a segunda; o marco de cada dia mostra a situação
        (vazio, definido, sem almoço, alterado). O trecho tracejado antes da segunda é o fim de semana. */
-    ol.dias { list-style: none; margin: 0; padding: 6px 0; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
+    ol.dias { list-style: none; margin: 0; padding: 6px 0; background: var(--surface); border: 1.5px solid var(--line); border-radius: 14px; }
     li.dia { --trilho: 4.75rem; --marco-y: 38px; display: grid; grid-template-columns: 5.75rem minmax(0, 1fr) auto; gap: 0 .9rem; padding: 14px 14px 16px 0; position: relative; }
     li.dia::before { content: ""; position: absolute; left: calc(var(--trilho) - 1px); top: 0; bottom: 0; width: 2px; background: var(--line); }
     li.dia:first-child::before { top: var(--marco-y); }
@@ -67,21 +69,28 @@
     .dia .marco { position: absolute; left: calc(var(--trilho) - 7px); top: calc(var(--marco-y) - 7px); width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--line-strong); background: var(--surface); z-index: 1; }
     .dia.definido .marco { background: var(--accent); border-color: var(--accent); }
     .dia.sem-almoco .marco { border-style: dashed; border-color: var(--muted); }
-    .dia.alterado .marco { background: #C9922E; border-color: #C9922E; box-shadow: 0 0 0 4px var(--warn-bg); }
+    /* Âmbar só na semana publicada: o dia mudou em relação ao que os funcionários já veem. Contorno escuro para 3:1. */
+    .dia.alterado .marco { background: var(--warn-mark); border-color: var(--warn); box-shadow: 0 0 0 4px var(--warn-bg); }
     .dia .meio { display: grid; gap: .5rem; align-content: start; }
     .dia .lado { display: flex; align-items: center; gap: .1rem; height: 48px; }
-    .dia .lado button { white-space: nowrap; font-size: .9rem; padding: .3rem .55rem; }
-    .sem-almoco-titulo { font-size: 1.3rem; font-weight: 700; color: var(--muted); line-height: 48px; }
-    .vem-com { font-size: .875rem; color: var(--muted); display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
-    .vem-com button { font-size: .85rem; padding: .05rem .4rem; }
+    .dia .lado button { white-space: nowrap; font-size: .9375rem; padding: .3rem .55rem; }
+    .sem-almoco-titulo { font-size: 1.25rem; font-weight: 700; color: var(--muted); line-height: 48px; }
+    .vem-com { font-size: .8125rem; color: var(--muted); display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
+    .vem-com button { font-size: .8125rem; padding: .05rem .4rem; }
     .linha-obs { display: flex; align-items: center; gap: .5rem; }
-    .linha-obs label { font-size: .875rem; color: var(--muted); white-space: nowrap; }
+    .linha-obs label { font-size: .8125rem; color: var(--muted); white-space: nowrap; }
     .linha-obs input { max-width: 340px; padding: .3rem .55rem; }
-    .notas-dia { display: grid; gap: .2rem; font-size: .875rem; }
+    .notas-dia { display: grid; gap: .2rem; font-size: .9375rem; }
     .notas-dia:empty { display: none; }
     .notas-dia .erro { color: var(--danger); font-weight: 600; }
     .notas-dia .alerta { color: var(--warn); }
     .notas-dia .revisao { color: var(--warn); font-weight: 600; }
+    .notas-dia .neutra { color: var(--muted); }
+    /* Semana publicada: dia em leitura, como os funcionários veem; o prato fica na mesma linha de base do campo. */
+    .dia .prato-leitura { font-size: 1.25rem; font-weight: 700; letter-spacing: -.01em; line-height: 1.25; padding-top: 11px; }
+    .dia .prato-leitura.sem { color: var(--muted); }
+    .dia .pedidos { font-size: .9375rem; font-weight: 700; white-space: nowrap; margin-right: .45rem; }
+    .dia .pedidos.zero { color: var(--muted); font-weight: 400; }
     .sugerido { font-size: .8rem; color: var(--accent); background: var(--accent-soft); border-radius: 999px; padding: .05rem .5rem; }
 
     /* Campo com busca (principal e acompanhamentos) */
@@ -91,7 +100,7 @@
     .combo .campo::placeholder { color: var(--muted); font-weight: 500; }
     /* Principal: preenchido se lê como o nome no cardápio; vazio é um compartimento tracejado a preencher. */
     .combo.principal { margin-left: -.65rem; }
-    .combo .campo.principal { height: 48px; font-size: 1.3rem; font-weight: 700; letter-spacing: -.01em; padding-left: .65rem; border-color: transparent; background: transparent; }
+    .combo .campo.principal { height: 48px; font-size: 1.25rem; font-weight: 700; letter-spacing: -.01em; padding-left: .65rem; border-color: transparent; background: transparent; }
     .combo .campo.principal:hover { background: var(--bg); border-color: transparent; }
     .combo .campo.principal:focus { background: var(--surface); border-color: var(--line-strong); }
     .combo .campo.principal:placeholder-shown { border: 1.5px dashed var(--line-strong); background: var(--bg); font-size: 1.05rem; }
@@ -99,25 +108,26 @@
     .combo .campo.principal::placeholder { color: var(--accent); font-weight: 600; }
     .combo .campo.principal:not(:placeholder-shown):not(:hover):not(:focus) ~ .seta-combo { opacity: .45; }
     .combo .seta-combo { position: absolute; right: .7rem; top: 50%; width: 12px; height: 12px; transform: translateY(-50%); pointer-events: none; stroke: var(--muted); }
-    .combo ul { position: absolute; left: 0; right: 0; top: calc(100% + 4px); z-index: 5; list-style: none; margin: 0; padding: .3rem; max-height: 290px; overflow-y: auto; background: var(--surface); border: 1.5px solid var(--line-strong); border-radius: var(--radius); box-shadow: 0 10px 28px rgba(24, 41, 47, .16); }
-    .combo ul.acima { top: auto; bottom: calc(100% + 4px); }
-    .combo ul[hidden] { display: none; }
-    .combo li.grupo { font-size: .8rem; font-weight: 700; color: var(--muted); padding: .55rem .6rem .2rem; }
-    .combo li[role=option] { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; padding: .4rem .6rem; border-radius: 7px; cursor: pointer; }
-    .combo li[role=option].ativo { background: var(--accent); color: #fff; }
-    .combo li[role=option][aria-selected=true]:not(.ativo) { background: var(--accent-soft); }
-    .combo li .dica { font-size: .8rem; color: var(--muted); white-space: nowrap; }
-    .combo li .dica.repetido { color: var(--warn); font-weight: 600; }
-    .combo li.ativo .dica { color: #fff; }
-    .combo li.nada { padding: .6rem; color: var(--muted); font-size: .9rem; }
-    .combo li.nada button { margin-top: .4rem; display: block; }
+    .combo .opcoes { position: absolute; left: 0; right: 0; top: calc(100% + 4px); z-index: 5; padding: .3rem; max-height: 290px; overflow-y: auto; background: var(--surface); border: 1.5px solid var(--line-strong); border-radius: var(--radius); box-shadow: 0 10px 28px rgba(24, 41, 47, .16); }
+    .combo .opcoes.acima { top: auto; bottom: calc(100% + 4px); }
+    .combo .opcoes[hidden] { display: none; }
+    .combo .grupo { font-size: .8rem; font-weight: 700; color: var(--muted); padding: .55rem .6rem .2rem; }
+    .combo [role=option] { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; padding: .4rem .6rem; border-radius: 8px; cursor: pointer; }
+    .combo [role=option].ativo { background: var(--accent); color: var(--accent-text); }
+    .combo [role=option][aria-selected=true]:not(.ativo) { background: var(--accent-soft); }
+    .combo .dica { font-size: .8rem; color: var(--muted); white-space: nowrap; }
+    .combo .dica.repetido { color: var(--warn); font-weight: 600; }
+    .combo .ativo .dica { color: var(--accent-text); }
+    .combo .nada { padding: .6rem; color: var(--muted); font-size: .9375rem; }
+    .combo .nada button { margin-top: .4rem; display: block; }
+    .combo .nada .dica { display: block; margin-top: .3rem; }
 
     .acomp { display: flex; flex-wrap: wrap; gap: .35rem; align-items: center; }
     .chip { display: inline-flex; align-items: center; background: var(--accent-soft); color: var(--accent-dark); border-radius: 999px; padding: .15rem .15rem .15rem .7rem; font-size: .92rem; font-weight: 600; }
     .chip button { border: 0; background: none; padding: 0 .45rem; line-height: 1.3; font-size: 1.05rem; color: var(--accent-dark); border-radius: 999px; }
-    .chip button:hover { background: rgba(30, 90, 110, .15); }
+    .chip button:hover { background: color-mix(in srgb, var(--accent) 15%, transparent); }
     .acomp .combo { width: 210px; }
-    .acomp .combo .campo { padding: .22rem 1.8rem .22rem .6rem; font-size: .9rem; border-style: dashed; }
+    .acomp .combo .campo { padding: .22rem 1.8rem .22rem .6rem; font-size: .9375rem; border-style: dashed; }
 
     /* Rodapé fixo: progresso da semana e ações */
     .rodape { position: sticky; bottom: 0; margin-top: auto; background: var(--bg); border-top: 1px solid var(--line); padding: .6rem 0 .2rem; z-index: 3; }
@@ -126,23 +136,45 @@
     .rodape .acoes { margin-top: 0; }
     .rodape .nao-salvo { color: var(--warn); font-weight: 600; font-size: .92rem; }
     .rodape .nao-salvo[hidden] { display: none; }
-    .progresso { font-size: .9rem; color: var(--muted); margin-right: .4rem; }
+    .rodape .falta { color: var(--muted); font-size: .92rem; }
+    .rodape .falta[hidden], .rodape .acoes[hidden] { display: none; }
+    /* Confirmação no rodapé: o que vai acontecer, antes do clique final. Âmbar quando há pedidos para revisar. */
+    .confirmar { background: var(--surface); border: 1.5px solid var(--line-strong); border-radius: var(--radius); padding: .75rem 1rem .7rem; margin-bottom: .2rem; }
+    .confirmar[hidden] { display: none; }
+    .confirmar.atencao { border-color: var(--warn); background: var(--warn-bg); }
+    .confirmar-titulo { font-weight: 700; margin: 0 0 .3rem; }
+    .confirmar ul { margin: 0 0 .5rem; padding-left: 1.15rem; font-size: .92rem; }
+    .confirmar li + li { margin-top: .15rem; }
+    .confirmar .acoes { margin-top: .4rem; }
+    .aviso .proximos { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .5rem; }
+    .so-leitor { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+    .renomear { display: flex; gap: .35rem; align-items: center; }
+    .renomear input { min-width: 0; }
+    .progresso { font-size: .9375rem; color: var(--muted); margin-right: .4rem; }
     .progresso strong { color: var(--text); }
-    button.despublicar { color: var(--danger); }
-    button.despublicar:hover { background: var(--err-bg); }
     button.despublicar[hidden] { display: none; }
 
     /* Lista de compras: seções como na planilha da Tati; o que vai ser comprado fica marcado */
     #aba-compras { display: flex; flex-direction: column; min-height: calc(100vh - 62px); }
     #aba-compras[hidden] { display: none; }
     .ferramentas { display: flex; align-items: center; gap: .75rem; margin-bottom: .6rem; }
-    .ferramentas input[type=search] { font: inherit; width: 220px; border: 1.5px solid var(--line); border-radius: 999px; padding: .35rem .8rem; background: var(--surface); color: var(--text); }
+    .ferramentas input[type=search] { width: 220px; }
+    .cabecalho-lista input[type=search] { width: 180px; }
+    .ferramentas input[type=search], .cabecalho-lista input[type=search] { font: inherit; border: 1.5px solid var(--line); border-radius: 999px; padding: .35rem .8rem; background: var(--surface); color: var(--text); }
     .ferramentas .espaco { flex: 1; }
     .ferramentas button[aria-pressed=true] { background: var(--accent); color: var(--accent-text); }
-    .secao-compra { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 10px 16px 12px; margin-bottom: 10px; }
+    .secao-compra { background: var(--surface); border: 1.5px solid var(--line); border-radius: 14px; padding: 10px 16px 12px; margin-bottom: 10px; }
     .secao-compra[hidden] { display: none; }
     .secao-compra h3 { display: flex; align-items: baseline; gap: .6rem; font-size: 1.05rem; margin: 2px 0 6px; }
-    .secao-compra h3 .conta { font-size: .85rem; font-weight: 500; color: var(--muted); }
+    .secao-compra h3 .conta { font-size: .8125rem; font-weight: 500; color: var(--muted); }
+    .secao-titulo { display: flex; align-items: baseline; gap: .6rem; width: 100%; border: 0; background: none; padding: 2px 0; text-align: left; font: inherit; font-weight: 700; color: var(--text); cursor: pointer; }
+    .secao-titulo:hover .secao-nome { text-decoration: underline; text-underline-offset: 3px; }
+    .seta-secao { width: 12px; height: 12px; stroke: var(--muted); margin-left: auto; align-self: center; transition: transform .15s; }
+    .secao-compra.recolhida .seta-secao { transform: rotate(-90deg); }
+    .secao-compra.recolhida .grade-itens, .secao-compra.recolhida .novo-item { display: none; }
+    .secao-compra.recolhida h3 { margin-bottom: 2px; }
+    #cmpSecoes.buscando .secao-compra.recolhida .grade-itens { display: grid; }
+    .item-compra .antes { display: block; font-size: .8125rem; color: var(--muted); }
     .grade-itens { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1.5rem; }
     .item-compra { display: grid; grid-template-columns: minmax(0, 1fr) 7.5rem; align-items: center; gap: .6rem; padding: 5px 0; border-bottom: 1px solid var(--line); }
     .item-compra[hidden] { display: none; }
@@ -157,14 +189,14 @@
     .item-compra .edicao input { padding: .2rem .45rem; }
     .novo-item { display: flex; gap: .4rem; margin-top: 8px; max-width: 420px; }
     .novo-item input { padding: .3rem .55rem; }
-    .copia textarea { width: 100%; height: 120px; font-size: .85rem; margin-top: .4rem; }
+    .copia textarea { width: 100%; height: 120px; font-size: .8125rem; margin-top: .4rem; }
     .copia a { color: var(--accent-dark); font-weight: 700; }
 
     /* Configurações */
     .config { max-width: 860px; }
     .config h2 { margin: .5rem 0 .6rem; }
     .config h2 + .nota { margin-top: 0; }
-    .link-linha { display: grid; grid-template-columns: 15rem minmax(0, 1fr) auto auto; gap: .5rem; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: .7rem .8rem; margin-bottom: .5rem; }
+    .link-linha { display: grid; grid-template-columns: 15rem minmax(0, 1fr) auto auto; gap: .5rem; align-items: center; background: var(--surface); border: 1.5px solid var(--line); border-radius: 14px; padding: .7rem .8rem; margin-bottom: .5rem; }
     .link-texto .nota { display: block; margin: .1rem 0 0; font-size: .82rem; }
     .link-linha input { font-size: .82rem; color: var(--muted); padding: .35rem .5rem; }
     #cfgAtualizar { margin-bottom: .5rem; }
@@ -176,19 +208,35 @@
     /* Página de administração no site (fora da planilha): marca no topo, largura limitada, celular */
     .marca-site { display: none; }
     .no-site body { padding: 0 16px 16px; max-width: 1120px; margin: 0 auto; }
-    .no-site .marca-site { display: block; font-weight: 800; color: var(--accent); padding: 14px 0 4px; font-size: 1.05rem; }
+    .no-site .marca-site { display: block; margin: 0; font-weight: 800; color: var(--accent); padding: 14px 0 4px; font-size: 1.05rem; line-height: 1.45; }
+    /* Rodapés fixos embaixo: o campo que recebe foco rola para cima deles, não para trás. */
+    html { scroll-padding-bottom: 6.5rem; }
+    /* Durante uma chamada ao servidor os controles ficam bloqueados sem perder o foco;
+       o esmaecimento só aparece se a chamada demorar. */
+    body.ocupado { cursor: progress; }
+    body.ocupado [data-ocupado]:is(button, select, input[type=checkbox]) { opacity: .5; cursor: progress; transition: opacity .15s .3s; }
     .no-site #aba-cardapio, .no-site #aba-compras { min-height: calc(100vh - 110px); }
     .sem-link { max-width: 520px; margin: 15vh auto; padding: 0 16px; }
     .sem-link h1 { font-size: 1.6rem; }
     @media (max-width: 720px) {
-      nav.abas { overflow-x: auto; }
+      /* Abas rolam de lado; o esmaecido na borda direita mostra que há mais. */
+      nav.abas { overflow-x: auto; scrollbar-width: none; -webkit-mask-image: linear-gradient(to right, #000 82%, transparent); mask-image: linear-gradient(to right, #000 82%, transparent); }
+      nav.abas::-webkit-scrollbar { display: none; }
+      nav.abas.no-fim { -webkit-mask-image: none; mask-image: none; }
       nav.abas button { white-space: nowrap; }
+      /* Rodapé: botões dividem a largura; o que sobra sozinho numa linha (ex.: Publicar) ocupa a linha toda. */
+      .rodape .acoes { gap: .4rem; }
+      .rodape .acoes > button { flex: 1 1 calc(50% - .4rem); }
+      .rodape .acoes .espaco, .rodape .falta { display: none; }
+      .rodape .nao-salvo { flex-basis: 100%; }
+      .cabecalho-lista { flex-wrap: wrap; }
+      .cabecalho-lista input[type=search] { order: 3; flex: 1 1 100%; width: auto; }
       .grade, .grade-itens { grid-template-columns: 1fr; }
       .semana-topo { flex-wrap: wrap; }
       .semana-topo .espaco { display: none; }
-      li.dia { grid-template-columns: 4.6rem minmax(0, 1fr); padding-right: 10px; }
-      li.dia { --trilho: 3.9rem; }
-      li.dia + li.dia::after { left: 5.5rem; }
+      li.dia { grid-template-columns: 5rem minmax(0, 1fr); padding-right: 10px; --trilho: 4.35rem; }
+      .dia .data { padding-left: 10px; }
+      li.dia + li.dia::after { left: 5.9rem; }
       .dia .lado { grid-column: 2; height: auto; flex-wrap: wrap; margin-left: -.55rem; }
       .ferramentas { flex-wrap: wrap; }
       .ferramentas input[type=search] { width: 100%; }
@@ -201,23 +249,24 @@
     .linha-compra { display: grid; grid-template-columns: minmax(0, 1fr) 7rem auto; gap: .4rem; align-items: center; margin-bottom: .35rem; }
     .linha-compra select { padding: .3rem .4rem; }
     .linha-compra input { padding: .3rem .5rem; }
-    .caixa-opcoes { max-height: 190px; overflow-y: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); padding: .3rem .5rem; }
-    .caixa-opcoes label { display: block; font-size: .9rem; padding: .1rem 0; }
+    .caixa-opcoes { max-height: 190px; overflow-y: auto; border: 1.5px solid var(--line); border-radius: var(--radius); background: var(--surface); padding: .3rem .5rem; }
+    .caixa-opcoes label { display: block; font-size: .9375rem; padding: .1rem 0; }
     #colagemPratos, #novos { min-height: 200px; resize: vertical; }
   </style>
 </head>
 <body>
-  <div class="marca-site">Quentinhas · Administração</div>
-  <nav class="abas" role="tablist">
-    <button role="tab" data-aba="cardapio" aria-selected="true">Cardápio da semana</button>
-    <button role="tab" data-aba="compras" aria-selected="false">Lista de compras</button>
-    <button role="tab" data-aba="pratos" aria-selected="false">Pratos</button>
-    <button role="tab" data-aba="funcionarios" aria-selected="false">Funcionários</button>
-    <button role="tab" data-aba="config" aria-selected="false">Configurações</button>
+  <h1 class="marca-site">Quentinhas · Administração</h1>
+  <div id="anuncio" class="so-leitor" role="status"></div>
+  <nav class="abas" role="tablist" aria-label="Administração">
+    <button role="tab" id="tab-cardapio" data-aba="cardapio" aria-controls="aba-cardapio" aria-selected="true">Cardápio da semana</button>
+    <button role="tab" id="tab-compras" data-aba="compras" aria-controls="aba-compras" aria-selected="false" tabindex="-1">Lista de compras</button>
+    <button role="tab" id="tab-pratos" data-aba="pratos" aria-controls="aba-pratos" aria-selected="false" tabindex="-1">Pratos</button>
+    <button role="tab" id="tab-funcionarios" data-aba="funcionarios" aria-controls="aba-funcionarios" aria-selected="false" tabindex="-1">Funcionários</button>
+    <button role="tab" id="tab-config" data-aba="config" aria-controls="aba-config" aria-selected="false" tabindex="-1">Configurações</button>
   </nav>
 
   <!-- ===================== CARDÁPIO ===================== -->
-  <section class="painel" id="aba-cardapio">
+  <section class="painel" id="aba-cardapio" role="tabpanel" aria-labelledby="tab-cardapio">
     <div class="semana-topo">
       <button class="seta" id="semAnterior" aria-label="Semana anterior" title="Semana anterior"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3 5 8l5 5"/></svg></button>
       <h2 id="semTitulo">Carregando…</h2>
@@ -240,16 +289,28 @@
       <button class="pequeno" id="semDescartarSim">Descartar e trocar de semana</button>
       <button class="pequeno primario" id="semDescartarNao">Continuar aqui</button>
     </div>
+    <div id="semVazio"></div>
     <ol class="dias" id="semDias"></ol>
 
     <div class="rodape">
       <div id="semMensagens" aria-live="polite"></div>
-      <div class="acoes">
-        <button class="discreto despublicar" id="semDespublicar" hidden title="Tira a semana da tela dos funcionários e volta para rascunho. Só é possível enquanto ninguém respondeu.">Despublicar</button>
+      <!-- Confirmação de publicar, salvar semana publicada ou despublicar: mostra o efeito antes do clique final. -->
+      <div class="confirmar" id="semConfirmar" role="group" aria-labelledby="semConfirmarTitulo" hidden>
+        <p class="confirmar-titulo" id="semConfirmarTitulo"></p>
+        <ul id="semConfirmarItens"></ul>
+        <div class="acoes">
+          <span class="espaco"></span>
+          <button id="semConfirmarVoltar">Voltar</button>
+          <button class="primario" id="semConfirmarSim" aria-describedby="semConfirmarTitulo semConfirmarItens"></button>
+        </div>
+      </div>
+      <div class="acoes" id="semAcoes">
+        <button class="discreto despublicar" id="semDespublicar" hidden>Despublicar</button>
         <span class="nao-salvo" id="semNaoSalvo" hidden>Alterações não salvas</span>
+        <span class="falta" id="semFalta" hidden></span>
         <span class="espaco"></span>
-        <button class="discreto" id="semDesfazer" hidden>Desfazer sorteio</button>
-        <button id="semSugerir" title="Sorteia principais para os dias vazios com as regras da planilha antiga: sem repetir, sem frango seguido, prato de sexta na sexta, evitando o que saiu nas últimas semanas.">Sugerir dias vazios</button>
+        <button class="discreto" id="semDesfazer" hidden>Desfazer sugestão</button>
+        <button id="semSugerir" title="Sugere principais para os dias vazios com as regras da planilha antiga: sem repetir, sem frango seguido, prato de sexta na sexta, evitando o que saiu nas últimas semanas.">Sugerir dias vazios</button>
         <button id="semSalvar">Salvar rascunho</button>
         <button id="semPublicar" class="primario">Publicar</button>
       </div>
@@ -257,7 +318,7 @@
   </section>
 
   <!-- ===================== LISTA DE COMPRAS ===================== -->
-  <section class="painel" id="aba-compras" hidden>
+  <section class="painel" id="aba-compras" role="tabpanel" aria-labelledby="tab-compras" hidden>
     <div class="semana-topo">
       <button class="seta" id="cmpAnterior" aria-label="Semana anterior" title="Semana anterior"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3 5 8l5 5"/></svg></button>
       <h2 id="cmpTitulo">Carregando…</h2>
@@ -268,6 +329,7 @@
       <span id="cmpSituacao" class="etiqueta"></span>
     </div>
     <p class="intro-semana" id="cmpNota"></p>
+    <div id="cmpAvisoCardapio"></div>
     <div class="descartar" id="cmpDescartar" role="alert" hidden>
       <span>Esta lista tem alterações não salvas.</span>
       <button class="pequeno" id="cmpDescartarSim">Descartar e trocar de semana</button>
@@ -281,6 +343,7 @@
       <button class="discreto" id="cmpEditar" aria-pressed="false">Editar itens</button>
     </div>
     <div id="cmpSecoes"></div>
+    <p class="intro-semana" id="cmpVazio" hidden></p>
 
     <div class="rodape">
       <div id="cmpMensagens" aria-live="polite"></div>
@@ -294,7 +357,7 @@
   </section>
 
   <!-- ===================== PRATOS ===================== -->
-  <section class="painel" id="aba-pratos" hidden>
+  <section class="painel" id="aba-pratos" role="tabpanel" aria-labelledby="tab-pratos" hidden>
     <div class="grade">
       <div>
         <h2 id="pratoFormTitulo">Novo prato principal</h2>
@@ -340,7 +403,7 @@
             <button data-tipo="PRINCIPAL" aria-pressed="true">Principais</button>
             <button data-tipo="ACOMPANHAMENTO" aria-pressed="false">Acompanhamentos</button>
           </div>
-          <input type="text" id="pratoFiltro" placeholder="Buscar…" style="max-width:180px">
+          <input type="search" id="pratoFiltro" placeholder="Buscar prato" aria-label="Buscar prato">
           <label class="filtro"><input type="checkbox" id="pratoInativos"> inativos</label>
         </div>
         <div id="pratoListaErro"></div>
@@ -356,7 +419,7 @@
   </section>
 
   <!-- ===================== FUNCIONÁRIOS ===================== -->
-  <section class="painel" id="aba-funcionarios" hidden>
+  <section class="painel" id="aba-funcionarios" role="tabpanel" aria-labelledby="tab-funcionarios" hidden>
     <div class="grade">
       <div>
         <label for="novos"><strong>Adicionar</strong> <span class="muted">— um nome por linha</span></label>
@@ -383,7 +446,7 @@
   </section>
 
   <!-- ===================== CONFIGURAÇÕES ===================== -->
-  <section class="painel" id="aba-config" hidden>
+  <section class="painel" id="aba-config" role="tabpanel" aria-labelledby="tab-config" hidden>
     <div class="config">
       <h2>Links</h2>
       <div class="link-linha">
@@ -460,23 +523,87 @@
         caixa.appendChild(ul);
       }
       alvo.appendChild(caixa);
+      // Sucesso simples no rodapé fixo some sozinho para não cobrir a semana; com botões (próximos passos), fica.
+      if (tipo === 'ok' && alvo.closest('.rodape')) {
+        setTimeout(function () {
+          if (caixa.isConnected && !caixa.querySelector('button') && !caixa.matches(':hover')) caixa.remove();
+        }, 8000);
+      }
     }
 
+    // Durante uma chamada os controles ficam bloqueados sem "disabled", que tiraria o foco de quem usa o teclado:
+    // botões, listas e caixas ignoram clique e Enter/Espaço; campos de texto ficam só leitura.
+    function textual(c) { return c.tagName === 'TEXTAREA' || (c.tagName === 'INPUT' && !/^(checkbox|radio|button|submit|file)$/.test(c.type)); }
     function habilitar(sim) {
       ocupado = !sim;
-      Array.prototype.forEach.call(document.querySelectorAll('section button, section select, section input'), function (b) { b.disabled = !sim; });
+      document.body.classList.toggle('ocupado', !sim);
+      Array.prototype.forEach.call(document.querySelectorAll('section button, section select, section input, section textarea'), function (c) {
+        if (!sim) {
+          if (c.disabled || c.dataset.ocupado) return;
+          c.dataset.ocupado = '1';
+          c.setAttribute('aria-disabled', 'true');
+          if (textual(c) && !c.readOnly) { c.readOnly = true; c.dataset.ocupadoLeitura = '1'; }
+        } else if (c.dataset.ocupado) {
+          delete c.dataset.ocupado;
+          c.removeAttribute('aria-disabled');
+          if (c.dataset.ocupadoLeitura) { c.readOnly = false; delete c.dataset.ocupadoLeitura; }
+        }
+      });
+    }
+    ['click', 'mousedown', 'keydown'].forEach(function (tipo) {
+      document.addEventListener(tipo, function (ev) {
+        if (!ocupado) return;
+        var c = ev.target.closest && ev.target.closest('[data-ocupado]');
+        if (!c) return;
+        if (tipo === 'mousedown' && c.tagName !== 'SELECT') return;
+        if (tipo === 'keydown' && (ev.key === 'Tab' || ev.key === 'Escape' || (textual(c) && ev.key !== 'Enter'))) return;
+        if (tipo === 'click' && textual(c)) return;
+        ev.preventDefault();
+        ev.stopImmediatePropagation();
+      }, true);
+    });
+
+    /** Onde está o foco, de um jeito que sobreviva a um redesenho: id, data-foco ou posição na aba. */
+    function controlesVisiveis(secao) {
+      return Array.prototype.filter.call(secao.querySelectorAll('button, select, input, textarea, a[href]'), function (c) { return c.getClientRects().length > 0; });
+    }
+    function lembrarFoco() {
+      var a = document.activeElement;
+      var secao = a && a.closest && a.closest('section.painel');
+      if (!secao) return null;
+      return { el: a, id: a.id, foco: a.dataset.foco, secao: secao, i: controlesVisiveis(secao).indexOf(a) };
+    }
+    /** Se o controle que tinha o foco sumiu ou foi escondido no redesenho, põe o foco no equivalente. */
+    function devolverFoco(f) {
+      if (!f || (f.el.isConnected && f.el.getClientRects().length)) return;
+      var atual = document.activeElement;
+      if (atual && atual !== f.el && atual !== document.body) return; // o próprio redesenho já escolheu um foco
+      var alvo = (f.id && el(f.id)) || (f.foco && f.secao.querySelector('[data-foco="' + f.foco + '"]'));
+      if (!alvo || !alvo.getClientRects().length) {
+        var lista = controlesVisiveis(f.secao);
+        alvo = lista[Math.min(f.i, lista.length - 1)];
+      }
+      if (alvo) alvo.focus();
     }
 
-    function chamar(fn, args, ok, alvoErro) {
+    /** falhou(e): opcional, depois da mensagem de erro (ex.: oferecer "Tentar de novo"). */
+    function chamar(fn, args, ok, alvoErro, falhou) {
+      if (ocupado) return;
       habilitar(false);
       google.script.run
-        .withSuccessHandler(function (r) { habilitar(true); ok(r); })
+        .withSuccessHandler(function (r) {
+          var foco = lembrarFoco();
+          habilitar(true);
+          ok(r);
+          devolverFoco(foco);
+        })
         .withFailureHandler(function (e) {
           habilitar(true);
           if (alvoErro) {
             alvoErro.textContent = '';
             aviso(alvoErro, 'erro', e && e.message ? e.message : String(e));
           }
+          if (falhou) falhou(e);
         })[fn].apply(null, args);
     }
 
@@ -488,21 +615,47 @@
       if (b.dataset.confirmar) { delete b.dataset.confirmar; b.textContent = rotulo; return true; }
       b.dataset.confirmar = '1';
       b.textContent = texto || 'Confirmar?';
+      el('anuncio').textContent = (b.title ? b.title + '. ' : '') + 'Para confirmar, acione de novo o botão.';
       setTimeout(function () { if (b.isConnected && b.dataset.confirmar) { delete b.dataset.confirmar; b.textContent = rotulo; } }, 4000);
       return false;
     }
 
     // ---------------- abas ----------------
-    Array.prototype.forEach.call(document.querySelectorAll('nav.abas button'), function (b) {
+    var abas = Array.prototype.slice.call(document.querySelectorAll('nav.abas button'));
+    // Teclado: Tab entra na aba escolhida; setas, Home e End trocam de aba.
+    document.querySelector('nav.abas').addEventListener('keydown', function (ev) {
+      var i = abas.indexOf(document.activeElement);
+      if (i === -1) return;
+      var n = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: abas.length - 1 }[ev.key];
+      if (n === undefined) return;
+      ev.preventDefault();
+      var alvo = abas[(n + abas.length) % abas.length];
+      alvo.focus();
+      alvo.click();
+    });
+    // Celular: o esmaecido da borda direita some quando a faixa de abas já está no fim.
+    var navAbas = document.querySelector('nav.abas');
+    function marcarFimAbas() { navAbas.classList.toggle('no-fim', navAbas.scrollLeft + navAbas.clientWidth >= navAbas.scrollWidth - 2); }
+    navAbas.addEventListener('scroll', marcarFimAbas, { passive: true });
+    window.addEventListener('resize', marcarFimAbas);
+    marcarFimAbas();
+
+    abas.forEach(function (b) {
       b.onclick = function () {
-        Array.prototype.forEach.call(document.querySelectorAll('nav.abas button'), function (x) {
+        abas.forEach(function (x) {
           x.setAttribute('aria-selected', String(x === b));
+          x.tabIndex = x === b ? 0 : -1;
           el('aba-' + x.dataset.aba).hidden = x !== b;
         });
+        b.scrollIntoView({ block: 'nearest', inline: 'nearest' });
         // Atualiza o banco usado no cardápio sem descartar a semana em edição.
         if (b.dataset.aba === 'cardapio' && semana && pratosMudaram) { pratosMudaram = false; semana.pratos = pratos; desenharSemana(); validarSemanaDepois(); }
-        // A lista depende do cardápio e do que cada prato pede: recarrega ao entrar, se não houver edição pendente.
-        if (b.dataset.aba === 'compras' && !ocupado && !cmpAlterado()) carregarCompras(cmp ? cmp.terca : semana ? semana.terca : '');
+        // A lista depende do cardápio salvo e do que cada prato pede: recarrega sempre ao entrar.
+        // Sem edição pendente, segue a semana do cardápio; com edição, fica na mesma semana e mantém o que foi digitado.
+        if (b.dataset.aba === 'compras' && !ocupado) {
+          var manter = cmpAlterado();
+          carregarCompras(manter ? cmp.terca : semana ? semana.terca : cmp ? cmp.terca : '', manter);
+        }
         if (b.dataset.aba === 'config' && !ocupado) carregarConfig();
       };
     });
@@ -553,6 +706,8 @@
     function combinacao(d) { return JSON.stringify([d.tipo, d.principal_id, d.acompanhamento_ids]); }
     function combinacaoMudou(d) { return combinacao(gravado[d.data]) !== combinacao(d); }
     function diaMudou(d) { return combinacaoMudou(d) || gravado[d.data].observacao !== (d.observacao || ''); }
+    /** Marco âmbar: só na semana publicada (no rascunho, o "não salvo" fica no rodapé e o marco diz só se o dia está definido). */
+    function alteradoDepoisDePublicar(d) { return semana.situacao === 'PUBLICADA' && diaMudou(d); }
     function haAlteracoes() { return !!semana && (semana.dias.some(diaMudou) || confirmarAte !== (semana.confirmar_ate || '')); }
     function diaPronto(d) { return d.tipo === 'SEM_ALMOCO' || (d.tipo === 'PRATO' && !!pratoPorId(d.principal_id)); }
     /** Mexer à mão num dia sorteado tira o dia do "Desfazer sorteio". */
@@ -584,7 +739,7 @@
     function combo(o) {
       var caixa = criar('div', undefined, 'combo' + (o.classe ? ' ' + o.classe : ''));
       var campo = criar('input', undefined, 'campo' + (o.classe ? ' ' + o.classe : ''));
-      var lista = criar('ul');
+      var lista = criar('div', undefined, 'opcoes');
       var idLista = 'combo-' + (++comboSeq);
       campo.type = 'text';
       campo.value = o.texto || '';
@@ -624,6 +779,7 @@
         lista.hidden = true;
         campo.setAttribute('aria-expanded', 'false');
         campo.removeAttribute('aria-activedescendant');
+        campo.removeAttribute('aria-describedby');
         if (restaurar) campo.value = o.texto || '';
       }
       function marcar(i) {
@@ -640,16 +796,22 @@
         lista.textContent = '';
         opcoes = [];
         ativo = -1;
-        o.grupos().forEach(function (g) {
+        o.grupos().forEach(function (g, gi) {
           var itens = g.itens.filter(function (it) { return !f || semAcento(it.nome).indexOf(f) !== -1; });
           if (!itens.length) return;
+          // Grupo com nome (Frango, Só sexta…): o leitor de tela anuncia o grupo junto da opção.
+          var destino = lista;
           if (g.grupo) {
-            var cab = criar('li', g.grupo, 'grupo');
-            cab.setAttribute('role', 'presentation');
-            lista.appendChild(cab);
+            destino = criar('div');
+            destino.setAttribute('role', 'group');
+            var cab = criar('div', g.grupo, 'grupo');
+            cab.id = idLista + '-g' + gi;
+            destino.setAttribute('aria-labelledby', cab.id);
+            destino.appendChild(cab);
+            lista.appendChild(destino);
           }
           itens.forEach(function (it) {
-            var li = criar('li');
+            var li = criar('div');
             li.id = idLista + '-' + opcoes.length;
             li.dataset.id = it.id;
             li.setAttribute('role', 'option');
@@ -658,21 +820,28 @@
             if (it.dica) li.appendChild(criar('span', it.dica, 'dica' + (it.repetido ? ' repetido' : '')));
             li.onmousedown = semFoco;
             li.onclick = function () { escolher(it.id); };
-            lista.appendChild(li);
+            destino.appendChild(li);
             opcoes.push(li);
           });
         });
+        campo.removeAttribute('aria-describedby');
         if (!opcoes.length) {
-          var nada = criar('li', undefined, 'nada');
+          var nada = criar('div', undefined, 'nada');
+          nada.id = idLista + '-nada';
           nada.setAttribute('role', 'presentation');
           nada.appendChild(criar('div', texto ? 'Nada com "' + texto + '".' : 'Nenhuma opção disponível.'));
           if (texto && o.cadastrar) {
+            // Enter no campo também cadastra (ver onkeydown): o botão não recebe foco pelo teclado.
             var b = criar('button', 'Cadastrar "' + texto + '"', 'pequeno');
+            b.tabIndex = -1;
+            b.setAttribute('aria-keyshortcuts', 'Enter');
             b.onmousedown = semFoco;
             b.onclick = function () { fechar(true); o.cadastrar(texto); };
             nada.appendChild(b);
+            nada.appendChild(criar('div', 'ou tecle Enter', 'dica'));
           }
           lista.appendChild(nada);
+          campo.setAttribute('aria-describedby', nada.id);
         }
         // Com busca, a primeira opção fica pronta para o Enter; sem busca, a escolhida.
         if (f) marcar(0);
@@ -698,6 +867,12 @@
           marcar((n + opcoes.length) % opcoes.length);
         } else if (ev.key === 'Enter') {
           if (!lista.hidden && opcoes[ativo]) { ev.preventDefault(); escolher(opcoes[ativo].dataset.id); }
+          else if (!lista.hidden && !opcoes.length && o.cadastrar && campo.value.trim()) {
+            ev.preventDefault();
+            var nome = campo.value.trim();
+            fechar(true);
+            o.cadastrar(nome);
+          }
         } else if (ev.key === 'Escape' && !lista.hidden) {
           ev.preventDefault();
           ev.stopPropagation();
@@ -757,7 +932,10 @@
       gravado = {};
       semana.dias.forEach(function (d) { gravado[d.data] = copiaDia(d); });
       confirmarAte = r.confirmar_ate || '';
+      horaAutomatica = false;
       el('semAteData').value = confirmarAte.slice(0, 10);
+      el('semAteData').min = r.hoje;
+      el('semAteData').max = r.dias[r.dias.length - 1].data;
       el('semAteHora').value = confirmarAte.slice(11, 16);
       desenharSemana();
       validarSemanaDepois();
@@ -781,19 +959,29 @@
       var dias = s.dias;
       el('semTitulo').textContent = 'Semana de ' + dataBr(dias[0].data) + ' a ' + dataBr(dias[dias.length - 1].data);
       el('semQuando').textContent = quandoE(s);
-      var sit = { NOVA: ['Não salva', 'nova'], RASCUNHO: ['Rascunho', 'rascunho'], PUBLICADA: ['Publicada', ''], FECHADA: ['Fechada', 'nova'] }[s.situacao] || [s.situacao, ''];
+      var sit = { NOVA: ['Não salva', 'nova'], RASCUNHO: ['Rascunho', 'rascunho'], PUBLICADA: ['Publicada', ''], FECHADA: ['Fechada', 'fechada'] }[s.situacao] || [s.situacao, ''];
       el('semSituacao').textContent = sit[0];
       el('semSituacao').className = 'etiqueta ' + sit[1];
       var publicada = s.situacao === 'PUBLICADA';
       el('semNota').textContent = publicada
         ? 'Os funcionários já veem este cardápio' + (s.respostas ? ' e ' + plural(s.respostas, 'pessoa já respondeu', 'pessoas já responderam') : '; ninguém respondeu ainda') +
-          '. Se você trocar o prato de um dia, quem já pediu aquele dia recebe o aviso para conferir o pedido.'
+          '. Para mudar um dia, use "Alterar este dia"; quem já pediu aquele dia recebe o aviso para conferir o pedido.'
         : 'Escolha o principal de cada dia; os acompanhamentos de costume entram sozinhos. Os funcionários só veem a semana depois que você publicar.';
       el('semPublicar').hidden = publicada;
-      el('semDespublicar').hidden = !publicada;
+      // Depois que alguém respondeu, despublicar não é mais possível (a nota acima explica o caminho: alterar e salvar).
+      el('semDespublicar').hidden = !publicada || !!s.respostas;
       desenharRespostasAte();
       el('semSalvar').textContent = publicada ? 'Salvar alterações' : 'Salvar rascunho';
-      el('semSalvar').className = publicada ? 'primario' : '';
+      // Banco sem principais: nada para escolher nem sortear; aponta para onde cadastrar.
+      var semVazio = el('semVazio');
+      semVazio.textContent = '';
+      if (!s.pratos.some(function (p) { return p.tipo === 'PRINCIPAL' && p.situacao === 'ATIVO'; })) {
+        aviso(semVazio, 'alerta', 'Ainda não há pratos principais cadastrados, então não dá para escolher nem sugerir os dias.');
+        var bPratos = criar('button', 'Cadastrar pratos', 'pequeno primario');
+        bPratos.style.marginTop = '.4rem';
+        bPratos.onclick = function () { el('tab-pratos').click(); el('pratoNome').focus(); };
+        semVazio.lastElementChild.appendChild(bPratos);
+      }
 
       var lista = el('semDias');
       lista.textContent = '';
@@ -811,13 +999,15 @@
       var semAlmoco = d.tipo === 'SEM_ALMOCO';
       var temPrato = d.tipo === 'PRATO' && !!d.principal_id;
       var li = criar('li', undefined, 'dia' + (semAlmoco ? ' sem-almoco' : diaPronto(d) ? ' definido' : ' vazio') +
-        (diaMudou(d) ? ' alterado' : '') + (d.dia === 'SEGUNDA' ? ' depois-fds' : ''));
+        (alteradoDepoisDePublicar(d) ? ' alterado' : '') + (d.dia === 'SEGUNDA' ? ' depois-fds' : ''));
       var data = criar('div', undefined, 'data');
       data.title = d.rotulo + ', ' + dataBr(d.data);
       data.appendChild(criar('span', ABREV[d.dia] || d.rotulo, 'abrev'));
       data.appendChild(criar('span', String(+d.data.split('-')[2]), 'num'));
       li.appendChild(criar('span', undefined, 'marco'));
       li.appendChild(data);
+      var publicada = semana.situacao === 'PUBLICADA';
+      if (publicada && !d.editando && !diaMudou(d)) { desenharDiaLeitura(d, li); return li; }
 
       var meio = criar('div', undefined, 'meio');
       var lado = criar('div', undefined, 'lado');
@@ -836,7 +1026,7 @@
           foco: d.data + ':principal',
           grupos: function () { return opcoesPrincipal(d); },
           aoEscolher: function (id) { trocarPrincipal(d, id); redesenhar(d.data + ':principal'); },
-          cadastrar: function (nome) { cadastrarPrato('PRINCIPAL', nome); }
+          cadastrar: function (nome) { cadastrarPrato('PRINCIPAL', nome, { data: d.data, papel: 'principal' }); }
         }));
         if (temPrato) {
           var caixa = criar('div', undefined, 'acomp');
@@ -858,14 +1048,13 @@
               foco: d.data + ':acomp',
               grupos: function () { return opcoesAcomp(d); },
               aoEscolher: function (id) { d.acompanhamento_ids.push(id); redesenhar(d.data + ':acomp'); },
-              cadastrar: function (nome) { cadastrarPrato('ACOMPANHAMENTO', nome); }
+              cadastrar: function (nome) { cadastrarPrato('ACOMPANHAMENTO', nome, { data: d.data, papel: 'acomp' }); }
             }));
           }
           meio.appendChild(caixa);
-          var jaNoPrato = [d.principal_id].concat(d.acompanhamento_ids).map(function (id) { return semAcento(nomeDe(id, '')); });
-          var fixos = fixosDe(pratoPorId(d.principal_id)).filter(function (f) { return jaNoPrato.indexOf(semAcento(f)) === -1; });
+          var fixos = fixosDoDia(d);
           var vem = criar('div', undefined, 'vem-com');
-          if (sugeridos[d.data]) vem.appendChild(criar('span', 'sorteado', 'sugerido'));
+          if (sugeridos[d.data]) vem.appendChild(criar('span', 'sugerido', 'sugerido'));
           if (fixos.length) vem.appendChild(criar('span', 'Vem também com ' + listaPt(fixos) + '.'));
           if (!d.observacao && !d.verObs) {
             var bObs = criar('button', '+ observação', 'discreto pequeno');
@@ -877,14 +1066,14 @@
           if (d.observacao || d.verObs) meio.appendChild(campoObs(d, 'Observação', 'aparece para os funcionários'));
         }
 
-        var bSortear = criar('button', temPrato ? 'Sortear outro' : 'Sortear', 'discreto');
+        var bSortear = criar('button', temPrato ? 'Sugerir outro' : 'Sugerir', 'discreto');
         bSortear.dataset.foco = d.data + ':sortear';
-        bSortear.title = 'Sorteia um principal para este dia com as regras de "Sugerir dias vazios"';
+        bSortear.title = 'Sugere um principal para este dia com as regras de "Sugerir dias vazios"';
         bSortear.onclick = function () { sortearDia(d); };
         lado.appendChild(bSortear);
       }
       var notas = criar('div', undefined, 'notas-dia');
-      notas.id = 'notas-' + d.data;
+      notas.id = 'notas-' + d.data; // vira região viva depois do primeiro preenchimento (mostrarNotas)
       meio.appendChild(notas);
       li.appendChild(meio);
 
@@ -902,8 +1091,75 @@
         redesenhar(semAlmoco ? d.data + ':sem' : d.data + ':obs');
       };
       lado.appendChild(bSem);
+      // Semana publicada: o dia aberto para alteração volta à leitura; se mudou, "Desfazer mudanças" volta ao publicado.
+      if (publicada) {
+        var mudou = diaMudou(d);
+        var bFechar = criar('button', mudou ? 'Desfazer mudanças' : 'Fechar', 'discreto');
+        bFechar.dataset.foco = d.data + ':fechar';
+        bFechar.setAttribute('aria-label', (mudou ? 'Desfazer mudanças de ' : 'Fechar ') + NOME_DIA[d.dia] + ', ' + dataBr(d.data));
+        bFechar.onclick = function () {
+          if (mudou) voltarAoGravado(d);
+          delete d.editando;
+          focarDepois = d.data + ':alterar';
+          desenharSemana();
+          validarSemanaDepois();
+        };
+        lado.appendChild(bFechar);
+      }
       li.appendChild(lado);
       return li;
+    }
+
+    function fixosDoDia(d) {
+      var jaNoPrato = [d.principal_id].concat(d.acompanhamento_ids).map(function (id) { return semAcento(nomeDe(id, '')); });
+      return fixosDe(pratoPorId(d.principal_id)).filter(function (f) { return jaNoPrato.indexOf(semAcento(f)) === -1; });
+    }
+
+    function voltarAoGravado(d) {
+      var g = gravado[d.data];
+      d.tipo = g.tipo;
+      d.principal_id = g.principal_id;
+      d.acompanhamento_ids = g.acompanhamento_ids.slice();
+      d.observacao = g.observacao;
+      delete d.verObs;
+      delete d.antesSemAlmoco;
+      delete sugeridos[d.data];
+    }
+
+    /** Semana publicada: o dia como os funcionários veem, com quantos já pediram. "Alterar este dia" abre o editor. */
+    function desenharDiaLeitura(d, li) {
+      var semAlmoco = d.tipo === 'SEM_ALMOCO';
+      li.classList.add('leitura');
+      var meio = criar('div', undefined, 'meio');
+      if (semAlmoco) {
+        meio.appendChild(criar('div', 'Sem almoço', 'prato-leitura sem'));
+        if (d.observacao) meio.appendChild(criar('div', d.observacao, 'vem-com'));
+      } else {
+        meio.appendChild(criar('div', nomeDe(d.principal_id, d.itens[0]), 'prato-leitura'));
+        var acomps = d.acompanhamento_ids.map(function (id, i) { return nomeDe(id, d.itens[i + 1]); });
+        var fixos = fixosDoDia(d);
+        var partes = [];
+        if (acomps.length) partes.push('Com ' + listaPt(acomps) + '.');
+        if (fixos.length) partes.push((acomps.length ? 'Vem também com ' : 'Vem com ') + listaPt(fixos) + '.');
+        if (partes.length) meio.appendChild(criar('div', partes.join(' '), 'vem-com'));
+        if (d.observacao) meio.appendChild(criar('div', 'Observação: ' + d.observacao, 'vem-com'));
+      }
+      li.appendChild(meio);
+      var lado = criar('div', undefined, 'lado');
+      if (!semAlmoco) {
+        var n = (semana.confirmados_por_dia || {})[d.data] || 0;
+        lado.appendChild(criar('span', n ? plural(n, 'pedido', 'pedidos') : 'nenhum pedido', 'pedidos' + (n ? '' : ' zero')));
+      }
+      var bAlterar = criar('button', 'Alterar este dia', 'discreto');
+      bAlterar.dataset.foco = d.data + ':alterar';
+      bAlterar.setAttribute('aria-label', 'Alterar ' + NOME_DIA[d.dia] + ', ' + dataBr(d.data));
+      bAlterar.onclick = function () {
+        d.editando = true;
+        focarDepois = d.data + (semAlmoco ? ':sem' : ':principal');
+        desenharSemana();
+      };
+      lado.appendChild(bAlterar);
+      li.appendChild(lado);
     }
 
     function campoObs(d, rotulo, exemplo) {
@@ -918,7 +1174,7 @@
       campo.dataset.foco = d.data + ':obs';
       campo.oninput = function () {
         d.observacao = campo.value;
-        campo.closest('li').classList.toggle('alterado', diaMudou(d));
+        campo.closest('li').classList.toggle('alterado', alteradoDepoisDePublicar(d));
         atualizarRodape();
       };
       linha.appendChild(lab);
@@ -935,14 +1191,18 @@
     function desenharRespostasAte() {
       var prazo = textoPrazoDia(semana.prazo || { hora: '09:30', diasAntes: 0 });
       el('semAteLimpar').hidden = !confirmarAte;
-      el('semAteNota').textContent = confirmarAte
+      el('semAteNota').textContent = (confirmarAte
         ? 'Depois disso, quem não respondeu um dia não pede mais. Quem já respondeu ainda ajusta até ' + prazo + '.'
-        : 'Sem data limite: cada dia pode ser pedido e alterado até ' + prazo + '.';
+        : 'Sem data limite: cada dia pode ser pedido e alterado até ' + prazo + '.') +
+        (confirmarAte && horaAutomatica ? ' O horário veio preenchido com 17h; mude se precisar.' : '');
     }
 
-    function lerRespostasAte() {
+    var horaAutomatica = false; // 17h posto pela tela ao escolher só a data (a nota avisa)
+    function lerRespostasAte(ev) {
       var data = el('semAteData').value;
-      if (data && !el('semAteHora').value) el('semAteHora').value = '17:00';
+      if (ev && ev.target === el('semAteHora')) horaAutomatica = false;
+      if (data && !el('semAteHora').value) { el('semAteHora').value = '17:00'; horaAutomatica = true; }
+      if (!data) horaAutomatica = false;
       confirmarAte = data ? data + 'T' + el('semAteHora').value : '';
       desenharRespostasAte();
       atualizarRodape();
@@ -967,7 +1227,16 @@
       if (prontos === dias.length) p.textContent = 'Todos os dias definidos';
       else { p.appendChild(criar('strong', prontos + ' de ' + dias.length)); p.appendChild(document.createTextNode(' dias definidos')); }
       el('semNaoSalvo').hidden = !haAlteracoes();
+      if (haAlteracoes()) Array.prototype.forEach.call(el('semMensagens').querySelectorAll('.aviso.ok'), function (c) { c.remove(); });
       el('semDesfazer').hidden = !Object.keys(sugeridos).length;
+      // Semana publicada: "Salvar alterações" só ganha destaque quando há o que salvar (no rascunho, o destaque é do Publicar).
+      el('semSalvar').className = semana.situacao === 'PUBLICADA' && haAlteracoes() ? 'primario' : '';
+      var faltam = dias.length - prontos;
+      el('semFalta').hidden = !faltam || semana.situacao === 'PUBLICADA';
+      el('semSugerir').hidden = !faltam; // sem dia vazio, não há o que sugerir
+      el('semFalta').textContent = faltam === 1 ? 'Falta 1 dia para publicar' : 'Faltam ' + faltam + ' dias para publicar';
+      // Qualquer mudança na semana deixa a confirmação aberta desatualizada.
+      fecharConfirmacao();
     }
 
     // ---- validação ao vivo: cada problema aparece junto do dia ----
@@ -981,7 +1250,14 @@
       clearTimeout(timerValidacao);
       timerValidacao = setTimeout(function () {
         if (ocupado || !semana) return;
-        google.script.run.withSuccessHandler(function (v) { validacao = v; mostrarNotas(); }).adminValidarSemana(semana.terca, diasParaEnvio());
+        google.script.run
+          .withSuccessHandler(function (v) { validacao = v; mostrarNotas(); })
+          .withFailureHandler(function () {
+            if (el('semMensagens').querySelector('.validacao-falhou')) return;
+            aviso(el('semMensagens'), 'alerta', 'Não foi possível conferir a semana agora. Ao salvar, ela é conferida de novo.');
+            el('semMensagens').lastElementChild.classList.add('validacao-falhou');
+          })
+          .adminValidarSemana(semana.terca, diasParaEnvio());
       }, 300);
     }
 
@@ -990,11 +1266,25 @@
       semana.dias.forEach(function (d) {
         var alvo = el('notas-' + d.data);
         if (!alvo) return;
-        alvo.textContent = '';
         var p = (validacao.porData || {})[d.data] || { erros: [], avisos: [] };
-        if (d.tipo || tentouPublicar || publicada) p.erros.forEach(function (t) { alvo.appendChild(criar('div', t, 'erro')); });
-        p.avisos.forEach(function (t) { alvo.appendChild(criar('div', t, 'alerta')); });
-        if (publicada && combinacaoMudou(d)) alvo.appendChild(criar('div', 'Ao salvar, quem já pediu este dia recebe o aviso para conferir o pedido.', 'revisao'));
+        var notas = [];
+        if (d.tipo || tentouPublicar || publicada) p.erros.forEach(function (t) { notas.push(['erro', t]); });
+        p.avisos.forEach(function (t) { notas.push(['alerta', t]); });
+        if (publicada && combinacaoMudou(d)) {
+          // Só avisa revisão quando há pedidos; sem pedidos, diz que a troca não afeta ninguém.
+          var pedidos = (semana.confirmados_por_dia || {})[d.data] || 0;
+          notas.push(pedidos
+            ? ['revisao', 'Ao salvar, ' + (pedidos === 1 ? 'o pedido deste dia volta' : 'os ' + pedidos + ' pedidos deste dia voltam') + ' para os funcionários conferirem.']
+            : ['neutra', 'Ninguém pediu este dia ainda: a troca não afeta pedidos.']);
+        }
+        // Só reescreve quando muda: a região é anunciada pelo leitor de tela a cada reescrita.
+        var chave = JSON.stringify(notas);
+        if (alvo.dataset.chave === chave) return;
+        alvo.dataset.chave = chave;
+        alvo.textContent = '';
+        notas.forEach(function (n) { alvo.appendChild(criar('div', n[1], n[0])); });
+        // Primeiro preenchimento (dia recém-desenhado) em silêncio; mudanças seguintes são anunciadas.
+        if (!alvo.hasAttribute('aria-live')) alvo.setAttribute('aria-live', 'polite');
       });
     }
 
@@ -1035,7 +1325,7 @@
         });
         desenharSemana();
         validarSemanaDepois();
-        if (r.semCandidato.length) aviso(el('semMensagens'), 'alerta', 'Faltam principais no banco para sortear: ' + r.semCandidato.map(dataBr).join(', ') + '. Cadastre mais na aba Pratos.');
+        if (r.semCandidato.length) aviso(el('semMensagens'), 'alerta', 'Faltam principais no banco para sugerir: ' + r.semCandidato.map(dataBr).join(', ') + '. Cadastre mais na aba Pratos.');
         else if (!mudaram) aviso(el('semMensagens'), 'ok', 'Todos os dias já estão definidos.');
       }, el('semMensagens'));
     };
@@ -1053,6 +1343,57 @@
       validarSemanaDepois();
     };
 
+    // ---- confirmação no rodapé ----
+    // Publicar, salvar a semana publicada (pedidos vão para revisão) e despublicar mostram o efeito antes do clique final.
+    var aoConfirmar = null;
+    var gatilhoConfirmacao = null;
+    function pedirConfirmacao(o) {
+      el('semConfirmarTitulo').textContent = o.titulo;
+      var ul = el('semConfirmarItens');
+      ul.textContent = '';
+      o.itens.forEach(function (t) { ul.appendChild(criar('li', t)); });
+      el('semConfirmar').className = 'confirmar' + (o.atencao ? ' atencao' : '');
+      el('semConfirmarSim').textContent = o.botao;
+      aoConfirmar = o.acao;
+      gatilhoConfirmacao = o.gatilho;
+      el('semMensagens').textContent = '';
+      el('semConfirmar').hidden = false;
+      el('semAcoes').hidden = true;
+      el('semConfirmarSim').focus();
+    }
+    /** Fecha o painel. Se o foco estava nele, volta para o botão que o abriu (para não cair no topo da página). */
+    function fecharConfirmacao() {
+      if (el('semConfirmar').hidden) return;
+      var estavaNoPainel = el('semConfirmar').contains(document.activeElement);
+      el('semConfirmar').hidden = true;
+      el('semAcoes').hidden = false;
+      aoConfirmar = null;
+      if (estavaNoPainel && gatilhoConfirmacao) gatilhoConfirmacao.focus();
+    }
+    el('semConfirmarVoltar').onclick = fecharConfirmacao;
+    el('semConfirmarSim').onclick = function () {
+      var acao = aoConfirmar;
+      fecharConfirmacao();
+      if (acao) acao();
+    };
+    el('semConfirmar').addEventListener('keydown', function (ev) {
+      if (ev.key === 'Escape') { ev.preventDefault(); fecharConfirmacao(); }
+    });
+
+    function horaBr(h) { return h.replace(':', 'h').replace(/^0/, '').replace(/h00$/, 'h'); }
+    function textoLimite() {
+      if (!confirmarAte) return 'Sem data limite: cada dia pode ser pedido e alterado até ' + textoPrazoDia(semana.prazo || { hora: '09:30', diasAntes: 0 }) + '.';
+      return 'Respostas até ' + dataBr(confirmarAte.slice(0, 10)) + ' às ' + horaBr(confirmarAte.slice(11, 16)) + '. Depois disso, quem não respondeu um dia não pede mais.';
+    }
+    function nomeDoDia(x) { return x.tipo === 'SEM_ALMOCO' ? 'sem almoço' : x.principal_id ? nomeDe(x.principal_id, '') : 'sem prato'; }
+    /** "Terça, 21/10: Carré → Bife acebolado" ou "…: acompanhamentos do Carré mudaram". */
+    function descreverMudanca(d) {
+      var antes = gravado[d.data];
+      var quando = NOME_DIA[d.dia].charAt(0).toUpperCase() + NOME_DIA[d.dia].slice(1) + ', ' + dataBr(d.data) + ': ';
+      if (antes.tipo === d.tipo && antes.principal_id === d.principal_id) return quando + 'acompanhamentos do ' + nomeDoDia(d) + ' mudaram';
+      return quando + nomeDoDia(antes) + ' → ' + nomeDoDia(d);
+    }
+
     // ---- salvar e publicar ----
     function salvarSemana(publicar) {
       var publicada = semana.situacao === 'PUBLICADA';
@@ -1061,53 +1402,155 @@
       chamar('adminSalvarSemana', [semana.terca, diasParaEnvio(), publicar, confirmarAte], function (r) {
         var msg = publicar ? 'Semana publicada. Os funcionários já podem fazer os pedidos.'
           : publicada ? 'Alterações salvas.' : 'Rascunho salvo. Os funcionários ainda não veem esta semana.';
-        if (r.pedidosMarcados) msg += ' ' + plural(r.pedidosMarcados, 'pedido volta', 'pedidos voltam') + ' para os funcionários conferirem.';
+        if (r.pedidosMarcados) msg += ' ' + plural(r.pedidosMarcados, 'pedido voltou', 'pedidos voltaram') + ' para os funcionários conferirem.';
         chamar('adminObterSemana', [semana.terca], function (s) {
           receberSemana(s);
           aviso(el('semMensagens'), 'ok', msg);
+          if (publicar) {
+            proximosPassos(el('semMensagens').lastElementChild);
+            window.scrollTo(0, 0); // mostra a etiqueta "Publicada" e a semana como os funcionários veem
+          }
         }, el('semMensagens'));
       }, el('semMensagens'));
     }
-    el('semSalvar').onclick = function () { salvarSemana(false); };
+
+    /** Depois de publicar: mandar o link no grupo e montar a lista de compras. */
+    function proximosPassos(caixa) {
+      var linha = criar('div', undefined, 'proximos');
+      var bLink = criar('button', 'Copiar link dos funcionários', 'pequeno');
+      bLink.onclick = function () {
+        chamar('adminLinks', [], function (l) {
+          var copiado = function () { bLink.textContent = 'Link copiado: cole no grupo'; };
+          var mostrar = function () { bLink.textContent = 'Copie o link: ' + l.funcionarios; };
+          if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(l.funcionarios).then(copiado, mostrar);
+          else mostrar();
+        }, el('semMensagens'));
+      };
+      var bCompras = criar('button', 'Montar a lista de compras', 'pequeno');
+      bCompras.onclick = function () { el('tab-compras').click(); el('tab-compras').focus(); };
+      linha.appendChild(bLink);
+      linha.appendChild(bCompras);
+      caixa.appendChild(linha);
+      bLink.focus(); // o botão Publicar sumiu; o próximo passo é o lugar natural do foco
+    }
+
+    el('semSalvar').onclick = function () {
+      var porDia = semana.pedidos_por_dia || {};
+      var afetados = semana.situacao === 'PUBLICADA'
+        ? semana.dias.filter(function (d) { return combinacaoMudou(d) && porDia[d.data]; })
+        : [];
+      if (!afetados.length) { salvarSemana(false); return; }
+      var total = afetados.reduce(function (n, d) { return n + porDia[d.data]; }, 0);
+      pedirConfirmacao({
+        gatilho: el('semSalvar'),
+        atencao: true,
+        titulo: plural(total, 'pedido vai', 'pedidos vão') + ' para revisão',
+        itens: afetados.map(function (d) { return descreverMudanca(d) + ' (' + plural(porDia[d.data], 'pedido', 'pedidos') + ')'; })
+          .concat(['Quem pediu ' + (afetados.length === 1 ? 'esse dia' : 'esses dias') + ' recebe o aviso para conferir o pedido.']),
+        botao: 'Salvar e avisar ' + plural(total, 'pedido', 'pedidos'),
+        acao: function () { salvarSemana(false); }
+      });
+    };
+
     el('semPublicar').onclick = function () {
-      if (confirmarNoBotao(el('semPublicar'), 'Publicar', 'Confirmar publicação?')) salvarSemana(true);
+      var faltam = semana.dias.filter(function (d) { return !diaPronto(d); });
+      if (faltam.length) {
+        tentouPublicar = true;
+        mostrarNotas();
+        el('semMensagens').textContent = '';
+        aviso(el('semMensagens'), 'alerta', 'Para publicar, defina os 5 dias. ' + (faltam.length === 1 ? 'Falta ' : 'Faltam ') +
+          listaPt(faltam.map(function (d) { return NOME_DIA[d.dia]; })) + ': escolha o prato ou marque "Sem almoço".');
+        var campo = document.querySelector('[data-foco="' + faltam[0].data + ':principal"]');
+        if (campo) campo.focus();
+        return;
+      }
+      var ativos = funcionarios.filter(function (f) { return f.situacao === 'ATIVO'; }).length;
+      pedirConfirmacao({
+        gatilho: el('semPublicar'),
+        atencao: !ativos,
+        titulo: 'Publicar a semana de' + dataBr(semana.dias[0].data) + ' a ' + dataBr(semana.dias[semana.dias.length - 1].data) + '?',
+        itens: [
+          !ativos ? 'Não há funcionários ativos: ninguém vai ver o cardápio. Cadastre os nomes na aba Funcionários.'
+            : (ativos === 1 ? 'O único funcionário ativo passa' : 'Os ' + ativos + ' funcionários ativos passam') + ' a ver o cardápio e já podem pedir.',
+          textoLimite()
+        ],
+        botao: 'Publicar agora',
+        acao: function () { salvarSemana(true); }
+      });
     };
 
     el('semDespublicar').onclick = function () {
       var alvo = el('semMensagens');
       alvo.textContent = '';
-      if (semana.respostas) {
-        aviso(alvo, 'alerta', 'Não dá para despublicar: ' + plural(semana.respostas, 'pessoa já respondeu', 'pessoas já responderam') +
-          ' esta semana. Altere o cardápio e salve; quem pediu recebe o aviso para conferir.');
-        return;
-      }
       if (haAlteracoes()) { aviso(alvo, 'alerta', 'Há alterações não salvas. Salve antes de despublicar.'); return; }
-      if (!confirmarNoBotao(el('semDespublicar'), 'Despublicar', 'Confirmar: tirar dos funcionários?')) return;
-      chamar('adminDespublicarSemana', [semana.terca], function () {
-        chamar('adminObterSemana', [semana.terca], function (s) {
-          receberSemana(s);
-          aviso(el('semMensagens'), 'ok', 'Semana despublicada. Ela voltou a ser rascunho e os funcionários não a veem mais.');
-        }, alvo);
-      }, alvo);
+      pedirConfirmacao({
+        gatilho: el('semDespublicar'),
+        titulo: 'Tirar a semana dos funcionários?',
+        itens: ['Ela volta a ser rascunho e some da tela de pedidos. Ninguém respondeu ainda, então nenhum pedido se perde.'],
+        botao: 'Despublicar',
+        acao: function () {
+          chamar('adminDespublicarSemana', [semana.terca], function () {
+            chamar('adminObterSemana', [semana.terca], function (s) {
+              receberSemana(s);
+              aviso(el('semMensagens'), 'ok', 'Semana despublicada. Ela voltou a ser rascunho e os funcionários não a veem mais.');
+            }, alvo);
+          }, alvo);
+        }
+      });
     };
 
-    /** "Cadastrar" no campo de busca: leva para a aba Pratos com o nome preenchido. */
-    function cadastrarPrato(tipo, nome) {
-      document.querySelector('nav.abas button[data-aba="pratos"]').click();
-      mudarTipoPratos(tipo);
-      editarPrato(null);
-      el('pratoNome').value = nome;
-      aviso(el('pratoMsg'), 'ok', 'Complete e salve. Ao voltar para o Cardápio da semana, o prato já aparece na lista.');
-      (tipo === 'PRINCIPAL' ? el('pratoCategoria') : el('pratoNome')).focus();
+    /**
+     * "Cadastrar" no campo de busca: leva para a aba Pratos com o nome preenchido.
+     * destino { data, papel: 'principal' | 'acomp' }: ao salvar, o prato entra direto naquele dia do cardápio.
+     */
+    function cadastrarPrato(tipo, nome, destino) {
+      el('tab-pratos').click();
+      semPerderPrato(function () {
+        mudarTipoPratos(tipo);
+        editarPrato(null);
+        pratoDestino = destino || null;
+        el('pratoNome').value = nome;
+        var d = destino && diaDoCardapio(destino.data);
+        if (d) {
+          aviso(el('pratoMsg'), 'ok', 'Complete e salve. Depois de salvar, o prato entra na ' + NOME_DIA[d.dia] + ' (' + dataBr(d.data) + ') do cardápio.');
+          el('pratoCancelar').textContent = 'Voltar ao cardápio sem cadastrar';
+          el('pratoCancelar').hidden = false;
+        } else {
+          aviso(el('pratoMsg'), 'ok', 'Complete e salve. Ao voltar para o Cardápio da semana, o prato já aparece na lista.');
+        }
+        (tipo === 'PRINCIPAL' ? el('pratoCategoria') : el('pratoNome')).focus();
+      });
+    }
+
+    function diaDoCardapio(data) { return semana ? semana.dias.filter(function (d) { return d.data === data; })[0] || null : null; }
+
+    /** Põe o prato recém-cadastrado no dia que pediu e volta ao cardápio. false se o dia não está mais na tela. */
+    function usarNoDia(destino, id, nome) {
+      var d = diaDoCardapio(destino.data);
+      if (!d) return false;
+      if (destino.papel === 'acomp' && (d.tipo !== 'PRATO' || d.acompanhamento_ids.length >= 5)) return false;
+      semana.pratos = pratos;
+      pratosMudaram = false;
+      if (destino.papel === 'principal') trocarPrincipal(d, id);
+      else if (d.acompanhamento_ids.indexOf(id) === -1) d.acompanhamento_ids.push(id);
+      mexeu(d);
+      el('tab-cardapio').click();
+      focarDepois = d.data + (destino.papel === 'principal' ? ':principal' : ':acomp');
+      desenharSemana();
+      validarSemanaDepois();
+      el('semMensagens').textContent = '';
+      aviso(el('semMensagens'), 'ok', '"' + nome + '" cadastrado e colocado na ' + NOME_DIA[d.dia] + '. Salve a semana para gravar.');
+      return true;
     }
 
     // ================= LISTA DE COMPRAS =================
     var SECAO = { ACOUGUE: 'Açougue', MERCEARIA: 'Mercearia', TEMPEROS: 'Temperos', LIMPEZA: 'Limpeza', SACOLAO: 'Sacolão' };
     var cmp = null;             // resposta de adminObterListaCompras
     var cmpQtd = {};            // item_id → quantidade na tela
-    var cmpGravado = '{}';      // quantidades como estão gravadas (para saber se mudou)
+    var cmpGravado = '[]';      // quantidades como chegaram do servidor, gravadas ou pré-preenchidas (para saber se mudou na tela)
     var cmpDestino = null;
     var cmpEditando = false;
+    var cmpRecolhidas = {};     // seção → true quando recolhida (fica assim ao trocar de semana)
     var itensCompra = [];       // cadastro (também usado no formulário de prato)
 
     function cmpVale(t) {
@@ -1123,17 +1566,23 @@
     function cmpAlterado() { return !!cmp && cmpChave(cmpValidas()) !== cmpGravado; }
     function cmpItemPorId(id) { for (var i = 0; i < itensCompra.length; i++) if (itensCompra[i].id === id) return itensCompra[i]; return null; }
 
-    function carregarCompras(terca) {
+    /** manterTela: recarrega a mesma semana sem perder as quantidades digitadas (só atualiza o que o cardápio pede). */
+    function carregarCompras(terca, manterTela) {
       el('cmpMensagens').textContent = '';
       el('cmpDescartar').hidden = true;
-      chamar('adminObterListaCompras', [terca || ''], receberCompras, el('cmpMensagens'));
+      chamar('adminObterListaCompras', [terca || ''], function (r) { receberCompras(r, manterTela); }, el('cmpMensagens'));
     }
 
-    function receberCompras(r) {
+    function receberCompras(r, manterTela) {
+      var tela = manterTela && cmp && cmp.terca === r.terca ? cmpQtd : null;
+      // Semana nova na tela: lista já salva abre só com o que vai comprar; lista a montar abre com todos os itens.
+      if (!cmp || cmp.terca !== r.terca) el('cmpSoCompra').checked = r.origem === 'SALVA';
       cmp = r;
       itensCompra = r.itens;
+      // A situação (salva ou não) fica na etiqueta; "alterações não salvas" é só o que mudou na tela.
       cmpQtd = Object.assign({}, r.quantidades);
-      cmpGravado = r.origem === 'SALVA' ? cmpChave(cmpValidas()) : '{}';
+      cmpGravado = cmpChave(cmpValidas());
+      if (tela) cmpQtd = tela;
       desenharCompras();
       if (el('pratoCompras')) desenharComprasPrato();
     }
@@ -1155,12 +1604,22 @@
       var sit = { SALVA: ['Salva', ''], ANTERIOR: ['Não salva', 'nova'], NOVA: ['Não salva', 'nova'] }[cmp.origem];
       el('cmpSituacao').textContent = sit[0];
       el('cmpSituacao').className = 'etiqueta ' + sit[1];
-      var semCardapio = cmp.cardapio_definido ? '' : ' O cardápio desta semana ainda está vazio; as carnes entram quando você escolher os pratos.';
+      // A lista lê o cardápio gravado: edição pendente no cardápio da mesma semana ainda não chegou aqui.
+      var cardapioPendente = !!semana && semana.terca === cmp.terca && haAlteracoes();
+      // Só promete o açougue preenchido quando algum prato da semana tem "Para comprar".
+      var pedeAlgo = Object.keys(cmp.sugestao).length > 0;
+      var doCardapio = !cmp.cardapio_definido
+        ? (cardapioPendente ? '' : ' O cardápio desta semana ainda está vazio; as carnes entram quando você escolher os pratos.')
+        : pedeAlgo ? '' : ' Os pratos desta semana não têm nada em "Para comprar" (aba Pratos), então o açougue não vem preenchido.';
       el('cmpNota').textContent = {
         SALVA: 'Lista salva. Item vazio ou 0 não entra na lista que vai para o WhatsApp.',
-        ANTERIOR: 'Começou com as quantidades da semana passada, e o açougue com o que os pratos do cardápio pedem. Ajuste e salve.' + semCardapio,
-        NOVA: 'Preencha as quantidades; item vazio ou 0 não entra na lista. O açougue já vem com o que os pratos do cardápio pedem.' + semCardapio
+        ANTERIOR: 'Começou com as quantidades da semana passada' + (pedeAlgo ? ', e o açougue com o que os pratos do cardápio pedem' : '') + '. Ajuste e salve.' + doCardapio,
+        NOVA: 'Preencha as quantidades; item vazio ou 0 não entra na lista.' + (pedeAlgo ? ' O açougue já vem com o que os pratos do cardápio pedem.' : '') + doCardapio
       }[cmp.origem];
+      el('cmpAvisoCardapio').textContent = '';
+      if (cardapioPendente) {
+        aviso(el('cmpAvisoCardapio'), 'alerta', 'O cardápio desta semana tem alterações não salvas. A lista usa o cardápio salvo: salve o cardápio e volte aqui para atualizar.');
+      }
       el('cmpEditar').setAttribute('aria-pressed', String(cmpEditando));
       el('cmpEditar').textContent = cmpEditando ? 'Concluir edição' : 'Editar itens';
 
@@ -1170,9 +1629,21 @@
         var itens = itensCompra.filter(function (i) { return i.secao === secao && (i.situacao === 'ATIVO' || cmpVale(cmpQtd[i.id])); });
         var sec = criar('section', undefined, 'secao-compra');
         sec.dataset.secao = secao;
-        var h = criar('h3', SECAO[secao]);
-        h.appendChild(criar('span', '', 'conta'));
+        // Título da seção recolhe e abre os itens; a contagem continua visível.
+        var h = criar('h3');
+        var bSecao = criar('button', undefined, 'secao-titulo');
+        bSecao.setAttribute('aria-expanded', String(!cmpRecolhidas[secao]));
+        bSecao.appendChild(criar('span', SECAO[secao], 'secao-nome'));
+        bSecao.appendChild(criar('span', '', 'conta'));
+        bSecao.insertAdjacentHTML('beforeend', '<svg class="seta-secao" viewBox="0 0 12 12" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 4.5 3 3 3-3"/></svg>');
+        bSecao.onclick = function () {
+          cmpRecolhidas[secao] = !cmpRecolhidas[secao];
+          sec.classList.toggle('recolhida', cmpRecolhidas[secao]);
+          bSecao.setAttribute('aria-expanded', String(!cmpRecolhidas[secao]));
+        };
+        h.appendChild(bSecao);
         sec.appendChild(h);
+        if (cmpRecolhidas[secao]) sec.classList.add('recolhida');
         var grade = criar('div', undefined, 'grade-itens');
         itens.forEach(function (it) { grade.appendChild(linhaItemCompra(it)); });
         sec.appendChild(grade);
@@ -1200,10 +1671,10 @@
           if (!novo || novo === it.nome) { campoNome.value = it.nome; return; }
           chamar('adminSalvarItemCompra', [{ id: it.id, secao: it.secao, nome: novo }], function (r) { it.nome = r.nome; }, el('cmpMensagens'));
         };
-        var remover = criar('button', 'Remover', 'pequeno perigo');
+        var remover = criar('button', 'Tirar da lista', 'pequeno perigo');
         remover.title = 'Some da lista; as semanas antigas não mudam';
         remover.onclick = function () {
-          if (!confirmarNoBotao(remover, 'Remover', 'Confirmar?')) return;
+          if (!confirmarNoBotao(remover, 'Tirar da lista', 'Confirmar?')) return;
           chamar('adminAlterarSituacaoItemCompra', [it.id, 'INATIVO'], function () {
             it.situacao = 'INATIVO';
             delete cmpQtd[it.id];
@@ -1221,6 +1692,7 @@
       }
       var pede = criar('span', '', 'pede');
       nome.appendChild(pede);
+      nome.appendChild(criar('span', '', 'antes'));
       linha.appendChild(nome);
 
       var qtd = criar('input', undefined, 'qtd');
@@ -1230,12 +1702,12 @@
       qtd.value = cmpQtd[it.id] || '';
       qtd.placeholder = '—';
       qtd.setAttribute('aria-label', 'Quantidade de ' + it.nome);
-      qtd.oninput = function () { cmpQtd[it.id] = qtd.value; marcarItemCompra(linha, it); atualizarRodapeCompras(); };
+      qtd.oninput = function () { cmpQtd[it.id] = qtd.value; marcarItemCompra(linha, it); contarSecao(linha.closest('.secao-compra')); atualizarRodapeCompras(); };
       qtd.onkeydown = function (ev) {
         // Enter desce para o próximo item, como na planilha.
         if (ev.key !== 'Enter') return;
         ev.preventDefault();
-        var todos = Array.prototype.filter.call(document.querySelectorAll('#cmpSecoes input.qtd'), function (x) { return !x.closest('[hidden]'); });
+        var todos = Array.prototype.filter.call(document.querySelectorAll('#cmpSecoes input.qtd'), function (x) { return x.getClientRects().length > 0; }); // só os visíveis (filtro, busca, seção recolhida)
         var prox = todos[todos.indexOf(qtd) + 1];
         if (prox) { prox.focus(); prox.select(); }
       };
@@ -1248,6 +1720,10 @@
     function marcarItemCompra(linha, it) {
       var valor = String(cmpQtd[it.id] || '').trim();
       linha.classList.toggle('tem', cmpVale(valor));
+      // Dica da semana passada, só quando a quantidade desta semana é diferente.
+      var passada = String((cmp.semana_passada || {})[it.id] || '').trim();
+      var mesmo = function (a, b) { return semAcento(a).replace(/s+/g, '') === semAcento(b).replace(/s+/g, ''); };
+      linha.querySelector('.antes').textContent = passada && !mesmo(passada, valor) ? 'semana passada: ' + passada : '';
       var s = cmp.sugestao[it.id];
       var pede = linha.querySelector('.pede');
       if (!s) { pede.textContent = ''; return; }
@@ -1281,9 +1757,17 @@
       return caixa;
     }
 
+    /** "N itens para comprar" no título da seção (visível também com a seção recolhida). */
+    function contarSecao(sec) {
+      var n = Array.prototype.filter.call(sec.querySelectorAll('.item-compra'), function (l) { return cmpVale(cmpQtd[l.dataset.id]); }).length;
+      sec.querySelector('.conta').textContent = n ? plural(n, 'item para comprar', 'itens para comprar') : '';
+      return n;
+    }
+
     function filtrarCompras() {
       var f = semAcento(el('cmpBusca').value.trim());
       var so = el('cmpSoCompra').checked;
+      var secoesVisiveis = 0;
       Array.prototype.forEach.call(document.querySelectorAll('.secao-compra'), function (sec) {
         var visiveis = 0;
         var marcados = 0;
@@ -1295,7 +1779,12 @@
         });
         sec.querySelector('.conta').textContent = marcados ? plural(marcados, 'item para comprar', 'itens para comprar') : '';
         sec.hidden = !visiveis && !cmpEditando;
+        if (!sec.hidden) secoesVisiveis++;
       });
+      el('cmpSecoes').classList.toggle('buscando', !!f); // buscando: seções recolhidas mostram o que achou
+      el('cmpVazio').hidden = !!secoesVisiveis;
+      el('cmpVazio').textContent = f ? 'Nenhum item com "' + el('cmpBusca').value.trim() + '".'
+        : 'Nada marcado para comprar nesta semana. Desmarque "Só o que vai comprar" para ver todos os itens.';
       atualizarRodapeCompras();
     }
 
@@ -1434,12 +1923,55 @@
 
     function pratoNaLista(id) { for (var i = 0; i < pratos.length; i++) if (pratos[i].id === id) return pratos[i]; return null; }
 
-    function carregarPratos() {
-      chamar('adminListarPratos', [], function (lista) { pratos = lista; desenharPratos(); desenharCaixaAcomp(); }, el('pratoListaErro'));
+    var pratoDestino = null;     // dia do cardápio que pediu o cadastro (ver cadastrarPrato)
+    var pratoFormInicial = '';   // estado do formulário ao abrir (para saber se há algo não salvo)
+
+    function carregarPratos(depois) {
+      chamar('adminListarPratos', [], function (lista) {
+        pratos = lista;
+        desenharPratos();
+        desenharCaixaAcomp();
+        if (depois) depois();
+      }, el('pratoListaErro'));
+    }
+
+    function acompMarcados() {
+      return Array.prototype.filter.call(el('pratoAcomp').querySelectorAll('input[type=checkbox]'), function (cb) { return cb.checked; })
+        .map(function (cb) { return cb.value; });
+    }
+    function fixosDispensados() {
+      return Array.prototype.filter.call(el('pratoFixos').querySelectorAll('input[type=checkbox]'), function (cb) { return !cb.checked; })
+        .map(function (cb) { return cb.value; });
+    }
+    function estadoPratoForm() {
+      return JSON.stringify([tipoPratos, el('pratoNome').value.trim(), el('pratoCategoria').value, el('pratoSexta').checked,
+        acompMarcados(), fixosDispensados(), comprasForm.filter(function (c) { return c.item_id; })]);
+    }
+    function marcarPratoFormLimpo() { pratoFormInicial = estadoPratoForm(); }
+    function pratoFormMudou() { return !!pratoFormInicial && estadoPratoForm() !== pratoFormInicial; }
+
+    /** Antes de trocar o que está no formulário de prato: se há algo não salvo, pergunta. */
+    function semPerderPrato(acao) {
+      if (!pratoFormMudou()) { acao(); return; }
+      var alvo = el('pratoMsg');
+      alvo.textContent = '';
+      aviso(alvo, 'alerta', 'O prato "' + (el('pratoNome').value.trim() || 'sem nome') + '" ainda não foi salvo.');
+      var linha = criar('div', undefined, 'proximos');
+      var bDescartar = criar('button', 'Descartar e continuar', 'pequeno');
+      bDescartar.onclick = function () { alvo.textContent = ''; acao(); };
+      var bVoltar = criar('button', 'Voltar ao formulário', 'pequeno primario');
+      bVoltar.onclick = function () { alvo.textContent = ''; el('pratoNome').focus(); };
+      linha.appendChild(bDescartar);
+      linha.appendChild(bVoltar);
+      alvo.lastElementChild.appendChild(linha);
+      bVoltar.focus();
     }
 
     Array.prototype.forEach.call(document.querySelectorAll('.alternador button'), function (b) {
-      b.onclick = function () { mudarTipoPratos(b.dataset.tipo); editarPrato(null); };
+      b.onclick = function () {
+        if (b.dataset.tipo === tipoPratos) return;
+        semPerderPrato(function () { mudarTipoPratos(b.dataset.tipo); editarPrato(null); });
+      };
     });
 
     function mudarTipoPratos(tipo) {
@@ -1482,12 +2014,12 @@
         var tdCat = criar('td');
         if (p.tipo === 'PRINCIPAL') {
           tdCat.appendChild(criar('span', CATEGORIA[p.categoria] || p.categoria, 'etiqueta' + (ativo ? '' : ' inativo')));
-          if (p.so_sexta === 'SIM') { tdCat.appendChild(document.createTextNode(' ')); tdCat.appendChild(criar('span', 'sexta', 'etiqueta rascunho')); }
+          if (p.so_sexta === 'SIM') { tdCat.appendChild(document.createTextNode(' ')); tdCat.appendChild(criar('span', 'Só sexta', 'etiqueta contorno')); }
         }
         tr.appendChild(tdCat);
         var tdB = criar('td', undefined, 'botoes');
         var bEd = criar('button', 'Editar', 'pequeno');
-        bEd.onclick = function () { editarPrato(p); };
+        bEd.onclick = function () { semPerderPrato(function () { editarPrato(p); }); };
         var rotulo = ativo ? 'Inativar' : 'Reativar';
         var bSit = criar('button', rotulo, 'pequeno' + (ativo ? ' perigo' : ''));
         bSit.onclick = function () {
@@ -1534,7 +2066,7 @@
       var caixa = el('pratoFixos');
       caixa.textContent = '';
       var fixos = semana ? semana.fixos : [];
-      if (!fixos.length) { caixa.appendChild(criar('div', 'Nenhum item de todo dia configurado (aba Configuracoes, ITENS_FIXOS).', 'muted')); return; }
+      if (!fixos.length) { caixa.appendChild(criar('div', 'Nenhum item de todo dia (como arroz e feijão) está configurado. Peça para quem mantém o sistema incluir.', 'muted')); return; }
       fixos.forEach(function (f) {
         var lab = criar('label', undefined, 'filtro');
         lab.style.marginRight = '1rem';
@@ -1558,41 +2090,51 @@
       el('pratoCategoria').value = p && principal ? p.categoria : 'CARNE';
       el('pratoSexta').checked = !!p && p.so_sexta === 'SIM';
       el('pratoCancelar').hidden = !p;
+      el('pratoCancelar').textContent = 'Cancelar edição';
       el('pratoMsg').textContent = '';
+      pratoDestino = null;
       desenharCaixaAcomp(p && principal ? p.acompanhamentos : []);
       desenharFixos(p && principal ? p.sem_fixos : []);
       comprasForm = (p && principal ? p.compras || [] : []).map(function (c) { return { item_id: c.item_id, quantidade: c.quantidade }; });
       desenharComprasPrato();
+      marcarPratoFormLimpo();
       if (p) el('pratoNome').focus();
     }
 
-    el('pratoCancelar').onclick = function () { editarPrato(null); };
+    el('pratoCancelar').onclick = function () {
+      var destino = pratoDestino;
+      editarPrato(null);
+      if (!destino) return;
+      // Veio do "Cadastrar" de um dia: volta para aquele dia.
+      el('tab-cardapio').click();
+      var campo = document.querySelector('[data-foco="' + destino.data + (destino.papel === 'principal' ? ':principal' : ':acomp') + '"]');
+      if (campo) campo.focus();
+    };
     el('pratoFiltro').oninput = desenharPratos;
     el('pratoInativos').onchange = desenharPratos;
 
     el('pratoSalvar').onclick = function () {
-      var marcados = Array.prototype.filter.call(el('pratoAcomp').querySelectorAll('input[type=checkbox]'), function (cb) { return cb.checked; })
-        .map(function (cb) { return cb.value; });
+      var principal = tipoPratos === 'PRINCIPAL';
       var dados = {
         id: pratoEditando ? pratoEditando.id : '',
         tipo: tipoPratos,
         nome: el('pratoNome').value,
         categoria: el('pratoCategoria').value,
         so_sexta: el('pratoSexta').checked ? 'SIM' : 'NAO',
-        acompanhamentos: tipoPratos === 'PRINCIPAL' ? marcados : [],
-        sem_fixos: tipoPratos === 'PRINCIPAL'
-          ? Array.prototype.filter.call(el('pratoFixos').querySelectorAll('input[type=checkbox]'), function (cb) { return !cb.checked; })
-              .map(function (cb) { return cb.value; })
-          : [],
-        compras: tipoPratos === 'PRINCIPAL' ? comprasForm.filter(function (c) { return c.item_id; }) : []
+        acompanhamentos: principal ? acompMarcados() : [],
+        sem_fixos: principal ? fixosDispensados() : [],
+        compras: principal ? comprasForm.filter(function (c) { return c.item_id; }) : []
       };
       el('pratoMsg').textContent = '';
-      chamar('adminSalvarPrato', [dados], function () {
+      chamar('adminSalvarPrato', [dados], function (id) {
         var nome = dados.nome.trim();
+        var destino = pratoDestino;
         editarPrato(null);
-        aviso(el('pratoMsg'), 'ok', 'Salvo: ' + nome);
         pratosMudaram = true;
-        carregarPratos();
+        carregarPratos(function () {
+          if (destino && usarNoDia(destino, id, nome)) return;
+          aviso(el('pratoMsg'), 'ok', 'Salvo: ' + nome);
+        });
       }, el('pratoMsg'));
     };
 
@@ -1643,7 +2185,7 @@
           btnRen.onclick = function () { renomear(f, tr); };
           var rotulo = ativo ? 'Inativar' : 'Reativar';
           var btnSit = criar('button', rotulo, 'pequeno' + (ativo ? ' perigo' : ''));
-          btnSit.title = ativo ? 'Deixa de aparecer no web app; o histórico é mantido' : '';
+          btnSit.title = ativo ? 'Sai da lista de nomes da tela de pedidos; o histórico é mantido' : '';
           btnSit.onclick = function () {
             if (ativo && !confirmarNoBotao(btnSit, rotulo)) return;
             el('erroLista').textContent = '';
@@ -1664,28 +2206,39 @@
       }
     }
 
+    /** Renomear na própria linha: Enter ou Salvar grava, Esc ou Cancelar desiste. Sair do campo não grava sozinho. */
     function renomear(f, tr) {
       var td = tr.firstChild;
       td.textContent = '';
+      var caixa = criar('div', undefined, 'renomear');
       var input = criar('input');
       input.type = 'text';
       input.value = f.nome;
       input.maxLength = 60;
-      td.appendChild(input);
+      input.setAttribute('aria-label', 'Novo nome de ' + f.nome);
+      var bSalvar = criar('button', 'Salvar', 'pequeno primario');
+      var bCancelar = criar('button', 'Cancelar', 'pequeno');
+      caixa.appendChild(input);
+      caixa.appendChild(bSalvar);
+      caixa.appendChild(bCancelar);
+      td.appendChild(caixa);
       input.focus();
       input.select();
       var concluir = function (salvar) {
-        input.onblur = null;
         var novo = input.value.trim();
         if (!salvar || !novo || novo === f.nome) { desenharFuncionarios(); return; }
         el('erroLista').textContent = '';
-        chamar('adminRenomearFuncionario', [f.id, novo], carregarFuncionarios, el('erroLista'));
+        chamar('adminRenomearFuncionario', [f.id, novo], function () {
+          carregarFuncionarios();
+          aviso(el('erroLista'), 'ok', '"' + f.nome + '" agora se chama "' + novo + '".');
+        }, el('erroLista'));
       };
       input.onkeydown = function (ev) {
-        if (ev.key === 'Enter') concluir(true);
-        if (ev.key === 'Escape') concluir(false);
+        if (ev.key === 'Enter') { ev.preventDefault(); concluir(true); }
+        if (ev.key === 'Escape') { ev.preventDefault(); concluir(false); }
       };
-      input.onblur = function () { concluir(true); };
+      bSalvar.onclick = function () { concluir(true); };
+      bCancelar.onclick = function () { concluir(false); };
     }
 
     el('btnAdicionar').onclick = function () {
@@ -1789,19 +2342,56 @@
     };
 
     // ---------------- início ----------------
+    /** Se uma carga inicial falha, a mensagem de erro ganha "Tentar de novo", que repete só aquela etapa. */
+    function falhaInicial(alvo, titulos, repetir) {
+      return function () {
+        titulos.forEach(function (id) { if (el(id).textContent === 'Carregando…') el(id).textContent = 'Não foi possível carregar'; });
+        var caixa = alvo.lastElementChild;
+        if (!caixa) return;
+        var b = criar('button', 'Tentar de novo', 'pequeno');
+        b.style.marginTop = '.4rem';
+        b.onclick = function () {
+          alvo.textContent = '';
+          titulos.forEach(function (id) { if (el(id).textContent === 'Não foi possível carregar') el(id).textContent = 'Carregando…'; });
+          repetir();
+        };
+        caixa.appendChild(b);
+        b.focus();
+      };
+    }
+
     // Uma chamada por vez: as cargas são encadeadas para não disputar o estado "ocupado".
-    chamar('adminObterSemana', [''], function (r) {
-      pratos = r.pratos;
-      receberSemana(r);
-      desenharPratos();
-      desenharCaixaAcomp([]);
-      desenharFixos([]);
+    function carregarInicio() {
+      chamar('adminObterSemana', [''], function (r) {
+        pratos = r.pratos;
+        receberSemana(r);
+        desenharPratos();
+        desenharCaixaAcomp([]);
+        desenharFixos([]);
+        marcarPratoFormLimpo();
+        carregarFuncionariosInicio();
+      }, el('semMensagens'), falhaInicial(el('semMensagens'), ['semTitulo', 'cmpTitulo'], carregarInicio));
+    }
+    function carregarFuncionariosInicio() {
       chamar('adminListarFuncionarios', [], function (lista) {
         funcionarios = lista;
         desenharFuncionarios();
-        chamar('adminObterListaCompras', [r.terca], function (c) { receberCompras(c); desenharPratos(); }, el('cmpMensagens'));
-      }, el('erroLista'));
-    }, el('semMensagens'));
+        carregarComprasInicio();
+      }, el('erroLista'), falhaInicial(el('erroLista'), ['cmpTitulo'], carregarFuncionariosInicio));
+    }
+    function carregarComprasInicio() {
+      chamar('adminObterListaCompras', [semana.terca], function (c) { receberCompras(c); desenharPratos(); },
+        el('cmpMensagens'), falhaInicial(el('cmpMensagens'), ['cmpTitulo'], carregarComprasInicio));
+    }
+    carregarInicio();
+
+    // Fechar ou recarregar a página com algo não salvo: o navegador pergunta antes.
+    window.addEventListener('beforeunload', function (ev) {
+      if ((semana && haAlteracoes()) || cmpAlterado() || pratoFormMudou()) {
+        ev.preventDefault();
+        ev.returnValue = '';
+      }
+    });
   </script>
 </body>
 </html>

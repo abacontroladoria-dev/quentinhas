@@ -270,6 +270,8 @@ function adminObterListaCompras(terca) {
     origem: lista.origem,
     salva_em: salva ? String(salva.atualizado_em || '') : '',
     quantidades: lista.quantidades,
+    // Quantidades gravadas na semana anterior: a tela mostra como dica quando a desta semana é diferente.
+    semana_passada: anterior ? lerObjeto_(anterior.quantidades) : {},
     sugestao: sugestao,
     itens: itens
   };

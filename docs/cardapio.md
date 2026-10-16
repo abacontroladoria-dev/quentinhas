@@ -27,7 +27,7 @@ Dois tipos, alternados no topo da lista:
 2. Para cada dia: escolher o **principal** num campo com busca (digite parte do nome; os acompanhamentos de costume entram automaticamente), tirar (×) ou acrescentar acompanhamentos, ou marcar **Sem almoço** (com motivo, ex.: "Feriado"; "Voltar a ter almoço" restaura o prato anterior).
    - Na lista, cada principal mostra "já na quarta" (repetiria na semana) ou "saiu há 2 semanas" (últimos 6 ciclos).
    - Se o prato não existir, "Cadastrar" leva à aba Pratos com o nome preenchido.
-   - **Sortear outro** troca só aquele dia, com as mesmas regras abaixo e sem repetir o principal atual. **Desfazer sorteio** volta os dias sorteados ao que eram.
+   - **Sugerir outro** troca só aquele dia, com as mesmas regras abaixo e sem repetir o principal atual. **Desfazer sugestão** volta os dias sugeridos ao que eram.
    - Avisos e erros aparecem embaixo do próprio dia. Na semana publicada, o dia cuja combinação mudou avisa que os pedidos vão para revisão ao salvar.
 3. **Sugerir dias vazios** reproduz a macro `GerarCardapio` para o principal:
    - sexta usa principais "só sexta" (se não houver, usa os demais); os outros dias usam os que não são só de sexta;

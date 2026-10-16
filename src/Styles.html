@@ -10,6 +10,7 @@
     --surface: #FFFFFF;
     --text: #18292F;
     --muted: #566A71;
+    --muted-forte: #4E6269;     /* texto secundário sobre fundo --line (etiquetas neutras): 5:1 */
     --line: #DCE4E6;
     --line-strong: #B9C8CC;
     --accent: #1E5A6E;          /* petróleo */
@@ -20,6 +21,7 @@
     --ok-bg: #E4EEF1;
     --warn: #7E520A;
     --warn-bg: #FBF1DC;
+    --warn-mark: #C9922E;       /* âmbar-marco: marco do dia alterado no trilho */
     --err-bg: #FBECEA;
     --radius: 10px;
     --font: "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -51,7 +53,8 @@
   button:disabled { opacity: .5; cursor: default; }
   button.primario { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
   button.primario:hover { background: var(--accent-dark); border-color: var(--accent-dark); }
-  button.perigo { color: var(--danger); }
+  /* Ações que tiram algo (Inativar, Remover, Trocar link): neutras em repouso; vermelhas só no "Confirmar?". */
+  button.perigo[data-confirmar] { color: var(--danger); border-color: var(--danger); background: var(--err-bg); }
   button.pequeno { padding: .2rem .6rem; font-size: .85rem; }
   button.discreto { border-color: transparent; background: transparent; color: var(--accent); padding-inline: .5rem; }
   button.discreto:hover { background: var(--accent-soft); }
@@ -78,7 +81,7 @@
   th, td { text-align: left; padding: .4rem .5rem; border-bottom: 1px solid var(--line); vertical-align: middle; }
   th { font-size: .85rem; color: var(--muted); font-weight: 600; }
   .etiqueta { display: inline-block; font-size: .78rem; font-weight: 600; padding: .1rem .55rem; border-radius: 999px; background: var(--accent-soft); color: var(--accent-dark); }
-  .etiqueta.inativo { background: var(--line); color: var(--muted); }
+  .etiqueta.inativo { background: var(--line); color: var(--muted-forte); }
   tr.inativo td:first-child { color: var(--muted); }
 
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }

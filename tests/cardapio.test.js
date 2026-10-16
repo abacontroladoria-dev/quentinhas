@@ -106,6 +106,22 @@ test('pessoasQueResponderam_: conta funcionários distintos da semana', () => {
   assert.equal(c.pessoasQueResponderam_(pedidos, '2026-10-27'), 0);
 });
 
+test('pedidosPorDia_: conta confirmados da semana que ainda não estão em revisão', () => {
+  const pedidos = [
+    { funcionario_id: 'F1', semana_id: '2026-10-20', data: '2026-10-21', situacao: 'CONFIRMADO', revisao: '' },
+    { funcionario_id: 'F2', semana_id: '2026-10-20', data: '2026-10-21', situacao: 'CONFIRMADO', revisao: '' },
+    { funcionario_id: 'F3', semana_id: '2026-10-20', data: '2026-10-21', situacao: 'CONFIRMADO', revisao: 'PENDENTE' },
+    { funcionario_id: 'F4', semana_id: '2026-10-20', data: '2026-10-21', situacao: 'CANCELADO', revisao: '' },
+    { funcionario_id: 'F1', semana_id: '2026-10-20', data: '2026-10-24', situacao: 'CONFIRMADO', revisao: '' },
+    { funcionario_id: 'F1', semana_id: '2026-10-13', data: '2026-10-14', situacao: 'CONFIRMADO', revisao: '' },
+  ];
+  // Espalhado num objeto daqui: o resultado vem do contexto do vm (outro protótipo de Object).
+  assert.deepEqual({ ...c.pedidosPorDia_(pedidos, '2026-10-20') }, { '2026-10-21': 2, '2026-10-24': 1 });
+  assert.deepEqual({ ...c.pedidosPorDia_(pedidos, '2026-10-27') }, {});
+  // A contagem mostrada na tela inclui os que já estão em revisão.
+  assert.deepEqual({ ...c.confirmadosPorDia_(pedidos, '2026-10-20') }, { '2026-10-21': 3, '2026-10-24': 1 });
+});
+
 test('sugerirSemana_: banco sem principais informa dias sem candidato', () => {
   assert.equal(c.sugerirSemana_(vazia(), acomp, new Set(), semente(1)).semCandidato.length, 5);
 });
