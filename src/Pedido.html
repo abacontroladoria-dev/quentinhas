@@ -107,7 +107,12 @@
   /* Cardápio da semana (só leitura) */
   .ver-cardapio { width: 100%; min-height: 50px; margin: -8px 0 24px; font-size: var(--t1); }
   .voltar { margin: 0 0 6px -.6rem; }
-  .cardapio-semana { margin-bottom: 32px; }
+  .navega-semana { display: grid; grid-template-columns: 48px 1fr 48px; align-items: center; gap: 8px; margin-bottom: 14px; }
+  .navega-semana .seta { width: 48px; height: 48px; padding: 0; font-size: var(--t3); line-height: 1; }
+  .navega-semana .seta:disabled { visibility: hidden; }
+  .navega-semana .rotulo { text-align: center; }
+  .navega-semana .qual { display: block; font-size: var(--t-1); color: var(--tinta-suave); }
+  .navega-semana .datas { display: block; font-size: var(--t1); font-weight: 700; }
   .cardapio-dia { display: grid; gap: 2px; padding: 12px 2px; border-bottom: 1px solid var(--linha); }
   .cardapio-dia:first-of-type { border-top: 1px solid var(--linha); }
   .cardapio-dia .quando { font-weight: 700; font-size: var(--t0); }
@@ -147,6 +152,11 @@
     <button class="botao discreto voltar" id="voltarPedidos">‹ Voltar aos pedidos</button>
     <h1 class="titulo">Cardápio da semana</h1>
     <p class="intro">De segunda a sexta.</p>
+    <div class="navega-semana">
+      <button class="botao seta" id="semanaAnterior" aria-label="Semana anterior">‹</button>
+      <p class="rotulo" aria-live="polite"><span class="qual" id="semanaQual"></span><span class="datas" id="semanaDatas"></span></p>
+      <button class="botao seta" id="semanaSeguinte" aria-label="Próxima semana">›</button>
+    </div>
     <div id="cardapio"></div>
   </section>
 
@@ -537,6 +547,8 @@
   // ---------------- cardápio da semana ----------------
   // As escolhas não salvas ficam em `escolhas`; ao voltar, a tela de pedidos continua como estava.
   var rolagemPedidos = 0;
+  var cardapio = null;     // resposta de apiCardapioDaSemana: esta semana e a próxima
+  var semanaCardapio = 0;  // índice em cardapio.semanas
 
   el('verCardapio').onclick = function () {
     rolagemPedidos = window.scrollY;
@@ -544,7 +556,9 @@
     aviso(el('mensagem'), '', '');
     mostrar('carregando');
     chamarApi('apiCardapioDaSemana', [], function (r) {
-      desenharCardapio(r);
+      cardapio = r;
+      semanaCardapio = 0;
+      desenharCardapio();
       mostrar('cardapio');
       window.scrollTo(0, 0);
     }, el('mensagem'), voltarPedidos);
@@ -557,30 +571,36 @@
   }
   el('voltarPedidos').onclick = voltarPedidos;
 
-  function desenharCardapio(r) {
+  /** Uma semana por vez; as setas trocam entre esta semana e a próxima. */
+  function desenharCardapio() {
+    var s = cardapio.semanas[semanaCardapio];
+    el('semanaQual').textContent = semanaCardapio ? 'Próxima semana' : 'Esta semana';
+    el('semanaDatas').textContent = intervaloBr(s.dias[0].data, s.dias[s.dias.length - 1].data);
+    el('semanaAnterior').disabled = semanaCardapio === 0;
+    el('semanaSeguinte').disabled = semanaCardapio === cardapio.semanas.length - 1;
     var caixa = el('cardapio');
     caixa.textContent = '';
-    r.semanas.forEach(function (s, i) {
-      // A próxima semana só aparece quando já tem algum dia publicado.
-      if (i > 0 && !s.dias.some(function (d) { return d.publicado; })) return;
-      var sec = criar('section', undefined, 'cardapio-semana');
-      sec.appendChild(criar('h2', (i ? 'Próxima semana, ' : 'Esta semana, ') + intervaloBr(s.dias[0].data, s.dias[s.dias.length - 1].data), 'semana'));
-      s.dias.forEach(function (d) {
-        var linha = criar('article', undefined, 'cardapio-dia');
-        var quando = criar('span', maiuscula(diaExtenso(d.data)), 'quando');
-        if (d.data === r.hoje) quando.appendChild(criar('span', 'hoje', 'hoje'));
-        linha.appendChild(quando);
-        if (!d.publicado) linha.appendChild(criar('span', 'Cardápio ainda não publicado.', 'vazio'));
-        else if (d.tipo !== 'PRATO') linha.appendChild(criar('span', d.observacao || 'Sem almoço neste dia.', 'vazio'));
-        else {
-          linha.appendChild(criar('span', d.prato.replace(/ \/ /g, ', '), 'prato'));
-          if (d.observacao) linha.appendChild(criar('span', d.observacao, 'obs'));
-        }
-        sec.appendChild(linha);
-      });
-      caixa.appendChild(sec);
+    if (!s.dias.some(function (d) { return d.publicado; })) {
+      caixa.appendChild(criar('p', 'O cardápio desta semana ainda não foi publicado. Volte mais tarde.', 'intro'));
+      return;
+    }
+    s.dias.forEach(function (d) {
+      var linha = criar('article', undefined, 'cardapio-dia');
+      var quando = criar('span', maiuscula(diaExtenso(d.data)), 'quando');
+      if (d.data === cardapio.hoje) quando.appendChild(criar('span', 'hoje', 'hoje'));
+      linha.appendChild(quando);
+      if (!d.publicado) linha.appendChild(criar('span', 'Cardápio ainda não publicado.', 'vazio'));
+      else if (d.tipo !== 'PRATO') linha.appendChild(criar('span', d.observacao || 'Sem almoço neste dia.', 'vazio'));
+      else {
+        linha.appendChild(criar('span', d.prato.replace(/ \/ /g, ', '), 'prato'));
+        if (d.observacao) linha.appendChild(criar('span', d.observacao, 'obs'));
+      }
+      caixa.appendChild(linha);
     });
   }
+
+  el('semanaAnterior').onclick = function () { semanaCardapio--; desenharCardapio(); };
+  el('semanaSeguinte').onclick = function () { semanaCardapio++; desenharCardapio(); };
 
   iniciar();
 </script>
