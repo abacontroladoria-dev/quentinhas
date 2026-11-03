@@ -27,7 +27,7 @@ test('executarApi_: erros viram {ok:false, erro}', () => {
 });
 
 test('ACOES_API_: expõe só as funções públicas do web app', () => {
-  assert.deepEqual(Object.keys(api.ACOES_API_).sort(), ['apiAdmin', 'apiCozinha', 'apiInicio', 'apiPedidosDoFuncionario', 'apiSalvarPedidos']);
+  assert.deepEqual(Object.keys(api.ACOES_API_).sort(), ['apiAdmin', 'apiCardapioDaSemana', 'apiCozinha', 'apiInicio', 'apiPedidosDoFuncionario', 'apiSalvarPedidos']);
 });
 
 test('montar-site: páginas sem scriptlets do Apps Script e usando api.js', () => {

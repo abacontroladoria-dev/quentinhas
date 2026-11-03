@@ -103,6 +103,17 @@
   .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); max-width: calc(100% - 32px); background: var(--petroleo-escuro); color: #fff; padding: .7rem 1.1rem; border-radius: var(--raio-controle); font-weight: 600; box-shadow: 0 6px 20px rgba(21, 68, 82, .25); }
   .toast[hidden] { display: none; }
   .carregando { padding: 48px 0; color: var(--tinta-suave); }
+
+  /* Cardápio da semana (só leitura) */
+  .ver-cardapio { width: 100%; min-height: 50px; margin: -8px 0 24px; font-size: var(--t1); }
+  .voltar { margin: 0 0 6px -.6rem; }
+  .cardapio-semana { margin-bottom: 32px; }
+  .cardapio-dia { display: grid; gap: 2px; padding: 12px 2px; border-bottom: 1px solid var(--linha); }
+  .cardapio-dia:first-of-type { border-top: 1px solid var(--linha); }
+  .cardapio-dia .quando { font-weight: 700; font-size: var(--t0); }
+  .cardapio-dia .hoje { margin-left: .4rem; font-size: var(--t-1); font-weight: 700; color: var(--petroleo); }
+  .cardapio-dia .prato { font-size: var(--t1); line-height: 1.3; }
+  .cardapio-dia .obs, .cardapio-dia .vazio { font-size: var(--t0); color: var(--tinta-suave); }
 </style>
 
 <div class="app">
@@ -128,7 +139,15 @@
   <section id="telaPedidos" hidden>
     <h1 class="titulo" id="ola"></h1>
     <p class="intro">Marque os dias em que você quer marmita.</p>
+    <button class="botao ver-cardapio" id="verCardapio">Ver cardápio da semana</button>
     <div id="semanas"></div>
+  </section>
+
+  <section id="telaCardapio" hidden>
+    <button class="botao discreto voltar" id="voltarPedidos">‹ Voltar aos pedidos</button>
+    <h1 class="titulo">Cardápio da semana</h1>
+    <p class="intro">De segunda a sexta.</p>
+    <div id="cardapio"></div>
   </section>
 
   <p class="carregando" id="carregando">Carregando…</p>
@@ -153,6 +172,7 @@
     el('carregando').hidden = tela !== 'carregando';
     el('telaNome').hidden = tela !== 'nome';
     el('telaPedidos').hidden = tela !== 'pedidos';
+    el('telaCardapio').hidden = tela !== 'cardapio';
     el('trocar').hidden = tela !== 'pedidos';
   }
 
@@ -513,6 +533,54 @@
       window.scrollTo(0, 0);
     });
   };
+
+  // ---------------- cardápio da semana ----------------
+  // As escolhas não salvas ficam em `escolhas`; ao voltar, a tela de pedidos continua como estava.
+  var rolagemPedidos = 0;
+
+  el('verCardapio').onclick = function () {
+    rolagemPedidos = window.scrollY;
+    el('barra').hidden = true;
+    aviso(el('mensagem'), '', '');
+    mostrar('carregando');
+    chamarApi('apiCardapioDaSemana', [], function (r) {
+      desenharCardapio(r);
+      mostrar('cardapio');
+      window.scrollTo(0, 0);
+    }, el('mensagem'), voltarPedidos);
+  };
+
+  function voltarPedidos() {
+    mostrar('pedidos');
+    atualizarBarra();
+    window.scrollTo(0, rolagemPedidos);
+  }
+  el('voltarPedidos').onclick = voltarPedidos;
+
+  function desenharCardapio(r) {
+    var caixa = el('cardapio');
+    caixa.textContent = '';
+    r.semanas.forEach(function (s, i) {
+      // A próxima semana só aparece quando já tem algum dia publicado.
+      if (i > 0 && !s.dias.some(function (d) { return d.publicado; })) return;
+      var sec = criar('section', undefined, 'cardapio-semana');
+      sec.appendChild(criar('h2', (i ? 'Próxima semana, ' : 'Esta semana, ') + intervaloBr(s.dias[0].data, s.dias[s.dias.length - 1].data), 'semana'));
+      s.dias.forEach(function (d) {
+        var linha = criar('article', undefined, 'cardapio-dia');
+        var quando = criar('span', maiuscula(diaExtenso(d.data)), 'quando');
+        if (d.data === r.hoje) quando.appendChild(criar('span', 'hoje', 'hoje'));
+        linha.appendChild(quando);
+        if (!d.publicado) linha.appendChild(criar('span', 'Cardápio ainda não publicado.', 'vazio'));
+        else if (d.tipo !== 'PRATO') linha.appendChild(criar('span', d.observacao || 'Sem almoço neste dia.', 'vazio'));
+        else {
+          linha.appendChild(criar('span', d.prato.replace(/ \/ /g, ', '), 'prato'));
+          if (d.observacao) linha.appendChild(criar('span', d.observacao, 'obs'));
+        }
+        sec.appendChild(linha);
+      });
+      caixa.appendChild(sec);
+    });
+  }
 
   iniciar();
 </script>

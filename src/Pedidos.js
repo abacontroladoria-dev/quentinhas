@@ -71,6 +71,12 @@ function ciclosVisiveis_(hoje) {
   return [atual, somarDias_(atual, 7)];
 }
 
+/** Segunda-feira da semana de calendário a mostrar no cardápio: a de hoje, ou a próxima no sábado e no domingo. */
+function segundaDoCardapio_(hoje) {
+  var semana = lerData_(hoje).getUTCDay();
+  return somarDias_(hoje, semana === 0 ? 1 : semana === 6 ? 2 : 1 - semana);
+}
+
 // ---------- Integração com Apps Script ----------
 
 function agoraLocal_() {
@@ -166,6 +172,31 @@ function apiPedidosDoFuncionario(funcionarioId) {
               atualizado_por: String(p.atualizado_por || '')
             } : null
           };
+        })
+      };
+    })
+  };
+}
+
+/**
+ * Cardápio publicado de segunda a sexta, desta semana e da próxima.
+ * Os ciclos vão de terça a segunda, então cada semana de calendário junta a segunda de um ciclo com os outros dias do seguinte.
+ */
+function apiCardapioDaSemana() {
+  var ss = abrirPlanilha_();
+  var hoje = agoraLocal_().slice(0, 10);
+  var segunda = segundaDoCardapio_(hoje);
+  var pub = diasPublicados_(ss, [inicioDoCiclo_(segunda), somarDias_(segunda, 1), somarDias_(segunda, 8)]);
+  return {
+    hoje: hoje,
+    semanas: [segunda, somarDias_(segunda, 7)].map(function (seg) {
+      return {
+        segunda: seg,
+        dias: [0, 1, 2, 3, 4].map(function (i) {
+          var data = somarDias_(seg, i);
+          var d = pub.porData[data];
+          return d ? { data: data, publicado: true, tipo: d.tipo, prato: d.prato, observacao: d.observacao }
+            : { data: data, publicado: false };
         })
       };
     })

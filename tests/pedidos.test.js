@@ -48,6 +48,14 @@ test('ciclosVisiveis_: ciclo atual e o seguinte', () => {
   assert.deepEqual([...p.ciclosVisiveis_('2026-10-20')], ['2026-10-20', '2026-10-27']);
 });
 
+test('segundaDoCardapio_: segunda da semana de hoje; no fim de semana, a próxima', () => {
+  assert.equal(p.segundaDoCardapio_('2026-10-19'), '2026-10-19'); // segunda
+  assert.equal(p.segundaDoCardapio_('2026-10-21'), '2026-10-19'); // quarta
+  assert.equal(p.segundaDoCardapio_('2026-10-23'), '2026-10-19'); // sexta
+  assert.equal(p.segundaDoCardapio_('2026-10-24'), '2026-10-26'); // sábado
+  assert.equal(p.segundaDoCardapio_('2026-10-25'), '2026-10-26'); // domingo
+});
+
 test('limiteParaFuncionario_: data limite da semana vale só para a primeira resposta', () => {
   const noDia = { hora: '09:30', diasAntes: 0 };
   const lim = (data, ate, respondeu) => ({ ...p.limiteParaFuncionario_(data, noDia, ate, respondeu) });

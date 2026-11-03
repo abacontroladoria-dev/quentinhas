@@ -6,6 +6,7 @@
 var ACOES_API_ = {
   apiInicio: function () { return apiInicio(); },
   apiPedidosDoFuncionario: function (a) { return apiPedidosDoFuncionario(a[0]); },
+  apiCardapioDaSemana: function () { return apiCardapioDaSemana(); },
   apiSalvarPedidos: function (a) { return apiSalvarPedidos(a[0], a[1]); },
   apiCozinha: function (a) { return apiCozinha(a[0], a[1]); },
   apiAdmin: function (a) { return apiAdmin(a[0], a[1], a[2]); }
